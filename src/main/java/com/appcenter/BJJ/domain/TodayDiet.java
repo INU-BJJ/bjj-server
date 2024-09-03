@@ -43,12 +43,6 @@ public class TodayDiet {
         this.restMenu = null;
     }
 
-    public void determineMenu(Long mainMenuId, Long subMenuId) {
-        this.mainMenuId = mainMenuId;
-        this.subMenuId = subMenuId;
-        this.restMenu = null;
-    }
-
     public void determineMenu(Long mainMenuId, Long subMenuId, String restMenu) {
         this.mainMenuId = mainMenuId;
         this.subMenuId = subMenuId;

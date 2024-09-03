@@ -3,6 +3,7 @@ package com.appcenter.BJJ.service;
 import com.appcenter.BJJ.domain.Cafeteria;
 import com.appcenter.BJJ.domain.Menu;
 import com.appcenter.BJJ.domain.TodayDiet;
+import com.appcenter.BJJ.dto.TodayDietRes;
 import com.appcenter.BJJ.repository.CafeteriaRepository;
 import com.appcenter.BJJ.repository.MenuRepository;
 import com.appcenter.BJJ.repository.TodayDietRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -26,13 +28,19 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class TodayDietService {
 
     private final CafeteriaRepository cafeteriaRepository;
     private final MenuRepository menuRepository;
     private final TodayDietRepository todayDietRepository;
+
+    public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
+        List<TodayDietRes> todayDietList = todayDietRepository.findTodayDietByCafeteriaName(cafeteriaName);
+
+        return todayDietList;
+    }
 
     @PostConstruct  // bean 생성 후 실행
     @Scheduled(cron = "0 0 0 * * *")
@@ -198,7 +206,7 @@ public class TodayDietService {
                                                 .build()
                                 )
                         );
-                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId());
+                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId(), subMenu.getMenuName());
                 break;
             case 3:
                 subMenu = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[1], cafeteriaId)
@@ -210,7 +218,7 @@ public class TodayDietService {
                                                 .build()
                                 )
                         );
-                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId(), menuArray[2]);
+                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId(), subMenu.getMenuName() + " " + menuArray[2]);
                 break;
         }
 
