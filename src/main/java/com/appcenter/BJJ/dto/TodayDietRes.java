@@ -1,35 +1,34 @@
 package com.appcenter.BJJ.dto;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TodayDietRes {
 
-    private Long id;
+    private final Long id;
 
-    private String price;
+    private final String price;
 
-    private String kcal;
+    private final String kcal;
 
-    private LocalDate date;
+    private final LocalDate date;
 
-    private Long mainMenuId;
+    private final Long mainMenuId;
 
-    private String mainMenuName;
+    private final String mainMenuName;
 
-    private Long subMenuId;
+    private final Long subMenuId;
 
-    private String restMenu;
+    private final String restMenu;
 
-    private String cafeteriaName;
+    private final String cafeteriaName;
 
-    private String cafeteriaCorner;
+    private final String cafeteriaCorner;
 
     //private Float starMean;
 
