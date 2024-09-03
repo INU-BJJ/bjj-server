@@ -15,15 +15,16 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
                     td.price,
                     td.kcal,
                     td.date,
-                    td.mainMenuId,
+                    mp.mainMenuId,
                     m.menuName,
-                    td.subMenuId,
+                    mp.subMenuId,
                     td.restMenu,
                     c.name,
                     c.corner
                 )
                 FROM TodayDiet td
-                JOIN Menu m ON td.mainMenuId = m.id
+                JOIN MenuPair mp ON td.menuPairId = mp.id
+                JOIN Menu m ON mp.mainMenuId = m.id
                 JOIN Cafeteria c ON m.cafeteriaId = c.id
                 WHERE c.name = :cafeteriaName AND td.date = CURRENT_DATE
             """)

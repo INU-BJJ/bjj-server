@@ -24,9 +24,7 @@ public class TodayDiet {
 
     private LocalDate date;
 
-    private Long mainMenuId;
-
-    private Long subMenuId;
+    private Long menuPairId;
 
     private String restMenu;
 
@@ -37,15 +35,8 @@ public class TodayDiet {
         this.date = date;
     }
 
-    public void determineMenu(Long mainMenuId) {
-        this.mainMenuId = mainMenuId;
-        this.subMenuId = null;
-        this.restMenu = null;
-    }
-
-    public void determineMenu(Long mainMenuId, Long subMenuId, String restMenu) {
-        this.mainMenuId = mainMenuId;
-        this.subMenuId = subMenuId;
+    public void determineMenu(Long menuPairId, String restMenu) {
+        this.menuPairId = menuPairId;
         this.restMenu = restMenu;
     }
 }

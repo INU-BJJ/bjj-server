@@ -2,9 +2,11 @@ package com.appcenter.BJJ.service;
 
 import com.appcenter.BJJ.domain.Cafeteria;
 import com.appcenter.BJJ.domain.Menu;
+import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.TodayDiet;
 import com.appcenter.BJJ.dto.TodayDietRes;
 import com.appcenter.BJJ.repository.CafeteriaRepository;
+import com.appcenter.BJJ.repository.MenuPairRepository;
 import com.appcenter.BJJ.repository.MenuRepository;
 import com.appcenter.BJJ.repository.TodayDietRepository;
 import jakarta.annotation.PostConstruct;
@@ -34,12 +36,12 @@ public class TodayDietService {
 
     private final CafeteriaRepository cafeteriaRepository;
     private final MenuRepository menuRepository;
+    private final MenuPairRepository menuPairRepository;
     private final TodayDietRepository todayDietRepository;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
-        List<TodayDietRes> todayDietList = todayDietRepository.findTodayDietByCafeteriaName(cafeteriaName);
 
-        return todayDietList;
+        return todayDietRepository.findTodayDietByCafeteriaName(cafeteriaName);
     }
 
     @PostConstruct  // bean 생성 후 실행
@@ -182,7 +184,7 @@ public class TodayDietService {
 
         String[] menuArray = menuText.split(" ", 3);
 
-        Menu mainMenu = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[0], cafeteriaId)
+        Long mainMenuId = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[0], cafeteriaId)
                 .orElseGet(() ->
                         menuRepository.save(
                                 Menu.builder()
@@ -190,38 +192,40 @@ public class TodayDietService {
                                         .cafeteriaId(cafeteriaId)
                                         .build()
                         )
-                );
-        Menu subMenu;
-        switch (menuArray.length) {
-            case 1:
-                todayDiet.determineMenu(mainMenu.getId());
-                break;
-            case 2:
-                subMenu = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[1], cafeteriaId)
-                        .orElseGet(() ->
-                                menuRepository.save(
-                                        Menu.builder()
-                                                .menuName(menuArray[1])
-                                                .cafeteriaId(cafeteriaId)
-                                                .build()
-                                )
-                        );
-                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId(), subMenu.getMenuName());
-                break;
-            case 3:
-                subMenu = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[1], cafeteriaId)
-                        .orElseGet(() ->
-                                menuRepository.save(
-                                        Menu.builder()
-                                                .menuName(menuArray[1])
-                                                .cafeteriaId(cafeteriaId)
-                                                .build()
-                                )
-                        );
-                todayDiet.determineMenu(mainMenu.getId(), subMenu.getId(), subMenu.getMenuName() + " " + menuArray[2]);
-                break;
+                ).getId();
+        Long subMenuId;
+        String restMenu = null;
+
+        if (menuArray.length != 1) {
+            Menu subMenu = menuRepository.findFirstByMenuNameAndCafeteriaId(menuArray[1], cafeteriaId)
+                    .orElseGet(() ->
+                            menuRepository.save(
+                                    Menu.builder()
+                                            .menuName(menuArray[1])
+                                            .cafeteriaId(cafeteriaId)
+                                            .build()
+                            )
+                    );
+
+            subMenuId = subMenu.getId();
+            if (menuArray.length == 3) {
+                restMenu = subMenu.getMenuName() + " " + menuArray[2];
+            }
+        } else {
+            subMenuId = null;
         }
 
+        MenuPair menuPair = menuPairRepository.findFirstByMainMenuIdAndSubMenuId(mainMenuId, subMenuId)
+                .orElseGet(() ->
+                        menuPairRepository.save(
+                                MenuPair.builder()
+                                        .mainMenuId(mainMenuId)
+                                        .subMenuId(subMenuId)
+                                        .build()
+                        )
+                );
+
+        todayDiet.determineMenu(menuPair.getId(), restMenu);
         todayDietRepository.save(todayDiet);
     }
 }
