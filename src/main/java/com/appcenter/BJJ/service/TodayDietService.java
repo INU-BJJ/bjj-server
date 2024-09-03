@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.Cafeteria;
 import com.appcenter.BJJ.domain.Menu;
 import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.TodayDiet;
+import com.appcenter.BJJ.dto.TodayMenuRes;
 import com.appcenter.BJJ.dto.TodayDietRes;
 import com.appcenter.BJJ.repository.CafeteriaRepository;
 import com.appcenter.BJJ.repository.MenuPairRepository;
@@ -41,7 +42,12 @@ public class TodayDietService {
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
 
-        return todayDietRepository.findTodayDietByCafeteriaName(cafeteriaName);
+        return todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+    }
+
+    public List<TodayMenuRes> findMainMenusByCafeteria(String cafeteriaName) {
+
+        return todayDietRepository.findTodayMainMenusByCafeteriaName(cafeteriaName);
     }
 
     @PostConstruct  // bean 생성 후 실행

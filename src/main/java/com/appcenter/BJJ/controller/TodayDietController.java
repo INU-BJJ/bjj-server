@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.controller;
 
+import com.appcenter.BJJ.dto.TodayMenuRes;
 import com.appcenter.BJJ.dto.TodayDietRes;
 import com.appcenter.BJJ.service.TodayDietService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,12 @@ public class TodayDietController {
         List<TodayDietRes> todayDietList = todayDietService.findByCafeteria(cafeteriaName);
 
         return ResponseEntity.ok(todayDietList);
+    }
+
+    @GetMapping("/main-menus")
+    public ResponseEntity<List<TodayMenuRes>> getTodayMainMenusByCafeteriaName(String cafeteriaName) {
+        List<TodayMenuRes> todayMainMenuList = todayDietService.findMainMenusByCafeteria(cafeteriaName);
+
+        return ResponseEntity.ok(todayMainMenuList);
     }
 }
