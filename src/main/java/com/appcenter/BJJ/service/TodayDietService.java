@@ -58,6 +58,10 @@ public class TodayDietService {
 
         /* 오늘 날짜 00/00 형식으로 저장 */
         LocalDate localDate = LocalDate.now();
+        if (todayDietRepository.existsByDate(localDate)) {
+            log.info("[로그] 크롤링 스킵, 이미 {} 날짜의 데이터가 존재합니다.", localDate);
+            return;
+        }
         String today = String.format("%02d", localDate.getMonthValue()) + "/" + String.format("%02d", localDate.getDayOfMonth());
         log.info("[로그] 오늘 날짜 가져오기, today = {}", today);
 

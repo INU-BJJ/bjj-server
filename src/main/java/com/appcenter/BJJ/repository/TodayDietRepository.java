@@ -6,9 +6,12 @@ import com.appcenter.BJJ.dto.TodayDietRes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
+
+    boolean existsByDate(LocalDate date);
 
     @Query("""
         SELECT new com.appcenter.BJJ.dto.TodayDietRes(
