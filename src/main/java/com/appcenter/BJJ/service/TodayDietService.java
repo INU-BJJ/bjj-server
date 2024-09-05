@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,7 +48,20 @@ public class TodayDietService {
 
     public List<TodayMenuRes> findMainMenusByCafeteria(String cafeteriaName) {
 
-        return todayDietRepository.findTodayMainMenusByCafeteriaName(cafeteriaName);
+        List<TodayMenuRes> todayMenuResList = todayDietRepository.findTodayMainMenusByCafeteriaName(cafeteriaName);
+        LocalTime now = LocalTime.now();
+
+        return todayMenuResList.stream().filter(todayMenuRes -> {
+            if (now.isBefore(LocalTime.of(8, 0))){
+                return false;
+            } else if (now.isBefore(LocalTime.of(10, 30))) {
+                return todayMenuRes.getCafeteriaCorner().contains("조식");
+            } else if (now.isBefore(LocalTime.of(17, 0))) {
+                return !todayMenuRes.getCafeteriaCorner().contains("석식");
+            } else {
+                return true;
+            }
+        }).toList();
     }
 
     @PostConstruct  // bean 생성 후 실행
