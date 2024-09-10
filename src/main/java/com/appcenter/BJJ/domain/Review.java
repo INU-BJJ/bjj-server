@@ -19,6 +19,7 @@ public class Review {
     @GeneratedValue
     private Long id;
 
+    @Column(columnDefinition = "text")
     private String comment;
 
     private Integer rating;
