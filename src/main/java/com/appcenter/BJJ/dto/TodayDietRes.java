@@ -18,6 +18,8 @@ public class TodayDietRes {
 
     private final LocalDate date;
 
+    private final Long menuPairId;
+
     private final Long mainMenuId;
 
     private final String mainMenuName;
@@ -30,7 +32,7 @@ public class TodayDietRes {
 
     private final String cafeteriaCorner;
 
-    //private Float starMean;
+    private final Float reviewRatingAverage;
 
-    //private String reviewImage;
+    //private final String reviewImagePath;
 }

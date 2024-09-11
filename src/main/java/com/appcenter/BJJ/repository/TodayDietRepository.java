@@ -19,12 +19,14 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
             td.price,
             td.kcal,
             td.date,
+            td.menuPairId,
             mp.mainMenuId,
             m.menuName,
             mp.subMenuId,
             td.restMenu,
             c.name,
-            c.corner
+            c.corner,
+            mp.reviewAverageRating
         )
         FROM TodayDiet td
         JOIN MenuPair mp ON td.menuPairId = mp.id
