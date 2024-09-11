@@ -3,6 +3,7 @@ package com.appcenter.BJJ.service;
 import com.appcenter.BJJ.domain.Image;
 import com.appcenter.BJJ.domain.Review;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
+import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ImageService imageService;
 
     @Transactional
     public long create(ReviewPost reviewPost, List<Image> images, Long memberId) {
@@ -28,5 +28,25 @@ public class ReviewService {
         Review review = reviewPost.toEntity(memberId, images);
 
         return reviewRepository.save(review).getId();
+    }
+
+    public List<ReviewRes> findByMenuPair(Long menuPairId) {
+
+        List<Review> reviewList = reviewRepository.findByMenuPairId(menuPairId);
+
+        return reviewList.stream().map(review -> {
+            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+
+            return ReviewRes.builder()
+                    .id(review.getId())
+                    .comment(review.getComment())
+                    .rating(review.getRating())
+                    .imagePaths(imagePathList)
+                    .likeCount(review.getLikeCount())
+                    .createdDate(review.getCreatedDate())
+                    .memberId(review.getMemberId())
+                    .menuPairId(review.getMenuPairId())
+                    .build();
+        }).toList();
     }
 }

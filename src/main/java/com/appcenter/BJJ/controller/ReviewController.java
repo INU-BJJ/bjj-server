@@ -2,6 +2,7 @@ package com.appcenter.BJJ.controller;
 
 import com.appcenter.BJJ.domain.Image;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
+import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.service.ImageService;
 import com.appcenter.BJJ.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,14 @@ public class ReviewController {
         long reviewId = reviewService.create(reviewPost, images, memberId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReviewRes>> getReviewsByMenuPairId(Long menuPairId) {
+
+        List<ReviewRes> reviewResList = reviewService.findByMenuPair(menuPairId);
+
+        return ResponseEntity.ok(reviewResList);
     }
 
 
