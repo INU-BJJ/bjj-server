@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,9 +25,8 @@ public class Review {
 
     private Integer rating;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "review_id")
-    private List<Image> images;
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
 
     private Long likeCount;
 
@@ -37,10 +37,9 @@ public class Review {
     private Long menuPairId;
 
     @Builder
-    private Review(String comment, Integer rating, List<Image> images, Long memberId, Long menuPairId) {
+    private Review(String comment, Integer rating, Long memberId, Long menuPairId) {
         this.comment = comment;
         this.rating = rating;
-        this.images = images;
         this.likeCount = 0L;
         this.createdDate = LocalDate.now();
         this.memberId = memberId;

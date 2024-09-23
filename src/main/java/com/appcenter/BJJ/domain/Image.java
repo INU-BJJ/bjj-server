@@ -1,13 +1,7 @@
 package com.appcenter.BJJ.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -17,7 +11,8 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "file_tb")
+@Table(name = "image_tb")
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {
 
@@ -31,14 +26,19 @@ public class Image {
 
     private String path;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id")
+    private Review review;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private Image(String name, String type, String path) {
+    private Image(String name, String type, String path, Review review) {
         this.name = name;
         this.type = type;
         this.path = path;
+        this.review = review;
     }
 
-    public static Image of(MultipartFile file, String folderPath) throws IOException {
+    public static Image of(MultipartFile file, Review review, String folderPath) throws IOException {
 
         // 파일 확장자 추출
         String originalFilename = file.getOriginalFilename();
@@ -55,6 +55,7 @@ public class Image {
                 .name(uniqueFileName)
                 .type(file.getContentType())
                 .path(filePath)
+                .review(review)
                 .build();
     }
 

@@ -8,7 +8,9 @@ import com.appcenter.BJJ.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -18,14 +20,30 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
+    private final String REVIEW_FOLDER_PATH = "C:\\BJJ\\ReviewImages\\";
+
     @Transactional
-    public long create(ReviewPost reviewPost, List<Image> images, Long memberId) {
+    public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
 
         if (memberId == null) {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
         }
 
-        Review review = reviewPost.toEntity(memberId, images);
+        Review review = reviewPost.toEntity(memberId);
+
+        // .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size exceeded]
+        // 파일 최대 용량 초과 에러에 대한 예외 처리 필요
+        // 이미지 변환
+        if (files != null) {
+            files.forEach(file -> {
+                try {
+                    Image image = Image.of(file, review, REVIEW_FOLDER_PATH);
+                    review.getImages().add(image);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
 
         return reviewRepository.save(review).getId();
     }

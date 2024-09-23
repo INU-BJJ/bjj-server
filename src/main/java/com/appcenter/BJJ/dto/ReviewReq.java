@@ -20,11 +20,10 @@ public interface ReviewReq {
 
         private Long menuPairId;
 
-        public Review toEntity(long memberId, List<Image> images) {
+        public Review toEntity(long memberId) {
             return Review.builder()
                     .comment(comment)
                     .rating(rating)
-                    .images(images)
                     .memberId(memberId)
                     .menuPairId(menuPairId)
                     .build();
