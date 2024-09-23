@@ -1,9 +1,11 @@
 package com.appcenter.BJJ.service;
 
 import com.appcenter.BJJ.domain.Image;
+import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.Review;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.dto.ReviewRes;
+import com.appcenter.BJJ.repository.MenuPairRepository;
 import com.appcenter.BJJ.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final MenuPairRepository menuPairRepository;
 
     private final String REVIEW_FOLDER_PATH = "C:\\BJJ\\ReviewImages\\";
 
@@ -29,7 +32,9 @@ public class ReviewService {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
         }
 
-        Review review = reviewPost.toEntity(memberId);
+        MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+        Review review = reviewPost.toEntity(memberId, menuPair);
 
         // .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size exceeded]
         // 파일 최대 용량 초과 에러에 대한 예외 처리 필요
@@ -50,7 +55,10 @@ public class ReviewService {
 
     public List<ReviewRes> findByMenuPair(Long menuPairId) {
 
-        List<Review> reviewList = reviewRepository.findByMenuPairId(menuPairId);
+        MenuPair menuPair = menuPairRepository.findById(menuPairId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+
+        List<Review> reviewList = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId());
 
         return reviewList.stream().map(review -> {
             List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
@@ -63,7 +71,9 @@ public class ReviewService {
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())
-                    .menuPairId(review.getMenuPairId())
+                    .menuPairId(review.getMenuPair().getId())
+                    .mainMenuId(review.getMenuPair().getMainMenuId())
+                    .subMenuId(review.getMenuPair().getSubMenuId())
                     .build();
         }).toList();
     }

@@ -34,15 +34,17 @@ public class Review {
 
     private Long memberId;
 
-    private Long menuPairId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_pair_id")
+    private MenuPair menuPair;
 
     @Builder
-    private Review(String comment, Integer rating, Long memberId, Long menuPairId) {
+    private Review(String comment, Integer rating, Long memberId, MenuPair menuPair) {
         this.comment = comment;
         this.rating = rating;
         this.likeCount = 0L;
         this.createdDate = LocalDate.now();
         this.memberId = memberId;
-        this.menuPairId = menuPairId;
+        this.menuPair = menuPair;
     }
 }

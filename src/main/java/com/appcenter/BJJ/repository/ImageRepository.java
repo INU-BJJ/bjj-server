@@ -13,7 +13,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
         WHERE i.review.id = (
             SELECT r.id
             FROM Review r
-            WHERE r.menuPairId = :menuPairId AND SIZE(r.images) > 0
+            WHERE r.menuPair.id = :menuPairId AND SIZE(r.images) > 0
             ORDER BY r.likeCount DESC
         )
         ORDER BY i.id ASC

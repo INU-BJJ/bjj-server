@@ -8,8 +8,15 @@ import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    List<Review> findByMenuPairId(Long menuPairId);
+    @Query("""
+        SELECT r
+        FROM Review r
+        JOIN Menu m ON r.menuPair.mainMenuId = m.id OR r.menuPair.subMenuId = m.id
+        WHERE m.id = :mainMenuId OR m.id = :subMenuId
+        
+    """)
+    List<Review> findByMainMenuIdOrSubMenuId(Long mainMenuId, Long subMenuId);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPairId = :menuPairId")
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPair.id = :menuPairId")
     Float findAverageRatingByMenuPairId(Long menuPairId);
 }

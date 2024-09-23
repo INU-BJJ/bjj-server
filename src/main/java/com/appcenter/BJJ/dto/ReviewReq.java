@@ -1,12 +1,10 @@
 package com.appcenter.BJJ.dto;
 
-import com.appcenter.BJJ.domain.Image;
+import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.Review;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 public interface ReviewReq {
 
@@ -20,12 +18,12 @@ public interface ReviewReq {
 
         private Long menuPairId;
 
-        public Review toEntity(long memberId) {
+        public Review toEntity(long memberId, MenuPair menuPair) {
             return Review.builder()
                     .comment(comment)
                     .rating(rating)
                     .memberId(memberId)
-                    .menuPairId(menuPairId)
+                    .menuPair(menuPair)
                     .build();
         }
 

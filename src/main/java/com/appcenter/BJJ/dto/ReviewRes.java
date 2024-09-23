@@ -28,4 +28,8 @@ public class ReviewRes {
     private final Long memberId;
 
     private final Long menuPairId;
+
+    private final Long mainMenuId;
+
+    private final Long subMenuId;
 }
