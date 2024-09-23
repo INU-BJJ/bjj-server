@@ -1,13 +1,11 @@
 package com.appcenter.BJJ.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TodayDietRes {
 
     private final Long id;
@@ -34,5 +32,6 @@ public class TodayDietRes {
 
     private final Float reviewRatingAverage;
 
-    //private final String reviewImagePath;
+    @Setter
+    private String reviewImagePath;
 }

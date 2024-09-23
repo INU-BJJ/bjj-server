@@ -1,15 +1,9 @@
 package com.appcenter.BJJ.service;
 
-import com.appcenter.BJJ.domain.Cafeteria;
-import com.appcenter.BJJ.domain.Menu;
-import com.appcenter.BJJ.domain.MenuPair;
-import com.appcenter.BJJ.domain.TodayDiet;
-import com.appcenter.BJJ.dto.TodayMenuRes;
+import com.appcenter.BJJ.domain.*;
 import com.appcenter.BJJ.dto.TodayDietRes;
-import com.appcenter.BJJ.repository.CafeteriaRepository;
-import com.appcenter.BJJ.repository.MenuPairRepository;
-import com.appcenter.BJJ.repository.MenuRepository;
-import com.appcenter.BJJ.repository.TodayDietRepository;
+import com.appcenter.BJJ.dto.TodayMenuRes;
+import com.appcenter.BJJ.repository.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +11,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.data.domain.Limit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,13 +32,24 @@ import java.util.regex.Pattern;
 public class TodayDietService {
 
     private final CafeteriaRepository cafeteriaRepository;
+    private final ImageRepository imageRepository;
     private final MenuRepository menuRepository;
     private final MenuPairRepository menuPairRepository;
     private final TodayDietRepository todayDietRepository;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
 
-        return todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+        List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+
+        todayDietResList.forEach(todayDietRes -> {
+            Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId(), Limit.of(1));
+
+            if (image != null) {
+                todayDietRes.setReviewImagePath(image.getPath());
+            }
+        });
+
+        return todayDietResList;
     }
 
     public List<TodayMenuRes> findMainMenusByCafeteria(String cafeteriaName) {
