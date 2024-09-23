@@ -34,11 +34,11 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewRes>> getReviewsByMenuPairId(Long menuPairId) {
+    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int page, int limit) {
+        // page는 1부터 시작
+        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, page, limit);
 
-        List<ReviewRes> reviewResList = reviewService.findByMenuPair(menuPairId);
-
-        return ResponseEntity.ok(reviewResList);
+        return ResponseEntity.ok(reviewRes);
     }
 
     @DeleteMapping("/{reviewId}")

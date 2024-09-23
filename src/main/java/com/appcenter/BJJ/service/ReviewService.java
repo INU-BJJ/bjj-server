@@ -4,11 +4,14 @@ import com.appcenter.BJJ.domain.Image;
 import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.Review;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
+import com.appcenter.BJJ.dto.ReviewDetailRes;
 import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.repository.MenuPairRepository;
 import com.appcenter.BJJ.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,17 +58,19 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
-    public List<ReviewRes> findByMenuPair(Long menuPairId) {
+    public ReviewRes findByMenuPair(Long menuPairId, int page, int limit) {
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
 
-        List<Review> reviewList = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId());
+        Page<Review> reviewPage = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of((page - 1) * limit, limit));
 
-        return reviewList.stream().map(review -> {
+        List<Review> reviewList =reviewPage.getContent();
+
+        List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
             List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
 
-            return ReviewRes.builder()
+            return ReviewDetailRes.builder()
                     .id(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
@@ -78,6 +83,11 @@ public class ReviewService {
                     .subMenuId(review.getMenuPair().getSubMenuId())
                     .build();
         }).toList();
+
+        return ReviewRes.builder()
+                .reviewDetailList(reviewDetailList)
+                .isLastPage(reviewPage.isLast())
+                .build();
     }
 
     @Transactional
