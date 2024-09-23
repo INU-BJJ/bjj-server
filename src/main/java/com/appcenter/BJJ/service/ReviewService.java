@@ -8,6 +8,7 @@ import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.repository.MenuPairRepository;
 import com.appcenter.BJJ.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -76,5 +78,20 @@ public class ReviewService {
                     .subMenuId(review.getMenuPair().getSubMenuId())
                     .build();
         }).toList();
+    }
+
+    @Transactional
+    public void delete(Long reviewId) {
+
+        reviewRepository.findById(reviewId).ifPresent(review -> {
+            review.getImages().forEach(image -> {
+                boolean result = image.removeImageFromPath();
+
+                if (!result) {
+                    log.info("이미지 {} 삭제에 실패했습니다.", image.getName());
+                }
+            });
+            reviewRepository.delete(review);
+        });
     }
 }

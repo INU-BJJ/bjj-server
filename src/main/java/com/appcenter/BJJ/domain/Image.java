@@ -59,5 +59,10 @@ public class Image {
                 .build();
     }
 
+    public boolean removeImageFromPath() {
+        File file = new File(path);
+        return file.delete();
+    }
+
 
 }

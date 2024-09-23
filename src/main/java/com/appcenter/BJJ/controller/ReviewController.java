@@ -41,5 +41,12 @@ public class ReviewController {
         return ResponseEntity.ok(reviewResList);
     }
 
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
+
+        reviewService.delete(reviewId);
+
+        return ResponseEntity.noContent().build();
+    }
 
 }
