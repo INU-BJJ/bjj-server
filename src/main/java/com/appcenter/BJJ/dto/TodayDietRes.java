@@ -30,6 +30,8 @@ public class TodayDietRes {
 
     private final String cafeteriaCorner;
 
+    private final int reviewCount;
+
     private final Float reviewRatingAverage;
 
     @Setter

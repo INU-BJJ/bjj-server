@@ -16,13 +16,15 @@ public class MenuPairService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public void reloadReviewAverageRating(Long menuPairId) {
+    public void refreshReviewCountAndRating(Long menuPairId) {
 
+        int reviewCount = reviewRepository.countByMenuPair_Id(menuPairId);
         Float reviewAverageRating = reviewRepository.findAverageRatingByMenuPairId(menuPairId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid menuPair ID"));
 
+        menuPair.updateReviewCount(reviewCount);
         menuPair.updateReviewAverageRating(reviewAverageRating);
 
         menuPairRepository.save(menuPair);

@@ -26,6 +26,7 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
             td.restMenu,
             c.name,
             c.corner,
+            mp.reviewCount,
             mp.reviewAverageRating
         )
         FROM TodayDiet td

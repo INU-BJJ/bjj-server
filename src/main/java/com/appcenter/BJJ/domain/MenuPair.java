@@ -23,16 +23,28 @@ public class MenuPair {
 
     private Long subMenuId;
 
+    private int reviewCount;
+
     private Float reviewAverageRating;
 
     @Builder
     private MenuPair(Long mainMenuId, Long subMenuId) {
         this.mainMenuId = mainMenuId;
         this.subMenuId = subMenuId;
+        this.reviewCount = 0;
         this.reviewAverageRating = 0F;
     }
 
+    public void updateReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
     public void updateReviewAverageRating(Float reviewAverageRating) {
+
+        if (reviewAverageRating == null) {
+            reviewAverageRating = 0F;
+        }
+
         // 소수점 이하 2자리로 제한
         BigDecimal roundedAverage = BigDecimal.valueOf(reviewAverageRating)
                 .setScale(2, RoundingMode.HALF_UP);

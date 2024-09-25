@@ -27,8 +27,8 @@ public class ReviewController {
         // 리뷰 생성
         long reviewId = reviewService.create(reviewPost, files, memberId);
 
-        // 리뷰 별점 반영
-        menuPairService.reloadReviewAverageRating(reviewPost.getMenuPairId());
+        // 리뷰 별점 및 개수 반영
+        menuPairService.refreshReviewCountAndRating(reviewPost.getMenuPairId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
     }
@@ -52,7 +52,12 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
 
-        reviewService.delete(reviewId);
+        Long menuPairId = reviewService.delete(reviewId);
+
+        // 리뷰 별점 및 개수 반영
+        if (menuPairId != null) {
+            menuPairService.refreshReviewCountAndRating(menuPairId);
+        }
 
         return ResponseEntity.noContent().build();
     }

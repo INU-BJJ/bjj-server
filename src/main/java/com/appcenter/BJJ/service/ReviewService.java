@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -120,9 +121,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void delete(Long reviewId) {
+    public Long delete(Long reviewId) {
 
-        reviewRepository.findById(reviewId).ifPresent(review -> {
+        Long menuPairId = null;
+
+        Optional<Review> optionalReview = reviewRepository.findById(reviewId);
+        if (optionalReview.isPresent()) {
+            Review review = optionalReview.get();
+
             review.getImages().forEach(image -> {
                 boolean result = image.removeImageFromPath();
 
@@ -130,7 +136,12 @@ public class ReviewService {
                     log.info("이미지 {} 삭제에 실패했습니다.", image.getName());
                 }
             });
+
+            menuPairId = review.getMenuPair().getId();
+
             reviewRepository.delete(review);
-        });
+        }
+
+        return menuPairId;
     }
 }
