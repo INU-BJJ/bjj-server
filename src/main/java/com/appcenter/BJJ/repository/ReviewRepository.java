@@ -17,6 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     """)
     Page<Review> findByMainMenuIdOrSubMenuId(Long mainMenuId, Long subMenuId, Pageable pageable);
 
+    Page<Review> findByMemberIdOrderByCreatedDateDesc(Long memberId, Pageable pageable);
+
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPair.id = :menuPairId")
     Float findAverageRatingByMenuPairId(Long menuPairId);
 }

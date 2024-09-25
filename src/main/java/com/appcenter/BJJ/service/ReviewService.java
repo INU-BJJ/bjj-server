@@ -90,6 +90,35 @@ public class ReviewService {
                 .build();
     }
 
+    public ReviewRes findMyReviews(Long memberId, int page, int limit) {
+
+        Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of((page - 1) * limit, limit));
+
+        List<Review> reviewList = reviewPage.getContent();
+
+        List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
+            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+
+            return ReviewDetailRes.builder()
+                    .id(review.getId())
+                    .comment(review.getComment())
+                    .rating(review.getRating())
+                    .imagePaths(imagePathList)
+                    .likeCount(review.getLikeCount())
+                    .createdDate(review.getCreatedDate())
+                    .memberId(review.getMemberId())
+                    .menuPairId(review.getMenuPair().getId())
+                    .mainMenuId(review.getMenuPair().getMainMenuId())
+                    .subMenuId(review.getMenuPair().getSubMenuId())
+                    .build();
+        }).toList();
+
+        return ReviewRes.builder()
+                .reviewDetailList(reviewDetailList)
+                .isLastPage(reviewPage.isLast())
+                .build();
+    }
+
     @Transactional
     public void delete(Long reviewId) {
 

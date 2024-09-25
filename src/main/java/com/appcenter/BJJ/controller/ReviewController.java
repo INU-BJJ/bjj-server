@@ -41,6 +41,14 @@ public class ReviewController {
         return ResponseEntity.ok(reviewRes);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int page, int limit) {
+
+        ReviewRes reviewRes = reviewService.findMyReviews(memberId, page, limit);
+
+        return ResponseEntity.ok(reviewRes);
+    }
+
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
 
