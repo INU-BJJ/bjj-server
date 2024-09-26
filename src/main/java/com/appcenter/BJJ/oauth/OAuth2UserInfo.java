@@ -2,13 +2,14 @@ package com.appcenter.BJJ.oauth;
 
 import com.appcenter.BJJ.exception.CustomException;
 import com.appcenter.BJJ.exception.ErrorCode;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.Map;
 
-@Builder
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OAuth2UserInfo {
     private String provider;
     private String providerId;
