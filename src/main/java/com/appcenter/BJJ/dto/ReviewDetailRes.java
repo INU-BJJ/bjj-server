@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReviewDetailRes {
 
-    private final Long id;
+    private final Long reviewId;
 
     private final String comment;
 

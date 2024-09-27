@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TodayDietRes {
 
-    private final Long id;
+    private final Long todayDietId;
 
     private final String price;
 

@@ -72,7 +72,7 @@ public class ReviewService {
             List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
 
             return ReviewDetailRes.builder()
-                    .id(review.getId())
+                    .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
                     .imagePaths(imagePathList)
@@ -101,7 +101,7 @@ public class ReviewService {
             List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
 
             return ReviewDetailRes.builder()
-                    .id(review.getId())
+                    .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
                     .imagePaths(imagePathList)
