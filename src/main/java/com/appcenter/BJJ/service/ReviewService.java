@@ -59,12 +59,12 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
-    public ReviewRes findByMenuPair(Long menuPairId, int page, int limit) {
+    public ReviewRes findByMenuPair(Long menuPairId, int pageNumber, int pageSize) {
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
 
-        Page<Review> reviewPage = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of((page - 1) * limit, limit));
+        Page<Review> reviewPage = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
 
         List<Review> reviewList =reviewPage.getContent();
 
@@ -91,9 +91,9 @@ public class ReviewService {
                 .build();
     }
 
-    public ReviewRes findMyReviews(Long memberId, int page, int limit) {
+    public ReviewRes findMyReviews(Long memberId, int pageNumber, int pageSize) {
 
-        Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of((page - 1) * limit, limit));
+        Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of(pageNumber, pageSize));
 
         List<Review> reviewList = reviewPage.getContent();
 

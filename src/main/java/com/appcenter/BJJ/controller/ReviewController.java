@@ -34,17 +34,17 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int page, int limit) {
+    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize) {
         // page는 1부터 시작
-        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, page, limit);
+        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, pageNumber, pageSize);
 
         return ResponseEntity.ok(reviewRes);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int page, int limit) {
+    public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int pageNumber, int pageSize) {
 
-        ReviewRes reviewRes = reviewService.findMyReviews(memberId, page, limit);
+        ReviewRes reviewRes = reviewService.findMyReviews(memberId, pageNumber, pageSize);
 
         return ResponseEntity.ok(reviewRes);
     }
