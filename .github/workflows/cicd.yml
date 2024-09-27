@@ -43,8 +43,8 @@ jobs:
       - name: Docker build & push
         if: contains(github.ref, 'main')
         run: |
-          docker build -f Dockerfile -t myrepo/bjj:latest .
-          docker push myrepo/bjj:latest
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/bjj:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/bjj:latest
 
       # 도커 이미지 배포
       - name: Deploy docker image
