@@ -29,7 +29,9 @@ jobs:
 
       # gradle build
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
 
       # 도커 이미지 생성 & 도커 허브에 이미지 푸시
       - name: Docker build & push
