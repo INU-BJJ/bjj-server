@@ -1,9 +1,6 @@
 package com.appcenter.BJJ.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,13 +20,19 @@ public class ReviewDetailRes {
 
     private final Long likeCount;
 
-    private final LocalDate createdDate;
+    private final boolean isLikedMenu;
 
-    private final Long memberId;
+    private final LocalDate createdDate;
 
     private final Long menuPairId;
 
     private final Long mainMenuId;
 
     private final Long subMenuId;
+
+    private final Long memberId;
+
+    private final String memberNickname;
+
+    private final String memberImagePath;
 }
