@@ -56,4 +56,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           key: ${{ secrets.SERVER_KEY }}
-          script: sh /bjj/deploy-bjj.sh
+          script: sh bjj/deploy-bjj.sh
