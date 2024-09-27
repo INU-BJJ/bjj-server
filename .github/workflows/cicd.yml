@@ -37,7 +37,6 @@ jobs:
       - name: Docker build & push
         if: contains(github.ref, 'main')
         run: |
-          echo "${{ secrets.PASSWORD }}" | docker login -u "${{ secrets.USERNAME }}" --password-stdin ${{ secrets.HOST }}
           docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/bjj .
           docker push ${{ secrets.DOCKER_USERNAME }}/bjj
 
