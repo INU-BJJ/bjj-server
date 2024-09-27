@@ -56,8 +56,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           key: ${{ secrets.SERVER_KEY }}
-          script: |
-            sudo docker ps
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/bjj
-            sudo docker run -d -p 8020:8020 ${{ secrets.DOCKER_USERNAME }}/bjj
-            sudo docker image prune -f
+          script: sh /bjj/deploy-bjj.sh
