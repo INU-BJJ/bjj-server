@@ -36,4 +36,7 @@ public class TodayDietRes {
 
     @Setter
     private String reviewImagePath;
+
+    @Setter
+    private boolean isLikedMenu;
 }
