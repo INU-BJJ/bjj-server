@@ -41,7 +41,6 @@ jobs:
 
       # 도커 이미지 생성 & 도커 허브에 이미지 푸시
       - name: Docker build & push
-        if: contains(github.ref, 'main')
         run: |
           docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/bjj:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/bjj:latest
@@ -49,8 +48,6 @@ jobs:
       # 도커 이미지 배포
       - name: Deploy docker image
         uses: appleboy/ssh-action@master
-        id: deploy-dev
-        if: contains(github.ref, 'main')
         with:
           host: ${{ secrets.HOST}}
           username: ${{ secrets.USERNAME }}
