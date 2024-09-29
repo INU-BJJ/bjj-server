@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.controller;
 
+import com.appcenter.BJJ.domain.Sort;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.service.MenuPairService;
@@ -34,9 +35,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize) {
+    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
         // page는 1부터 시작
-        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, pageNumber, pageSize);
+        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         return ResponseEntity.ok(reviewRes);
     }

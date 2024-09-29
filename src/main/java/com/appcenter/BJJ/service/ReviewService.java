@@ -3,15 +3,18 @@ package com.appcenter.BJJ.service;
 import com.appcenter.BJJ.domain.Image;
 import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.Review;
+import com.appcenter.BJJ.domain.Sort;
 import com.appcenter.BJJ.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.dto.ReviewDetailRes;
 import com.appcenter.BJJ.dto.ReviewRes;
 import com.appcenter.BJJ.repository.MenuPairRepository;
 import com.appcenter.BJJ.repository.ReviewRepository;
+import com.appcenter.BJJ.repository.ReviewSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,16 +62,19 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
-    public ReviewRes findByMenuPair(Long menuPairId, int pageNumber, int pageSize) {
+    public ReviewRes findByMenuPair(Long menuPairId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
 
-        Page<Review> reviewPage = reviewRepository.findByMainMenuIdOrSubMenuId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
+        Specification<Review> spec = Specification.where(ReviewSpecifications.withMainMenuId(menuPair.getMainMenuId()))
+                .or(ReviewSpecifications.withSubMenuId(menuPair.getSubMenuId()))
+                .and(ReviewSpecifications.withImages(isWithImages))
+                .and(ReviewSpecifications.sortedBy(sort, menuPair.getMainMenuId(), menuPair.getSubMenuId()));
 
-        List<Review> reviewList =reviewPage.getContent();
+        Page<Review> reviewPage = reviewRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
+        List<ReviewDetailRes> reviewDetailList = reviewPage.getContent().stream().map(review -> {
             List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
 
             return ReviewDetailRes.builder()
