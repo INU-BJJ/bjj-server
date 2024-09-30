@@ -6,11 +6,17 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
+    @Value("${server.protocol}")
+    private String protocol;
+    @Value("${server.host}")
+    private String host;
+
     @Bean
     public OpenAPI openAPI() {
         String jwt = "JWT";
@@ -23,7 +29,7 @@ public class SwaggerConfig {
         );
         return new OpenAPI()
                 //현재 url인 https로 요청이 오도록 설정 (설정 안하면 http로 요청)
-                .addServersItem(new Server().url("/"))
+                .addServersItem(new Server().url(protocol + "://" + host).description("https 호스트"))
                 .components(new Components())
                 .info(apiInfo())
                 .addSecurityItem(securityRequirement)
