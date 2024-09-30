@@ -43,7 +43,9 @@ public class ReviewController {
                     - 식당별 리뷰와 리뷰에 대한 모든 정보 보여줌\s
                     - 10개씩 리뷰 조회\s
                     - pageNumber은 1부터 시작 (1..10 -> 11->20 -> 21..30)\s
-                    - 마지막 페이지 여부 알려줌 (lastPage)""")
+                    - 마지막 페이지 여부 알려줌 (lastPage)\s
+                    - responseDTO : ReviewRes
+                    """)
     @GetMapping
     public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
         // page는 1부터 시작
@@ -53,7 +55,11 @@ public class ReviewController {
     }
 
     @Operation(summary = "회원이 작성한 리뷰 조회",
-            description = "- 회원이 작성한 리뷰 조회 \n - 10개씩 리뷰 조회 \n - pageNumber은 1부터 시작 (1..10 -> 11->20 -> 21..30)")
+            description = """
+                    - 회원이 작성한 리뷰 조회\s
+                     - 10개씩 리뷰 조회\s
+                     - pageNumber은 1부터 시작 (1..10 -> 11->20 -> 21..30)\s
+                     - responseDTO : ReviewRes""")
     @GetMapping("/my")
     public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int pageNumber, int pageSize) {
 
@@ -62,7 +68,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewRes);
     }
 
-    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제")
+    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
 

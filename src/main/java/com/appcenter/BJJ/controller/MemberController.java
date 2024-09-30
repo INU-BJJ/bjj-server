@@ -23,7 +23,10 @@ import java.util.Map;
 public class MemberController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원가입", description = "소셜로그인 처음 이용시 연결")
+    @Operation(summary = "회원가입",
+            description = """
+            - 소셜로그인 처음 이용시 연결\s
+            - requestDTO : SignupDTO\s""")
     @PostMapping("/sign-up")
     public ResponseEntity<Map<String, String>> signUp(@RequestBody SignupDTO signupDTO) {
         log.info("MemberController-signUp: 진입");

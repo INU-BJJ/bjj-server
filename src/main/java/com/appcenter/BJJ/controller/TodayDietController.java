@@ -22,7 +22,10 @@ public class TodayDietController {
     private final TodayDietService todayDietService;
 
     @Operation(summary = "모든 오늘의 식단 조회",
-            description = "식당별 모든 식단에 대한 정보 조회")
+            description = """
+                    - 식당별 모든 식단에 대한 정보 조회\s
+                    - responseDTO : TodayDietRes""")
+
     @GetMapping
     public ResponseEntity<List<TodayDietRes>> getTodayDietsByCafeteriaName(String cafeteriaName) {
         List<TodayDietRes> todayDietList = todayDietService.findByCafeteria(cafeteriaName);
@@ -31,7 +34,10 @@ public class TodayDietController {
     }
 
     @Operation(summary = "오늘의 식단 메인 메뉴 조회",
-            description = "식당별 오늘의 식단 중 메인 메뉴에 대한 정보 조회")
+            description = """
+                    - 식당별 오늘의 식단 중 메인 메뉴에 대한 정보 조회\s
+                    - responseDTO : TodayMenuRes""")
+
     @GetMapping("/main-menus")
     public ResponseEntity<List<TodayMenuRes>> getTodayMainMenusByCafeteriaName(String cafeteriaName) {
         List<TodayMenuRes> todayMainMenuList = todayDietService.findMainMenusByCafeteria(cafeteriaName);
