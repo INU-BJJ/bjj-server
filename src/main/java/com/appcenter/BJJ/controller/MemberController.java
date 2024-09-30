@@ -4,24 +4,26 @@ import com.appcenter.BJJ.dto.MemberResponseDTO;
 import com.appcenter.BJJ.dto.SignupDTO;
 import com.appcenter.BJJ.jwt.UserDetailsImpl;
 import com.appcenter.BJJ.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/member")
 @RequiredArgsConstructor
+@Tag(name = "Member", description = "회원 API")
 public class MemberController {
     private final MemberService memberService;
 
+    @Operation(summary = "회원가입", description = "소셜로그인 처음 이용시 연결")
     @PostMapping("/sign-up")
     public ResponseEntity<Map<String, String>> signUp(@RequestBody SignupDTO signupDTO) {
         log.info("MemberController-signUp: 진입");
@@ -31,6 +33,7 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "모든 회원 조회")
     @GetMapping("")
     public ResponseEntity<MemberResponseDTO> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController-getMember: 진입");

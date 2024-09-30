@@ -2,20 +2,20 @@ package com.appcenter.BJJ.dto;
 
 import com.appcenter.BJJ.domain.MenuPair;
 import com.appcenter.BJJ.domain.Review;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public interface ReviewReq {
-
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class ReviewPost {
-
+        @Schema(description = "리뷰 내용", example = "맛이 차암 좋읍니다.")
         private String comment;
-
+        @Schema(description = "리뷰 별점", example = "5")
         private Integer rating;
-
+        @Schema(description = "리뷰 menuPairId", example = "1")
         private Long menuPairId;
 
         public Review toEntity(long memberId, MenuPair menuPair) {
@@ -26,6 +26,5 @@ public interface ReviewReq {
                     .menuPair(menuPair)
                     .build();
         }
-
     }
 }
