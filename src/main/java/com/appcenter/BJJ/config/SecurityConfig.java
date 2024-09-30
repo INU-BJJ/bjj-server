@@ -41,8 +41,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("swagger-ui/**", "v3/**", "/h2-console/**").permitAll()
-                        .requestMatchers("/sign-up/**", "/sign-in/**").permitAll()
-                        .requestMatchers("oauth2/authorization/naver").permitAll()
+                        .requestMatchers("/sign-up/**").permitAll()
+                        .requestMatchers("oauth2/authorization/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
