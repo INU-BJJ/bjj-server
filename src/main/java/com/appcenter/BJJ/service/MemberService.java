@@ -31,7 +31,7 @@ public class MemberService {
         memberRepository.save(member);
         log.info("MemberService-signup: ROLE_USER로 변경 완료 및 회원가입 성공");
         String accessToken = getToken(member.getProviderId(), JwtProvider.validAccessTime);
-
+        log.info("MemberService-signup: 토큰 발급 성공");
         return accessToken;
     }
 
