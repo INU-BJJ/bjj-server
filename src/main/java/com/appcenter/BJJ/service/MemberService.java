@@ -1,8 +1,8 @@
 package com.appcenter.BJJ.service;
 
 import com.appcenter.BJJ.domain.Member;
-import com.appcenter.BJJ.dto.MemberResponseDTO;
-import com.appcenter.BJJ.dto.SignupDTO;
+import com.appcenter.BJJ.dto.MemberRes;
+import com.appcenter.BJJ.dto.SignupReq;
 import com.appcenter.BJJ.exception.CustomException;
 import com.appcenter.BJJ.exception.ErrorCode;
 import com.appcenter.BJJ.jwt.JwtProvider;
@@ -22,9 +22,9 @@ public class MemberService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
 
-    public String signUp(SignupDTO signupDTO) {
+    public String signUp(SignupReq signupReq) {
         log.info("MemberService-signup: 진입");
-        Member member = memberRepository.findByEmailAndProvider(signupDTO.getEmail(), signupDTO.getProvider()).orElseThrow(
+        Member member = memberRepository.findByEmailAndProvider(signupReq.getEmail(), signupReq.getProvider()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         member.update("ROLE_USER");
@@ -35,12 +35,12 @@ public class MemberService {
         return accessToken;
     }
 
-    public MemberResponseDTO getMember(Long id) {
+    public MemberRes getMember(Long id) {
         Member member = memberRepository.findById(id).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_CREDENTIALS)
         );
         log.info("MemberService-getMember: 회원 정보 조회 성공");
-        return MemberResponseDTO.builder()
+        return MemberRes.builder()
                 .nickname(member.getNickname())
                 .email(member.getEmail())
                 .provider(member.getProvider())
