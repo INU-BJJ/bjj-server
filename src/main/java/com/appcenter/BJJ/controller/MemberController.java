@@ -1,7 +1,8 @@
 package com.appcenter.BJJ.controller;
 
-import com.appcenter.BJJ.dto.MemberResponseDTO;
-import com.appcenter.BJJ.dto.SignupDTO;
+import com.appcenter.BJJ.dto.MemberRes;
+import com.appcenter.BJJ.dto.SignupReq;
+import com.appcenter.BJJ.dto.SignupRes;
 import com.appcenter.BJJ.jwt.UserDetailsImpl;
 import com.appcenter.BJJ.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,17 +29,16 @@ public class MemberController {
             - 소셜로그인 처음 이용시 연결\s
             - requestDTO : SignupDTO\s""")
     @PostMapping("/sign-up")
-    public ResponseEntity<Map<String, String>> signUp(@RequestBody SignupDTO signupDTO) {
+    public ResponseEntity<SignupRes> signUp(@RequestBody SignupReq signupReq) {
         log.info("MemberController-signUp: 진입");
-        Map<String, String> response = new HashMap<>();
-        response.put("token", memberService.signUp(signupDTO));
+        SignupRes signupRes = new SignupRes(memberService.signUp(signupReq));
         log.info("MemberController-signUp: 회원가입 성공");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(signupRes);
     }
 
     @Operation(summary = "모든 회원 조회")
     @GetMapping("")
-    public ResponseEntity<MemberResponseDTO> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController-getMember: 진입");
         return ResponseEntity.ok(memberService.getMember(userDetails.getMember().getId()));
     }
