@@ -41,7 +41,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("swagger-ui/**", "v3/**", "/h2-console/**").permitAll()
-                        .requestMatchers("/sign-up/**").permitAll()
+                        .requestMatchers("api/member/sign-up/**").permitAll()
                         .requestMatchers("oauth2/authorization/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(oauth -> oauth
+                //사용자 정보를 가져오기 위한 함수
                 .userInfoEndpoint(point -> point.userService(oAuth2UserService))
                 .successHandler(oAuth2SuccessHandler));
         return http.build();

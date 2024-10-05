@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
-
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("OAuth2UserServiceExt-loadUser 진입");
