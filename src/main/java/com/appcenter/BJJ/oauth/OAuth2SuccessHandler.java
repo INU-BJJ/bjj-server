@@ -21,6 +21,8 @@ import java.io.IOException;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProvider jwtProvider;
     //로그인 성공 및 토큰 발급 및 redirect url
+    @Value("${spring.server.host}")
+    private String domain;
     @Value("${spring.oauth2.url.sign_in}")
     private String signInUrl;
     @Value("${spring.oauth2.url.sign_up}")
@@ -34,11 +36,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String redirectUrl;
         if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
             log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 회원가입으로 이동");
-            redirectUrl = UriComponentsBuilder.fromHttpUrl(signUpUrl)
+            redirectUrl = UriComponentsBuilder.fromHttpUrl(domain + signUpUrl)
                     .queryParam("token", token).toUriString();
         } else {
             log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 로그인으로 이동");
-            redirectUrl = UriComponentsBuilder.fromHttpUrl(signInUrl)
+            redirectUrl = UriComponentsBuilder.fromHttpUrl(domain + signInUrl)
                     .queryParam("token", token).toUriString();
         }
         response.sendRedirect(redirectUrl);
