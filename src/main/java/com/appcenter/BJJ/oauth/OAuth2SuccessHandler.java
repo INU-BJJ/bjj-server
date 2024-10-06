@@ -34,6 +34,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
             log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 회원가입으로 이동");
             redirectUrl = UriComponentsBuilder.fromHttpUrl(signUpUrl)
+                    .queryParam("email", userDetails.getMember().getEmail())
                     .queryParam("token", token).toUriString();
         } else {
             log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 로그인으로 이동");
