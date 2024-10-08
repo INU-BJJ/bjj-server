@@ -42,7 +42,7 @@ public class MemberController {
     @GetMapping("")
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController.getMember() - 진입");
-        return ResponseEntity.ok(memberService.getMember(userDetails.member().getId()));
+        return ResponseEntity.ok(memberService.getMember(userDetails.getMember().getId()));
     }
 
     @Operation(summary = "닉네임 중복 확인")
