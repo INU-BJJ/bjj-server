@@ -49,9 +49,7 @@ public class MemberController {
     @PostMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         if (memberService.isNicknameAvailable(nickname)) return ResponseEntity.ok(true);
-        else {
-            throw new CustomException(ErrorCode.NICKNAME_ALREADY_REGISTERED);
-        }
+        return ResponseEntity.ok(false);
     }
 
     @Operation(summary = "닉네임 수정")

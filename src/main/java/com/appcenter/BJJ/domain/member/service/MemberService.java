@@ -50,10 +50,7 @@ public class MemberService {
     }
 
     public boolean isNicknameAvailable(String nickname) {
-        if (memberRepository.existsByNickname(nickname)) {
-            return true;
-        }
-        throw new CustomException(ErrorCode.NICKNAME_ALREADY_REGISTERED);
+        return !memberRepository.existsByNickname(nickname);
     }
 
     public String changeNickname(String currentNickname, String newNickname) {
