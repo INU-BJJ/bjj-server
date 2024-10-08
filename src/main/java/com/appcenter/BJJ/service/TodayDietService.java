@@ -153,6 +153,7 @@ public class TodayDietService {
     private void parseText(String text, Long cafeteriaId) {
         // 특수 문자 및 구분 기호 제거
         text = text.replaceAll("-{2,}", "").trim();
+        text = text.replaceAll("\"", "").trim();
 
         // 기본 값 초기화
         String menuText = "";
