@@ -58,7 +58,7 @@ public class TodayDietService {
         LocalTime now = LocalTime.now();
 
         return todayMenuResList.stream().filter(todayMenuRes -> {
-            if (now.isBefore(LocalTime.of(8, 0))){
+            if (now.isBefore(LocalTime.of(8, 0))) {
                 return false;
             } else if (now.isBefore(LocalTime.of(10, 30))) {
                 return todayMenuRes.getCafeteriaCorner().contains("조식");

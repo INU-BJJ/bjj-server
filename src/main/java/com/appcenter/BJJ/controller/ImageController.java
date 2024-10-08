@@ -1,5 +1,7 @@
 package com.appcenter.BJJ.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +15,10 @@ import java.nio.file.Files;
 
 @RestController
 @RequestMapping("/api/images")
-
+@Tag(name = "Image", description = "사진 API")
 public class ImageController {
 
+    @Operation(summary = "이미지 경로 조회")
     @GetMapping
     public ResponseEntity<byte[]> getImageByPath(String path) throws IOException {
 
