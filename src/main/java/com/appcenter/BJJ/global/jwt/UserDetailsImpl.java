@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails, OAuth2User {
     private Member member;
 
@@ -32,7 +32,7 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return null;
+        return member.getEmail();
     }
 
     @Override
