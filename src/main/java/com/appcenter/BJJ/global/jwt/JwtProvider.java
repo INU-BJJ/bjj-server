@@ -37,7 +37,7 @@ public class JwtProvider {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining());
-        Member member = ((UserDetailsImpl) authentication.getPrincipal()).member();
+        Member member = ((UserDetailsImpl) authentication.getPrincipal()).getMember();
         long now = (new Date()).getTime();
         log.info("JWTProvider.generateToken() - 사용자 : {}", member.getEmail());
         return Jwts.builder()
