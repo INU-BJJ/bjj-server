@@ -32,7 +32,7 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return member.getEmail();
+        return null;
     }
 
     @Override
