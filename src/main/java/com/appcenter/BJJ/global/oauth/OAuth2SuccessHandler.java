@@ -2,7 +2,6 @@ package com.appcenter.BJJ.global.oauth;
 
 import com.appcenter.BJJ.global.jwt.JwtProvider;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +32,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
         String redirectUrl;
         if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
-            log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 회원가입으로 이동");
+            log.info("OAuth2SuccessHandler.onAuthenticationSuccess() - 회원가입으로 이동");
             redirectUrl = UriComponentsBuilder.fromHttpUrl(signUpUrl)
+                    .queryParam("email", userDetails.getMember().getEmail())
                     .queryParam("token", token).toUriString();
         } else {
-            log.info("OAuth2SuccessHandler-onAuthenticationSuccess: 로그인으로 이동");
+            log.info("OAuth2SuccessHandler.onAuthenticationSuccess() - 로그인으로 이동");
             redirectUrl = UriComponentsBuilder.fromHttpUrl(signInUrl)
                     .queryParam("token", token).toUriString();
         }
