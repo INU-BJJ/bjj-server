@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.dto;
+package com.appcenter.BJJ.domain.member.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -7,9 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class SignupReq {
     @NotBlank(message = "닉네임은 필수항목입니다.")
