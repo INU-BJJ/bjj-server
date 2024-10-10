@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class JwtProvider {
     private final UserDetailsServiceImpl userDetailsService;
     private final Key key;
-    public static final long validAccessTime = 2L * 365 * 24 * 60 * 60; // 2년 (이후에 3달로 바꿀 예정)
+    public static final long validAccessTime = 2L * 365 * 24 * 60 * 60 * 1000; // 2년 (이후에 3달로 바꿀 예정)
 
     public JwtProvider(@Value("${spring.jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService) {
         byte[] ketBytes = Decoders.BASE64.decode(secretKey);
