@@ -52,6 +52,7 @@ jobs:
           host: ${{ secrets.HOST}}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          key: ${{ secrets.SERVER_KEY }}
           script_stop: true
           script: |
               sh bjj/deploy-bjj.sh
