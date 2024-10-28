@@ -25,8 +25,10 @@ public class Image {
 
     private String name;
 
+    // 이미지 확장자
     private String type;
 
+    // 이미지 최종 경로 이름 (review, cafeteria..)
     private String path;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -79,8 +81,8 @@ public class Image {
                 .build();
     }
 
-    public boolean removeImageFromPath() {
-        File file = new File(path);
+    public boolean removeImageFromPath(String folderPath) {
+        File file = new File(folderPath, name);
         return file.delete();
     }
 

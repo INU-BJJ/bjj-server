@@ -141,7 +141,7 @@ public class ReviewService {
             Review review = optionalReview.get();
 
             review.getImages().forEach(image -> {
-                boolean result = image.removeImageFromPath();
+                boolean result = image.removeImageFromPath(REVIEW_IMG_DIR);
 
                 if (!result) {
                     log.info("이미지 {} 삭제에 실패했습니다.", image.getName());
