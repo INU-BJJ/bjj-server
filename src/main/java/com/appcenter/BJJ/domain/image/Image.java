@@ -52,10 +52,12 @@ public class Image {
 
         file.transferTo(new File(filePath));
 
+        String[] parts = folderPath.split("/");
+
         return Image.builder()
                 .name(uniqueFileName)
                 .type(file.getContentType())
-                .path(filePath)
+                .path(parts[parts.length - 1])
                 .review(review)
                 .build();
     }
