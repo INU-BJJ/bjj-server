@@ -3,6 +3,7 @@ package com.appcenter.BJJ.domain.image;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Getter
 @Entity
 @Table(name = "image_tb")

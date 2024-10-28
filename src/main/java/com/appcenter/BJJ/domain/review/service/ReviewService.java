@@ -38,6 +38,7 @@ public class ReviewService {
 
     @Transactional
     public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
+        log.info("[로그] create() , REVIEW_IMG_DIR : {}", REVIEW_IMG_DIR);
 
         if (memberId == null) {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
@@ -53,6 +54,7 @@ public class ReviewService {
         if (files != null) {
             files.forEach(file -> {
                 try {
+                    log.info("[로그] 이미지 변환, file.getOriginalFilename() : {}, file 크기 : {} KB", file.getOriginalFilename(), String.format("%.2f", file.getSize() / 1024.0));
                     Image image = Image.of(file, review, REVIEW_IMG_DIR);
                     review.getImages().add(image);
                 } catch (IOException e) {

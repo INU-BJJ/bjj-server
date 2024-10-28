@@ -8,6 +8,7 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> postReview(@RequestPart ReviewPost reviewPost, @RequestPart(required = false) List<MultipartFile> files, Long memberId) {
+        log.info("[로그] POST /api/reviews?memberId={}", memberId);
 
         // 리뷰 생성
         long reviewId = reviewService.create(reviewPost, files, memberId);
@@ -48,6 +51,8 @@ public class ReviewController {
                     """)
     @GetMapping
     public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
+        log.info("[로그] GET /api/reviews?menuPairId={}&pageNumber={}&pageSize={}&sort={}&isWithImages={}", menuPairId, pageNumber, pageSize, sort, isWithImages);
+
         // page는 1부터 시작
         ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, pageNumber, pageSize, sort, isWithImages);
 
@@ -62,6 +67,7 @@ public class ReviewController {
                      - responseDTO : ReviewRes""")
     @GetMapping("/my")
     public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int pageNumber, int pageSize) {
+        log.info("[로그] GET /api/reviews/my?memberId={}&pageNumber={}&pageSize={}", memberId, pageNumber, pageSize);
 
         ReviewRes reviewRes = reviewService.findMyReviews(memberId, pageNumber, pageSize);
 
@@ -71,6 +77,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
+        log.info("[로그] DELETE /api/reviews/{}", reviewId);
 
         Long menuPairId = reviewService.delete(reviewId);
 

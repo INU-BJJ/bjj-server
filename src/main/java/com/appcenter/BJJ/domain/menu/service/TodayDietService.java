@@ -44,8 +44,10 @@ public class TodayDietService {
     private final TodayDietRepository todayDietRepository;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
+        log.info("[로그] findByCafeteria() 시작");
 
         List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+        log.info("[로그] todayDietResList.size() : {}", todayDietResList.size());
 
         todayDietResList.forEach(todayDietRes -> {
             Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId(), Limit.of(1));
@@ -53,15 +55,18 @@ public class TodayDietService {
             if (image != null) {
                 todayDietRes.setReviewImageName(image.getName());
             }
+            log.info("[로그] todayDietRes.getReviewImageName() : {}", todayDietRes.getReviewImageName());
         });
 
         return todayDietResList;
     }
 
     public List<TodayMenuRes> findMainMenusByCafeteria(String cafeteriaName) {
+        log.info("[로그] findMainMenusByCafeteria() 시작");
 
         List<TodayMenuRes> todayMenuResList = todayDietRepository.findTodayMainMenusByCafeteriaName(cafeteriaName);
         LocalTime now = LocalTime.now();
+        log.info("[로그] todayMenuResList.size() : {}, now : {}", todayMenuResList.size(), now);
 
         return todayMenuResList.stream().filter(todayMenuRes -> {
             if (now.isBefore(LocalTime.of(8, 0))) {
