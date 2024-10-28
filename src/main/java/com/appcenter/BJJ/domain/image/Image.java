@@ -43,6 +43,17 @@ public class Image {
 
     public static Image of(MultipartFile file, Review review, String folderPath) throws IOException {
 
+        // 업로드할 디렉토리가 존재하는지 확인
+        File directory = new File(folderPath);
+        if (!directory.exists()) {
+            log.info("[로그] 업로드할 디렉토리가 존재하지 않음. {} 디렉토리 생성", folderPath);
+            // 디렉토리가 존재하지 않을 경우 생성
+            boolean created = directory.mkdirs(); // 부모 디렉토리도 포함하여 생성
+            if (!created) {
+                throw new RuntimeException("업로드 디렉토리를 생성할 수 없습니다: " + folderPath);
+            }
+        }
+
         // 파일 확장자 추출
         String originalFilename = file.getOriginalFilename();
         String fileExtension = Objects.requireNonNull(originalFilename).substring(originalFilename.lastIndexOf("."));
@@ -50,9 +61,13 @@ public class Image {
         // 고유한 파일 이름 생성 (UUID 사용)
         String uniqueFileName = UUID.randomUUID() + fileExtension;
 
-        String filePath = folderPath + uniqueFileName;
-
-        file.transferTo(new File(filePath));
+        // 파일 업로드 로직 (파일 저장 등)
+        try {
+            File destinationFile = new File(directory, uniqueFileName);
+            file.transferTo(destinationFile);
+        } catch (Exception e) {
+            throw new RuntimeException("파일 업로드 중 오류 발생", e);
+        }
 
         String[] parts = folderPath.split("/");
 
