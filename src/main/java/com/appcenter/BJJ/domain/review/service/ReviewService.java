@@ -12,6 +12,7 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,7 +33,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MenuPairRepository menuPairRepository;
 
-    private final String REVIEW_FOLDER_PATH = "C:\\BJJ\\ReviewImages\\";
+    @Value("${dir.img.review}")
+    private String REVIEW_IMG_DIR;
 
     @Transactional
     public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
@@ -51,7 +53,7 @@ public class ReviewService {
         if (files != null) {
             files.forEach(file -> {
                 try {
-                    Image image = Image.of(file, review, REVIEW_FOLDER_PATH);
+                    Image image = Image.of(file, review, REVIEW_IMG_DIR);
                     review.getImages().add(image);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -75,13 +77,13 @@ public class ReviewService {
         Page<Review> reviewPage = reviewRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
         List<ReviewDetailRes> reviewDetailList = reviewPage.getContent().stream().map(review -> {
-            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
 
             return ReviewDetailRes.builder()
                     .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
-                    .imagePaths(imagePathList)
+                    .imageNames(imageNameList)
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())
@@ -104,13 +106,13 @@ public class ReviewService {
         List<Review> reviewList = reviewPage.getContent();
 
         List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
-            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
 
             return ReviewDetailRes.builder()
                     .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
-                    .imagePaths(imagePathList)
+                    .imageNames(imageNameList)
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())

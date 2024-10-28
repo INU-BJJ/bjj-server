@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.review.service;
+package com.appcenter.BJJ.domain.menu.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
@@ -51,7 +51,7 @@ public class TodayDietService {
             Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId(), Limit.of(1));
 
             if (image != null) {
-                todayDietRes.setReviewImagePath(image.getPath());
+                todayDietRes.setReviewImageName(image.getName());
             }
         });
 
