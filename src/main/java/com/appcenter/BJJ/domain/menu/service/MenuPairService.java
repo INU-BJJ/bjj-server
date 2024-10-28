@@ -26,7 +26,7 @@ public class MenuPairService {
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid menuPair ID"));
-        log.info("[로그] reviewCount : {}, reviewAverageRating : {}, menuPair : {}", reviewCount, reviewAverageRating, menuPair);
+        log.info("[로그] reviewCount : {}, reviewAverageRating : {}, menuPair.getId() : {}", reviewCount, reviewAverageRating, menuPair.getId());
 
         menuPair.updateReviewCount(reviewCount);
         menuPair.updateReviewAverageRating(reviewAverageRating);

@@ -54,9 +54,10 @@ public class ReviewService {
         if (files != null) {
             files.forEach(file -> {
                 try {
-                    log.info("[로그] 이미지 변환, file.getOriginalFilename() : {}, file 크기 : {} KB", file.getOriginalFilename(), String.format("%.2f", file.getSize() / 1024.0));
+                    log.info("[로그] 이미지 변환 전, file.getOriginalFilename() : {}, file 크기 : {} KB", file.getOriginalFilename(), String.format("%.2f", file.getSize() / 1024.0));
                     Image image = Image.of(file, review, REVIEW_IMG_DIR);
                     review.getImages().add(image);
+                    log.info("[로그] 이미지 변환 후, image.getName() : {}, image.getPath() : {}", image.getName(), image.getPath());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
