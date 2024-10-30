@@ -82,6 +82,7 @@ public class TodayDietService {
     }
 
     @PostConstruct  // bean 생성 후 실행
+    @Transactional
     @Scheduled(cron = "0 0 7 * * *")
     // 자정마다 실행 (초 분 시 일 월 요일 순서, 0 0 0/1 * * * -> 1시간 마다 실행, 0 0 7 * * * -> 7시에 실행)
     // 스케쥴링은 프록시 메소드가 적어도 protected 이어야 함
@@ -102,7 +103,6 @@ public class TodayDietService {
         }
     }
 
-    @Transactional
     public void executeCrawling(String cafeteriaName, String cafeteriaUrl, String today) throws IOException {
         /* ID가 menuBox인 테이블 찾기 */
         Document document = Jsoup.connect(cafeteriaUrl).get();
