@@ -17,7 +17,7 @@ public class JwtFilter extends GenericFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = getToken((HttpServletRequest) request);
-        if (token != null) {
+        if (jwtProvider.validateToken(token)) {
             log.info("JwtFilter.doFilter() - token 있음 & 인증 시작");
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
