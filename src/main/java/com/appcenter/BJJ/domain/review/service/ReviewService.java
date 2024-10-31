@@ -12,6 +12,7 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,10 +33,12 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MenuPairRepository menuPairRepository;
 
-    private final String REVIEW_FOLDER_PATH = "C:\\BJJ\\ReviewImages\\";
+    @Value("${dir.img.review}")
+    private String REVIEW_IMG_DIR;
 
     @Transactional
     public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
+        log.info("[로그] create() , REVIEW_IMG_DIR : {}", REVIEW_IMG_DIR);
 
         if (memberId == null) {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
@@ -51,8 +54,10 @@ public class ReviewService {
         if (files != null) {
             files.forEach(file -> {
                 try {
-                    Image image = Image.of(file, review, REVIEW_FOLDER_PATH);
+                    log.info("[로그] 이미지 변환 전, file.getOriginalFilename() : {}, file 크기 : {} KB", file.getOriginalFilename(), String.format("%.2f", file.getSize() / 1024.0));
+                    Image image = Image.of(file, review, REVIEW_IMG_DIR);
                     review.getImages().add(image);
+                    log.info("[로그] 이미지 변환 후, image.getName() : {}, image.getPath() : {}", image.getName(), image.getPath());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -75,13 +80,13 @@ public class ReviewService {
         Page<Review> reviewPage = reviewRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
         List<ReviewDetailRes> reviewDetailList = reviewPage.getContent().stream().map(review -> {
-            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
 
             return ReviewDetailRes.builder()
                     .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
-                    .imagePaths(imagePathList)
+                    .imageNames(imageNameList)
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())
@@ -104,13 +109,13 @@ public class ReviewService {
         List<Review> reviewList = reviewPage.getContent();
 
         List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
-            List<String> imagePathList = review.getImages().stream().map(Image::getPath).toList();
+            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
 
             return ReviewDetailRes.builder()
                     .reviewId(review.getId())
                     .comment(review.getComment())
                     .rating(review.getRating())
-                    .imagePaths(imagePathList)
+                    .imageNames(imageNameList)
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())
@@ -136,7 +141,7 @@ public class ReviewService {
             Review review = optionalReview.get();
 
             review.getImages().forEach(image -> {
-                boolean result = image.removeImageFromPath();
+                boolean result = image.removeImageFromPath(REVIEW_IMG_DIR);
 
                 if (!result) {
                     log.info("이미지 {} 삭제에 실패했습니다.", image.getName());

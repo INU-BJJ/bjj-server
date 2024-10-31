@@ -36,7 +36,7 @@ public class TodayDietRes {
     private final Float reviewRatingAverage;
     @Schema(description = "리뷰 이미지 경로", example = "C:\\BJJ\\ReviewImages\\23fsddfesff=3vlsdd-3sdf56.png")
     @Setter
-    private String reviewImagePath;
+    private String reviewImageName;
     @Schema(description = "좋아하는 메뉴 여부", example = "true")
     @Setter
     private boolean isLikedMenu;

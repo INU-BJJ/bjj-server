@@ -16,8 +16,8 @@ public class ReviewDetailRes {
     private final String comment;
     @Schema(description = "리뷰 별점", example = "5")
     private final Integer rating;
-    @Schema(description = "리뷰 이미지 경로", example = "C:\\BJJ\\ReviewImages\\23fsddfesff=3vlsdd-3sdf56.png")
-    private final List<String> imagePaths;
+    @Schema(description = "리뷰 이미지 경로", example = "23fsddfesff=3vlsdd-3sdf56.png")
+    private final List<String> imageNames;
     @Schema(description = "리뷰 좋아요 개수", example = "123")
     private final Long likeCount;
     @Schema(description = "좋아하는 메뉴 여부", example = "true")

@@ -2,10 +2,11 @@ package com.appcenter.BJJ.domain.menu.controller;
 
 import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
 import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
-import com.appcenter.BJJ.domain.review.service.TodayDietService;
+import com.appcenter.BJJ.domain.menu.service.TodayDietService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/today-diets")
 @RequiredArgsConstructor
@@ -28,6 +30,8 @@ public class TodayDietController {
 
     @GetMapping
     public ResponseEntity<List<TodayDietRes>> getTodayDietsByCafeteriaName(String cafeteriaName) {
+        log.info("[로그] GET /api/today-diets?cafeteriaName={}", cafeteriaName);
+
         List<TodayDietRes> todayDietList = todayDietService.findByCafeteria(cafeteriaName);
 
         return ResponseEntity.ok(todayDietList);
@@ -40,6 +44,8 @@ public class TodayDietController {
 
     @GetMapping("/main-menus")
     public ResponseEntity<List<TodayMenuRes>> getTodayMainMenusByCafeteriaName(String cafeteriaName) {
+        log.info("[로그] GET /api/today-diets/main-menus?cafeteriaName={}", cafeteriaName);
+
         List<TodayMenuRes> todayMainMenuList = todayDietService.findMainMenusByCafeteria(cafeteriaName);
 
         return ResponseEntity.ok(todayMainMenuList);

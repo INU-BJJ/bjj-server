@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.review.service;
+package com.appcenter.BJJ.domain.menu.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
@@ -44,24 +44,29 @@ public class TodayDietService {
     private final TodayDietRepository todayDietRepository;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
+        log.info("[로그] findByCafeteria() 시작");
 
         List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+        log.info("[로그] todayDietResList.size() : {}", todayDietResList.size());
 
         todayDietResList.forEach(todayDietRes -> {
             Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId(), Limit.of(1));
 
             if (image != null) {
-                todayDietRes.setReviewImagePath(image.getPath());
+                todayDietRes.setReviewImageName(image.getName());
             }
+            log.info("[로그] todayDietRes.getReviewImageName() : {}", todayDietRes.getReviewImageName());
         });
 
         return todayDietResList;
     }
 
     public List<TodayMenuRes> findMainMenusByCafeteria(String cafeteriaName) {
+        log.info("[로그] findMainMenusByCafeteria() 시작");
 
         List<TodayMenuRes> todayMenuResList = todayDietRepository.findTodayMainMenusByCafeteriaName(cafeteriaName);
         LocalTime now = LocalTime.now();
+        log.info("[로그] todayMenuResList.size() : {}, now : {}", todayMenuResList.size(), now);
 
         return todayMenuResList.stream().filter(todayMenuRes -> {
             if (now.isBefore(LocalTime.of(8, 0))) {
@@ -77,7 +82,8 @@ public class TodayDietService {
     }
 
     @PostConstruct  // bean 생성 후 실행
-    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    @Scheduled(cron = "0 0 7 * * *")
     // 자정마다 실행 (초 분 시 일 월 요일 순서, 0 0 0/1 * * * -> 1시간 마다 실행, 0 0 7 * * * -> 7시에 실행)
     // 스케쥴링은 프록시 메소드가 적어도 protected 이어야 함
     protected void crawlDailyMenus() throws IOException {
@@ -97,7 +103,6 @@ public class TodayDietService {
         }
     }
 
-    @Transactional
     public void executeCrawling(String cafeteriaName, String cafeteriaUrl, String today) throws IOException {
         /* ID가 menuBox인 테이블 찾기 */
         Document document = Jsoup.connect(cafeteriaUrl).get();
@@ -159,6 +164,7 @@ public class TodayDietService {
     private void parseText(String text, Long cafeteriaId) {
         // 특수 문자 및 구분 기호 제거
         text = text.replaceAll("-{2,}", "").trim();
+        text = text.replaceAll("\"", "").trim();
 
         // 기본 값 초기화
         String menuText = "";
