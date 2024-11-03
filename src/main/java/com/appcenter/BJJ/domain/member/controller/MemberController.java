@@ -36,7 +36,7 @@ public class MemberController {
         return ResponseEntity.ok(signupRes);
     }
 
-    @Operation(summary = "모든 회원 조회")
+    @Operation(summary = "회원 조회")
     @GetMapping("")
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController.getMember() - 진입");
@@ -46,8 +46,7 @@ public class MemberController {
     @Operation(summary = "닉네임 중복 확인")
     @PostMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
-        if (memberService.isNicknameAvailable(nickname)) return ResponseEntity.ok(true);
-        return ResponseEntity.ok(false);
+        return ResponseEntity.ok(memberService.isNicknameAvailable(nickname));
     }
 
     @Operation(summary = "닉네임 수정")
