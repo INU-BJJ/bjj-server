@@ -3,6 +3,7 @@ package com.appcenter.BJJ.global.config;
 import com.appcenter.BJJ.global.jwt.AuthenticationProviderImpl;
 import com.appcenter.BJJ.global.jwt.JwtFilter;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
+import com.appcenter.BJJ.global.jwt.JwtValidateFilter;
 import com.appcenter.BJJ.global.oauth.OAuth2SuccessHandler;
 import com.appcenter.BJJ.global.oauth.OAuth2UserServiceExt;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtValidateFilter(), JwtFilter.class);
 
         http.oauth2Login(oauth -> oauth
                 //사용자 정보를 가져오기 위한 함수
