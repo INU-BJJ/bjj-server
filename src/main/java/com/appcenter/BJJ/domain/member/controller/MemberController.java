@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.member.controller;
 
+import com.appcenter.BJJ.domain.member.dto.LoginReq;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
 import com.appcenter.BJJ.domain.member.service.MemberService;
@@ -34,6 +35,11 @@ public class MemberController {
         signupRes.put("token", memberService.signUp(signupReq));
         log.info("MemberController.signUp() - 회원가입 성공");
         return ResponseEntity.ok(signupRes);
+    }
+
+    @PostMapping("/test/social-login")
+    public ResponseEntity<MemberRes> login(@RequestBody LoginReq loginReq) {
+        return ResponseEntity.ok(memberService.login(loginReq));
     }
 
     @Operation(summary = "회원 조회")
