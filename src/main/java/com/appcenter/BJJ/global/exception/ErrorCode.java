@@ -1,9 +1,11 @@
 package com.appcenter.BJJ.global.exception;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@RequiredArgsConstructor
 public enum ErrorCode {
     //400 Bad Request 서버 이해 못해
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "이메일 및 비밀번호가 맞지 않습니다."),
@@ -27,9 +29,4 @@ public enum ErrorCode {
 
     private final HttpStatus httpStatus;
     private final String message;
-
-    ErrorCode(HttpStatus status, String msg) {
-        httpStatus = status;
-        message = msg;
-    }
 }
