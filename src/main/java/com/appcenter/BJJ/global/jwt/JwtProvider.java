@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,13 +23,15 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider {
     private final UserDetailsServiceImpl userDetailsService;
+    private final AuthenticationManager authenticationManager;
     private final Key key;
     public static final long validAccessTime = 2L * 365 * 24 * 60 * 60 * 1000; // 2년 (이후에 3달로 바꿀 예정)
 
-    public JwtProvider(@Value("${spring.jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService) {
+    private JwtProvider(@Value("${spring.jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService, AuthenticationManager authenticationManager) {
         byte[] ketBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(ketBytes);
         this.userDetailsService = userDetailsService;
+        this.authenticationManager = authenticationManager;
     }
 
     public String generateToken(Authentication authentication, Long time) {
@@ -39,6 +42,7 @@ public class JwtProvider {
         Member member = ((UserDetailsImpl) authentication.getPrincipal()).getMember();
         long now = (new Date()).getTime();
         log.info("JWTProvider.generateToken() - 사용자 : {}", member.getEmail());
+
         String accessToken = Jwts.builder()
                 .setSubject(member.getProviderId())
                 .claim("auth", authorities)
@@ -58,6 +62,16 @@ public class JwtProvider {
         UserDetailsImpl userDetails = userDetailsService.loadUserByProviderId(claims.getSubject());
         log.info("JwtProvider.getAuthentication() - userDetails 가져옴 : {}", userDetails.getUsername());
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+    }
+
+    public String getToken(String providerId, Long time) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(providerId, "");
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        log.info("JWTProvider-getToken: 회원이 존재합니다.");
+
+        String token = generateToken(authentication, time);
+        log.info("JWTProvider-getToken: 토큰 발급이 됐습니다.");
+        return token;
     }
 
     public boolean validateToken(String token) {
