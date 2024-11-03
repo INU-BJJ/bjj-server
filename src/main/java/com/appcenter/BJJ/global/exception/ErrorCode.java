@@ -9,9 +9,10 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "이메일 및 비밀번호가 맞지 않습니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다."),
 
-
     //401 Unauthorized 클라이언트 인증
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "사용자가 인증되지 않았습니다."),
+    INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "토큰의 형식이 유효하지 않습니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰 기간이 만료됐습니다."),
 
     //403 Forbidden 클라이언트는 아는데 접근 못해
 
