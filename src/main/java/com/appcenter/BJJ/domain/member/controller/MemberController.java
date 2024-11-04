@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "회원 API")
 public class MemberController {
