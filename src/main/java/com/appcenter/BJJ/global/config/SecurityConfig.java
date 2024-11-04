@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("swagger-ui/**", "v3/**", "/h2-console/**").permitAll()
                         .requestMatchers("api/member/sign-up/**", "api/member/check-nickname").permitAll()
                         .requestMatchers("oauth2/authorization/**").permitAll()
+                        .requestMatchers("images/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
