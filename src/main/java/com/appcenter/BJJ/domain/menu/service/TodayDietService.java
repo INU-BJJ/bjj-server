@@ -50,7 +50,7 @@ public class TodayDietService {
         log.info("[로그] todayDietResList.size() : {}", todayDietResList.size());
 
         todayDietResList.forEach(todayDietRes -> {
-            Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId(), Limit.of(1));
+            Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId());
 
             if (image != null) {
                 todayDietRes.setReviewImageName(image.getName());
