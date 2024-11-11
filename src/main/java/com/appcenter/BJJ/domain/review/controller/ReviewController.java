@@ -50,11 +50,11 @@ public class ReviewController {
                     - responseDTO : ReviewRes
                     """)
     @GetMapping
-    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
+    public ResponseEntity<ReviewRes> getReviews(Long memberId, Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
         log.info("[로그] GET /api/reviews?menuPairId={}&pageNumber={}&pageSize={}&sort={}&isWithImages={}", menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         // page는 1부터 시작
-        ReviewRes reviewRes = reviewService.findByMenuPair(menuPairId, pageNumber, pageSize, sort, isWithImages);
+        ReviewRes reviewRes = reviewService.findByMenuPair(memberId, menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         return ResponseEntity.ok(reviewRes);
     }

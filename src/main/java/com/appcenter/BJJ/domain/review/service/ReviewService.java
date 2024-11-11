@@ -1,28 +1,29 @@
 package com.appcenter.BJJ.domain.review.service;
 
 import com.appcenter.BJJ.domain.image.Image;
+import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
-import com.appcenter.BJJ.domain.review.repository.ReviewSpecifications;
-import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
-import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
+import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ImageRepository imageRepository;
     private final MenuPairRepository menuPairRepository;
 
     @Value("${dir.img.review}")
@@ -38,7 +40,7 @@ public class ReviewService {
 
     @Transactional
     public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
-        log.info("[로그] create() , REVIEW_IMG_DIR : {}", REVIEW_IMG_DIR);
+        log.info("[로그] create(), REVIEW_IMG_DIR : {}", REVIEW_IMG_DIR);
 
         if (memberId == null) {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
@@ -67,38 +69,34 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
-    public ReviewRes findByMenuPair(Long menuPairId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
+    public ReviewRes findByMenuPair(Long memberId, Long menuPairId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
+        log.info("[로그] findByMenuPair(), memberId : {}", memberId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
 
-        Specification<Review> spec = Specification.where(ReviewSpecifications.withMainMenuId(menuPair.getMainMenuId()))
-                .or(ReviewSpecifications.withSubMenuId(menuPair.getSubMenuId()))
-                .and(ReviewSpecifications.withImages(isWithImages))
-                .and(ReviewSpecifications.sortedBy(sort, menuPair.getMainMenuId(), menuPair.getSubMenuId()));
+        List<ReviewDetailRes> reviewDetailResList = reviewRepository.findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), pageNumber, pageSize, sort, isWithImages);
 
-        Page<Review> reviewPage = reviewRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
+        List<Long> reviewIdList = reviewDetailResList.stream().map(ReviewDetailRes::getReviewId).toList();
 
-        List<ReviewDetailRes> reviewDetailList = reviewPage.getContent().stream().map(review -> {
-            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
+        List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
+        Map<Long, List<Image>> imageListMap = images
+                .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
 
-            return ReviewDetailRes.builder()
-                    .reviewId(review.getId())
-                    .comment(review.getComment())
-                    .rating(review.getRating())
-                    .imageNames(imageNameList)
-                    .likeCount(review.getLikeCount())
-                    .createdDate(review.getCreatedDate())
-                    .memberId(review.getMemberId())
-                    .menuPairId(review.getMenuPair().getId())
-                    .mainMenuId(review.getMenuPair().getMainMenuId())
-                    .subMenuId(review.getMenuPair().getSubMenuId())
-                    .build();
-        }).toList();
+        reviewDetailResList.forEach(reviewDetailRes -> {
+            List<String> imageNameList = imageListMap
+                    .getOrDefault(reviewDetailRes.getReviewId(), List.of())
+                    .stream().map(Image::getName).toList();
+            reviewDetailRes.setImageNames(imageNameList);
+        });
+
+        // 마지막 페이지 여부 확인
+        Long totalCount = reviewRepository.countReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), pageNumber, pageSize, sort, isWithImages);
+        boolean isLastPage = (pageNumber + pageSize >= totalCount);
 
         return ReviewRes.builder()
-                .reviewDetailList(reviewDetailList)
-                .isLastPage(reviewPage.isLast())
+                .reviewDetailList(reviewDetailResList)
+                .isLastPage(isLastPage)
                 .build();
     }
 
@@ -119,9 +117,6 @@ public class ReviewService {
                     .likeCount(review.getLikeCount())
                     .createdDate(review.getCreatedDate())
                     .memberId(review.getMemberId())
-                    .menuPairId(review.getMenuPair().getId())
-                    .mainMenuId(review.getMenuPair().getMainMenuId())
-                    .subMenuId(review.getMenuPair().getSubMenuId())
                     .build();
         }).toList();
 
