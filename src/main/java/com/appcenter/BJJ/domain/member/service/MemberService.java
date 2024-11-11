@@ -48,7 +48,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(loginReq.getEmail())
                 .nickname(loginReq.getNickname())
-                .provider("밥점줘")
+                .provider("bjj")
                 .providerId("0")
                 .build();
         memberRepository.save(member);
@@ -87,7 +87,7 @@ public class MemberService {
     }
 
     public boolean isNicknameAvailable(String nickname) {
-        if (!memberRepository.existsByNickname(nickname)) {
+        if (memberRepository.existsByNickname(nickname)) {
             throw new CustomException(ErrorCode.NICKNAME_ALREADY_REGISTERED);
         }
         return true;

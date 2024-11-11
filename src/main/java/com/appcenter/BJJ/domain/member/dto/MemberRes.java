@@ -1,13 +1,11 @@
 package com.appcenter.BJJ.domain.member.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
 @Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberRes {
     @Schema(description = "회원의 nickname", example = "이춘삼")
     private String nickname;
