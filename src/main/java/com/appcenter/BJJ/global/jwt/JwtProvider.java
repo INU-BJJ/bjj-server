@@ -61,24 +61,6 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("토큰이 형식에 맞지 않음", e);
-        } catch (ExpiredJwtException e) {
-            log.info("토큰 유효 기간 지남", e);
-        } catch (UnsupportedJwtException e) {
-            log.info("지원하지 않는 토큰", e);
-        } catch (IllegalArgumentException e) {
-            log.info("토큰 claims 비어있음", e);
-        } catch (NullPointerException e) {
-            log.info("토큰 값이 null", e);
-        }
-        return false;
-    }
-
     public Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

@@ -16,10 +16,8 @@ public enum ErrorCode {
     INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "토큰의 형식이 유효하지 않습니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰 기간이 만료됐습니다."),
 
-
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
-
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템이 존재하지 않습니다."),
 
     //409 Conflict
