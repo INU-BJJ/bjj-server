@@ -6,6 +6,8 @@ import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
+import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
@@ -13,8 +15,6 @@ import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -100,9 +100,26 @@ public class ReviewService {
                 .build();
     }
 
-    public ReviewRes findMyReviews(Long memberId, int pageNumber, int pageSize) {
+    public MyReviewRes findMyReviews(Long memberId) {
+        log.info("[로그] findByMenuPair(), memberId : {}", memberId);
 
-        Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of(pageNumber, pageSize));
+        Map<String, List<MyReviewDetailRes>> myReviewDetailList = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
+
+        return MyReviewRes.builder()
+                .myReviewDetailList(myReviewDetailList)
+                .build();
+    }
+
+    /*public ReviewRes findMyReviewsByCafeteria(Long memberId, int pageNumber, int pageSize) {
+        log.info("[로그] findByMenuPair(), memberId : {}", memberId);
+
+        // Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of(pageNumber, pageSize));
+
+        Map<String, List<MyReviewDetailRes>> myReviewDetailList = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
+
+        MyReviewRes.builder()
+                .myReviewDetailList(myReviewDetailList)
+                .build();
 
         List<Review> reviewList = reviewPage.getContent();
 
@@ -124,7 +141,7 @@ public class ReviewService {
                 .reviewDetailList(reviewDetailList)
                 .isLastPage(reviewPage.isLast())
                 .build();
-    }
+    }*/
 
     @Transactional
     public Long delete(Long reviewId) {

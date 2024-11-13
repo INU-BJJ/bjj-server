@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.review.controller;
 
+import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
@@ -62,16 +63,15 @@ public class ReviewController {
     @Operation(summary = "회원이 작성한 리뷰 조회",
             description = """
                     - 회원이 작성한 리뷰 조회\s
-                     - 10개씩 리뷰 조회\s
-                     - pageNumber은 1부터 시작 (1..10 -> 11->20 -> 21..30)\s
-                     - responseDTO : ReviewRes""")
+                     - 각 식당별 최대 3개씩 리뷰 조회\s
+                     - responseDTO : MyReviewRes""")
     @GetMapping("/my")
-    public ResponseEntity<ReviewRes> getMyReviews(Long memberId, int pageNumber, int pageSize) {
-        log.info("[로그] GET /api/reviews/my?memberId={}&pageNumber={}&pageSize={}", memberId, pageNumber, pageSize);
+    public ResponseEntity<MyReviewRes> getMyReviews(Long memberId) {
+        log.info("[로그] GET /api/reviews/my?memberId={}", memberId);
 
-        ReviewRes reviewRes = reviewService.findMyReviews(memberId, pageNumber, pageSize);
+        MyReviewRes myReviewRes = reviewService.findMyReviews(memberId);
 
-        return ResponseEntity.ok(reviewRes);
+        return ResponseEntity.ok(myReviewRes);
     }
 
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")

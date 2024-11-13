@@ -1,11 +1,14 @@
 package com.appcenter.BJJ.domain.review.repository;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
+import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
 import com.appcenter.BJJ.domain.menu.domain.Menu;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.ReviewLike;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,8 +16,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
@@ -153,5 +155,71 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         typedQuery.setMaxResults(pageSize);
 
         return typedQuery.getResultList();
+    }
+
+    @Override
+    public Map<String, List<MyReviewDetailRes>> findMyReviewsWithImagesAndMemberDetailsAndCafeteria(Long memberId) {
+
+        List<String> cafeteriaNameList = Arrays.stream(CafeteriaData.values()).map(CafeteriaData::getName).toList();
+
+        Map<String, List<MyReviewDetailRes>> myReviewDetailList = new LinkedHashMap<>();
+
+        for (String cafeteriaName : cafeteriaNameList) {
+
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<MyReviewDetailRes> query = cb.createQuery(MyReviewDetailRes.class);
+            Root<Review> review = query.from(Review.class);
+
+            // 조건문 리스트
+            List<Predicate> predicates = new ArrayList<>();
+
+            // MenuPair와 Image 조인
+            Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
+
+            // Menu 조인
+            Root<Menu> mainMenu = query.from(Menu.class);
+            predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
+            Root<Menu> subMenu = query.from(Menu.class);
+            predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
+
+            // Cafeteria 조인
+            Root<Cafeteria> cafeteria = query.from(Cafeteria.class);
+            predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
+
+            // Cafeteria 조건문
+            predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
+
+            // Member에 대한 서브쿼리
+            Subquery<String> memberSubquery = query.subquery(String.class);
+            Root<Member> member = memberSubquery.from(Member.class);
+            memberSubquery.select(member.get("nickname"))
+                    .where(cb.equal(member.get("id"), review.get("memberId")));
+
+            // 쿼리에서 선택할 내용 설정
+            query.select(cb.construct(
+                    MyReviewDetailRes.class,
+                    review.get("id"),
+                    review.get("comment"),
+                    review.get("rating"),
+                    review.get("likeCount"),
+                    review.get("createdDate"),
+                    menuPair.get("id"),
+                    mainMenu.get("menuName"),
+                    subMenu.get("menuName"),
+                    review.get("memberId"),
+                    memberSubquery
+            )).where(predicates.toArray(new Predicate[0]));
+
+            query.orderBy(cb.desc(review.get("id")));
+
+            List<MyReviewDetailRes> resultList = entityManager.createQuery(query)
+                    .setMaxResults(3)
+                    .getResultList();
+
+            if (!resultList.isEmpty()) {
+                myReviewDetailList.put(cafeteriaName, resultList);
+            }
+        }
+        return myReviewDetailList;
     }
 }
