@@ -59,11 +59,13 @@ public class MemberController {
     }
 
     // test 회원가입 및 로그인
+    @Operation(summary = "[test] 회원가입")
     @PostMapping("/test/social-login")
     public ResponseEntity<MemberRes> socialLogin(@RequestBody LoginReq loginReq) {
         return ResponseEntity.ok(memberService.socialLogin(loginReq));
     }
 
+    @Operation(summary = "[test] 로그인")
     @PostMapping("/test/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginReq loginReq) {
         Map<String, String> signupRes = new HashMap<>();
