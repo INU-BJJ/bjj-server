@@ -37,11 +37,6 @@ public class MemberController {
         return ResponseEntity.ok(signupRes);
     }
 
-    @PostMapping("/test/social-login")
-    public ResponseEntity<MemberRes> login(@RequestBody LoginReq loginReq) {
-        return ResponseEntity.ok(memberService.login(loginReq));
-    }
-
     @Operation(summary = "회원 조회")
     @GetMapping("")
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -61,5 +56,18 @@ public class MemberController {
         Map<String, String> nicknameRes = new HashMap<>();
         nicknameRes.put("nickname", memberService.changeNickname(userDetails.getNickname(), nickname));
         return ResponseEntity.ok(nicknameRes);
+    }
+
+    // test 회원가입 및 로그인
+    @PostMapping("/test/social-login")
+    public ResponseEntity<MemberRes> socialLogin(@RequestBody LoginReq loginReq) {
+        return ResponseEntity.ok(memberService.socialLogin(loginReq));
+    }
+
+    @PostMapping("/test/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginReq loginReq) {
+        Map<String, String> signupRes = new HashMap<>();
+        signupRes.put("token", memberService.login(loginReq));
+        return ResponseEntity.ok(signupRes);
     }
 }

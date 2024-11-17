@@ -41,9 +41,9 @@ public class MemberService {
         return accessToken;
     }
 
-    public MemberRes login(LoginReq loginReq) {
+    // test 회원가입
+    public MemberRes socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
-        isNicknameAvailable(loginReq.getNickname());
 
         Member member = Member.builder()
                 .email(loginReq.getEmail())
@@ -61,6 +61,18 @@ public class MemberService {
                 .nickname(member.getNickname())
                 .provider(member.getProvider())
                 .build();
+    }
+
+    // test 로그인
+    public String login(LoginReq loginReq) {
+        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+        isNicknameAvailable(loginReq.getNickname());
+
+        member.updateMemberInfo(loginReq.getNickname(), "ROLE_USER");
+        memberRepository.save(member);
+        return getToken(member.getProviderId(), JwtProvider.validAccessTime);
     }
 
     public MemberRes getMember(Long id) {
