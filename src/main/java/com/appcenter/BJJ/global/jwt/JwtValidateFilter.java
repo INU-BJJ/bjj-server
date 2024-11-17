@@ -24,8 +24,10 @@ public class JwtValidateFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException | UnsupportedJwtException |
                  IllegalArgumentException | NullPointerException e) {
+            log.warn("JwtValidateFilter.doFilterInternal() - INVALID_TOKEN_FORMAT 예외전파됨");
             setErrorResponse(response, ErrorCode.INVALID_TOKEN_FORMAT);
         } catch (ExpiredJwtException e) {
+            log.warn("JwtValidateFilter.doFilterInternal() - EXPIRED_TOKEN 예외전파됨");
             setErrorResponse(response, ErrorCode.EXPIRED_TOKEN);
         }
     }
