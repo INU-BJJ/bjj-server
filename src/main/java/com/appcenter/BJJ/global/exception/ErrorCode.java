@@ -12,9 +12,12 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다."),
 
     //401 Unauthorized
-    ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "사용자가 인증되지 않았습니다."),
+    ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     INVALID_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "토큰의 형식이 유효하지 않습니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰 기간이 만료됐습니다."),
+
+    //403 Forbidden
+    ERROR_FORBIDDEN(HttpStatus.FORBIDDEN, "이 리소스에 접근할 권한이 없습니다."),
 
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
