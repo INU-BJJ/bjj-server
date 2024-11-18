@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String nickname;
+    private String nickname;
 
-    String email;
+    private String email;
 
-    String provider;
+    private String provider;
 
-    String providerId;
+    private String providerId;
 
-    int point;
+    private int point;
 
-    String role;
+    private String role;
 
     @Builder
     private Member(String nickname, String email, String provider, String providerId) {
@@ -48,5 +48,9 @@ public class Member {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateTestProviderId(String id){
+        this.providerId = id;
     }
 }

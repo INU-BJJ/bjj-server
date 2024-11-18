@@ -1,8 +1,7 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class JwtProvider {
     private final Key key;
     public static final long validAccessTime = 2L * 365 * 24 * 60 * 60 * 1000; // 2년 (이후에 3달로 바꿀 예정)
 
-    public JwtProvider(@Value("${spring.jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService) {
+    private JwtProvider(@Value("${spring.jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService) {
         byte[] ketBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(ketBytes);
         this.userDetailsService = userDetailsService;
@@ -40,6 +39,7 @@ public class JwtProvider {
         Member member = ((UserDetailsImpl) authentication.getPrincipal()).getMember();
         long now = (new Date()).getTime();
         log.info("JWTProvider.generateToken() - 사용자 : {}", member.getEmail());
+
         String accessToken = Jwts.builder()
                 .setSubject(member.getProviderId())
                 .claim("auth", authorities)
@@ -47,7 +47,7 @@ public class JwtProvider {
                 .setExpiration(new Date(now + time))
                 .signWith(key)
                 .compact();
-        log.info("JWTProvider.generateToken() - 토큰 발급 완료 / 유효기간 : {}, 발급시간 : {}", parseClaims(accessToken).getExpiration(), parseClaims(accessToken).getIssuedAt());
+        log.info("JWTProvider.generateToken() - 토큰 발급 완료 / 발급일자 : {}, 유효일자 : {}", parseClaims(accessToken).getIssuedAt(), parseClaims(accessToken).getExpiration());
         return accessToken;
     }
 

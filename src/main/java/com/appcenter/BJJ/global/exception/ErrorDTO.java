@@ -2,14 +2,10 @@ package com.appcenter.BJJ.global.exception;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-@Setter
 @Builder
-@Slf4j
 public class ErrorDTO {
     private String msg;
 

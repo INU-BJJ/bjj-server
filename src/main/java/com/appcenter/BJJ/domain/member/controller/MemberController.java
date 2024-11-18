@@ -1,10 +1,9 @@
 package com.appcenter.BJJ.domain.member.controller;
 
-import com.appcenter.BJJ.domain.member.service.MemberService;
+import com.appcenter.BJJ.domain.member.dto.LoginReq;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
-import com.appcenter.BJJ.global.exception.CustomException;
-import com.appcenter.BJJ.global.exception.ErrorCode;
+import com.appcenter.BJJ.domain.member.service.MemberService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "회원 API")
 public class MemberController {
@@ -38,7 +37,7 @@ public class MemberController {
         return ResponseEntity.ok(signupRes);
     }
 
-    @Operation(summary = "모든 회원 조회")
+    @Operation(summary = "회원 조회")
     @GetMapping("")
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController.getMember() - 진입");
@@ -48,8 +47,7 @@ public class MemberController {
     @Operation(summary = "닉네임 중복 확인")
     @PostMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
-        if (memberService.isNicknameAvailable(nickname)) return ResponseEntity.ok(true);
-        return ResponseEntity.ok(false);
+        return ResponseEntity.ok(memberService.isNicknameAvailable(nickname));
     }
 
     @Operation(summary = "닉네임 수정")
@@ -58,5 +56,20 @@ public class MemberController {
         Map<String, String> nicknameRes = new HashMap<>();
         nicknameRes.put("nickname", memberService.changeNickname(userDetails.getNickname(), nickname));
         return ResponseEntity.ok(nicknameRes);
+    }
+
+    // test 회원가입 및 로그인
+    @Operation(summary = "[test] 회원가입")
+    @PostMapping("/test/social-login")
+    public ResponseEntity<MemberRes> socialLogin(@RequestBody LoginReq loginReq) {
+        return ResponseEntity.ok(memberService.socialLogin(loginReq));
+    }
+
+    @Operation(summary = "[test] 로그인")
+    @PostMapping("/test/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginReq loginReq) {
+        Map<String, String> signupRes = new HashMap<>();
+        signupRes.put("token", memberService.login(loginReq));
+        return ResponseEntity.ok(signupRes);
     }
 }

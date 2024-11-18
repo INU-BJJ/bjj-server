@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.member.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +25,8 @@ public class Item {
 
     private String path;
 
-    protected Item(String name, String type, int price, String level, String path) {
+    @Builder
+    private Item(String name, String type, int price, String level, String path) {
         this.name = name;
         this.type= type;
         this.price = price;
