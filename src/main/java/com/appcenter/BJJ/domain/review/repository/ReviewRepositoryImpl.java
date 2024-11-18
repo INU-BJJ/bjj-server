@@ -222,4 +222,103 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         }
         return myReviewDetailList;
     }
+
+    @Override
+    public Long countMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<Review> review = countQuery.from(Review.class);
+
+        // 조건문 리스트
+        List<Predicate> predicates = new ArrayList<>();
+
+        // MenuPair와 Image 조인
+        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
+
+        // Menu 조인
+        Root<Menu> mainMenu = countQuery.from(Menu.class);
+        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
+        Root<Menu> subMenu = countQuery.from(Menu.class);
+        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
+
+        // Cafeteria 조인
+        Root<Cafeteria> cafeteria = countQuery.from(Cafeteria.class);
+        predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
+
+        // Cafeteria 조건문
+        predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
+
+        // Member 조건문
+        predicates.add(cb.equal(review.get("memberId"), memberId));
+
+        // Member에 대한 서브쿼리
+        Subquery<String> memberSubquery = countQuery.subquery(String.class);
+        Root<Member> member = memberSubquery.from(Member.class);
+        memberSubquery.select(member.get("nickname"))
+                .where(cb.equal(member.get("id"), review.get("memberId")));
+
+        countQuery.select(cb.count(review)).where(predicates.toArray(new Predicate[0]));
+        return entityManager.createQuery(countQuery).getSingleResult();
+    }
+
+    @Override
+    public List<ReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ReviewDetailRes> query = cb.createQuery(ReviewDetailRes.class);
+        Root<Review> review = query.from(Review.class);
+
+        // 조건문 리스트
+        List<Predicate> predicates = new ArrayList<>();
+
+        // MenuPair와 Image 조인
+        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
+
+        // Menu 조인
+        Root<Menu> mainMenu = query.from(Menu.class);
+        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
+        Root<Menu> subMenu = query.from(Menu.class);
+        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
+
+        // Cafeteria 조인
+        Root<Cafeteria> cafeteria = query.from(Cafeteria.class);
+        predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
+
+        // Cafeteria 조건문
+        predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
+
+        // Member 조건문
+        predicates.add(cb.equal(review.get("memberId"), memberId));
+
+        // Member에 대한 서브쿼리
+        Subquery<String> memberSubquery = query.subquery(String.class);
+        Root<Member> member = memberSubquery.from(Member.class);
+        memberSubquery.select(member.get("nickname"))
+                .where(cb.equal(member.get("id"), review.get("memberId")));
+
+        // 쿼리에서 선택할 내용 설정
+        query.select(cb.construct(
+                ReviewDetailRes.class,
+                review.get("id"),
+                review.get("comment"),
+                review.get("rating"),
+                review.get("likeCount"),
+                cb.literal(false),
+                review.get("createdDate"),
+                menuPair.get("id"),
+                mainMenu.get("menuName"),
+                subMenu.get("menuName"),
+                review.get("memberId"),
+                memberSubquery
+        )).where(predicates.toArray(new Predicate[0]));
+
+        query.orderBy(cb.desc(review.get("id")));
+
+        // 페이징 처리
+        TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);
+        typedQuery.setFirstResult(pageNumber);
+        typedQuery.setMaxResults(pageSize);
+
+        return typedQuery.getResultList();
+    }
 }

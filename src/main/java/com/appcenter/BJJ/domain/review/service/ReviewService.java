@@ -101,7 +101,7 @@ public class ReviewService {
     }
 
     public MyReviewRes findMyReviews(Long memberId) {
-        log.info("[로그] findByMenuPair(), memberId : {}", memberId);
+        log.info("[로그] findMyReviews(), memberId : {}", memberId);
 
         Map<String, List<MyReviewDetailRes>> myReviewDetailList = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
 
@@ -110,38 +110,21 @@ public class ReviewService {
                 .build();
     }
 
-    /*public ReviewRes findMyReviewsByCafeteria(Long memberId, int pageNumber, int pageSize) {
-        log.info("[로그] findByMenuPair(), memberId : {}", memberId);
+    public ReviewRes findMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
+        log.info("[로그] findMyReviewsByCafeteria(), memberId : {}", memberId);
 
-        // Page<Review> reviewPage = reviewRepository.findByMemberIdOrderByCreatedDateDesc(memberId, PageRequest.of(pageNumber, pageSize));
+        List<ReviewDetailRes> reviewDetailList = reviewRepository
+                .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, pageNumber, pageSize);
 
-        Map<String, List<MyReviewDetailRes>> myReviewDetailList = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
-
-        MyReviewRes.builder()
-                .myReviewDetailList(myReviewDetailList)
-                .build();
-
-        List<Review> reviewList = reviewPage.getContent();
-
-        List<ReviewDetailRes> reviewDetailList = reviewList.stream().map(review -> {
-            List<String> imageNameList = review.getImages().stream().map(Image::getName).toList();
-
-            return ReviewDetailRes.builder()
-                    .reviewId(review.getId())
-                    .comment(review.getComment())
-                    .rating(review.getRating())
-                    .imageNames(imageNameList)
-                    .likeCount(review.getLikeCount())
-                    .createdDate(review.getCreatedDate())
-                    .memberId(review.getMemberId())
-                    .build();
-        }).toList();
+        // 마지막 페이지 여부 확인
+        Long totalCount = reviewRepository.countMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName);
+        boolean isLastPage = (pageNumber + pageSize >= totalCount);
 
         return ReviewRes.builder()
                 .reviewDetailList(reviewDetailList)
-                .isLastPage(reviewPage.isLast())
+                .isLastPage(isLastPage)
                 .build();
-    }*/
+    }
 
     @Transactional
     public Long delete(Long reviewId) {

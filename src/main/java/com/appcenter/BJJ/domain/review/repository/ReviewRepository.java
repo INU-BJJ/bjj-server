@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
-    Page<Review> findByMemberIdOrderByCreatedDateDesc(Long memberId, Pageable pageable);
-
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPair.id = :menuPairId")
     Float findAverageRatingByMenuPairId(Long menuPairId);
 
