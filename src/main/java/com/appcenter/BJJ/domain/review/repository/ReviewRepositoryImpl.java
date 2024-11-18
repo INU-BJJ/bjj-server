@@ -189,6 +189,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
             // Cafeteria 조건문
             predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
 
+            // Member 조건문
+            predicates.add(cb.equal(review.get("memberId"), memberId));
+
             // Member에 대한 서브쿼리
             Subquery<String> memberSubquery = query.subquery(String.class);
             Root<Member> member = memberSubquery.from(Member.class);
