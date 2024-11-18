@@ -6,6 +6,7 @@ import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,11 +32,11 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> postReview(@RequestPart ReviewPost reviewPost, @RequestPart(required = false) List<MultipartFile> files, Long memberId) {
-        log.info("[로그] POST /api/reviews?memberId={}", memberId);
+    public ResponseEntity<Long> postReview(@RequestPart ReviewPost reviewPost, @RequestPart(required = false) List<MultipartFile> files, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews, memberNickname : {}", userDetails.getNickname());
 
         // 리뷰 생성
-        long reviewId = reviewService.create(reviewPost, files, memberId);
+        long reviewId = reviewService.create(reviewPost, files, userDetails.getMember().getId());
 
         // 리뷰 별점 및 개수 반영
         menuPairService.refreshReviewCountAndRating(reviewPost.getMenuPairId());
@@ -53,11 +55,11 @@ public class ReviewController {
                     - responseDTO : ReviewRes
                     """)
     @GetMapping
-    public ResponseEntity<ReviewRes> getReviews(Long memberId, Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages) {
+    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews?menuPairId={}&pageNumber={}&pageSize={}&sort={}&isWithImages={}", menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         // page는 1부터 시작
-        ReviewRes reviewRes = reviewService.findByMenuPair(memberId, menuPairId, pageNumber, pageSize, sort, isWithImages);
+        ReviewRes reviewRes = reviewService.findByMenuPair(userDetails.getMember().getId(), menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         return ResponseEntity.ok(reviewRes);
     }
@@ -68,10 +70,10 @@ public class ReviewController {
                      - 각 식당별 최대 3개씩 리뷰 조회\s
                      - responseDTO : MyReviewRes""")
     @GetMapping("/my")
-    public ResponseEntity<MyReviewRes> getMyReviews(Long memberId) {
-        log.info("[로그] GET /api/reviews/my?memberId={}", memberId);
+    public ResponseEntity<MyReviewRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/reviews/my, memberNickname: {}", userDetails.getNickname());
 
-        MyReviewRes myReviewRes = reviewService.findMyReviews(memberId);
+        MyReviewRes myReviewRes = reviewService.findMyReviews(userDetails.getMember().getId());
 
         return ResponseEntity.ok(myReviewRes);
     }
@@ -84,10 +86,10 @@ public class ReviewController {
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - responseDTO : ReviewRes""")
     @GetMapping("/my/cafeteria")
-    public ResponseEntity<ReviewRes> getMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
-        log.info("[로그] GET /api/reviews/my/cafeteria?memberId={}&cafeteriaName={}", memberId, cafeteriaName);
+    public ResponseEntity<ReviewRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
 
-        ReviewRes ReviewRes = reviewService.findMyReviewsByCafeteria(memberId, cafeteriaName, pageNumber, pageSize);
+        ReviewRes ReviewRes = reviewService.findMyReviewsByCafeteria(userDetails.getMember().getId(), cafeteriaName, pageNumber, pageSize);
 
         return ResponseEntity.ok(ReviewRes);
     }
