@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class ReviewDetailRes {
+public class MyReviewDetailRes {
     @Schema(description = "리뷰 id", example = "1")
     private final Long reviewId;
     @Schema(description = "리뷰 내용", example = "맛이 참으로 좋읍니다.")
@@ -22,8 +22,6 @@ public class ReviewDetailRes {
     private List<String> imageNames;
     @Schema(description = "리뷰 좋아요 개수", example = "123")
     private final Long likeCount;
-    @Schema(description = "좋아요 누른 리뷰인지 여부", example = "true")
-    private final boolean isLiked;
     @Schema(description = "리뷰 작성일", example = "2024-10-01")
     private final LocalDate createdDate;
     @Schema(description = "메뉴쌍 id", example = "1")
