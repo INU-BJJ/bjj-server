@@ -103,25 +103,53 @@ public class ReviewService {
     public MyReviewRes findMyReviews(Long memberId) {
         log.info("[로그] findMyReviews(), memberId : {}", memberId);
 
-        Map<String, List<MyReviewDetailRes>> myReviewDetailList = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
+        Map<String, List<MyReviewDetailRes>> myReviewDetailResListMap = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
+
+        myReviewDetailResListMap.values().forEach(myReviewDetailResList -> {
+            List<Long> reviewIdList = myReviewDetailResList.stream().map(MyReviewDetailRes::getReviewId).toList();
+
+            List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
+            Map<Long, List<Image>> imageListMap = images
+                    .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
+
+            myReviewDetailResList.forEach(myReviewDetailRes -> {
+                List<String> imageNameList = imageListMap
+                        .getOrDefault(myReviewDetailRes.getReviewId(), List.of())
+                        .stream().map(Image::getName).toList();
+                myReviewDetailRes.setImageNames(imageNameList);
+            });
+        });
 
         return MyReviewRes.builder()
-                .myReviewDetailList(myReviewDetailList)
+                .myReviewDetailList(myReviewDetailResListMap)
                 .build();
     }
 
     public ReviewRes findMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
         log.info("[로그] findMyReviewsByCafeteria(), memberId : {}", memberId);
 
-        List<ReviewDetailRes> reviewDetailList = reviewRepository
+        List<ReviewDetailRes> reviewDetailResList = reviewRepository
                 .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, pageNumber, pageSize);
+
+        List<Long> reviewIdList = reviewDetailResList.stream().map(ReviewDetailRes::getReviewId).toList();
+
+        List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
+        Map<Long, List<Image>> imageListMap = images
+                .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
+
+        reviewDetailResList.forEach(reviewDetailRes -> {
+            List<String> imageNameList = imageListMap
+                    .getOrDefault(reviewDetailRes.getReviewId(), List.of())
+                    .stream().map(Image::getName).toList();
+            reviewDetailRes.setImageNames(imageNameList);
+        });
 
         // 마지막 페이지 여부 확인
         Long totalCount = reviewRepository.countMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName);
         boolean isLastPage = (pageNumber + pageSize >= totalCount);
 
         return ReviewRes.builder()
-                .reviewDetailList(reviewDetailList)
+                .reviewDetailList(reviewDetailResList)
                 .isLastPage(isLastPage)
                 .build();
     }
