@@ -35,7 +35,7 @@ public class ReviewService {
     private final ImageRepository imageRepository;
     private final MenuPairRepository menuPairRepository;
 
-    @Value("${dir.img.review}")
+    @Value("${storage.images.review}")
     private String REVIEW_IMG_DIR;
 
     @Transactional
