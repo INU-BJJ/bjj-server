@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Value("${dir.img.review}")
+    @Value("${storage.images.review}")
     private String REVIEW_IMG_DIR;
 
     @Override
