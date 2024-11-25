@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,6 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProvider jwtProvider;
+    private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
     //로그인 성공 및 토큰 발급 및 redirect url
     @Value("${spring.oauth2.url.sign_in}")
     private String signInUrl;
@@ -30,6 +32,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("OAuth2SuccessHandler 진입");
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String token = jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
+
         String redirectUrl;
         if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
             log.info("OAuth2SuccessHandler.onAuthenticationSuccess() - 회원가입으로 이동");

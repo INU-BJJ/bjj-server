@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,14 +29,24 @@ public class Member {
 
     private String role;
 
+    private String oauthToken;
+
+    private Instant issuedAt;
+
+    private Instant expiresAt;
+
+
     @Builder
-    private Member(String nickname, String email, String provider, String providerId) {
+    private Member(String nickname, String email, String provider, String providerId, String oauthToken, Instant issuedAt, Instant expiresAt) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
         this.role = "ROLE_GUEST";
+        this.oauthToken = oauthToken;
+        this.issuedAt = issuedAt;
+        this.expiresAt = expiresAt;
     }
 
     public void updateMemberInfo(String nickname, String role) {
@@ -50,7 +62,14 @@ public class Member {
         this.nickname = nickname;
     }
 
-    public void updateTestProviderId(String id){
+    public void updateOauthToken(String oauthToken, Instant issuedAt, Instant expiresAt) {
+        this.oauthToken = oauthToken;
+        this.issuedAt = issuedAt;
+        this.expiresAt = expiresAt;
+    }
+
+    // test용 메소드
+    public void updateTestProviderId(String id) {
         this.providerId = id;
     }
 }
