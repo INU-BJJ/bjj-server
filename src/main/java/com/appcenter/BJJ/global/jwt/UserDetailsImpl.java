@@ -1,7 +1,6 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

@@ -18,8 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -62,7 +60,7 @@ public class MemberService {
     public void deleteMember(MemberVO memberVO) {
         // [notice] 이후 member 관련된 내용도 다같이 지우기 //
         Long memberId = oAuth2Unlink.of(memberVO);
-        if(!memberRepository.existsById(memberId)) {
+        if (!memberRepository.existsById(memberId)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
         memberRepository.deleteById(memberId);

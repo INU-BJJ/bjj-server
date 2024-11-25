@@ -6,7 +6,6 @@ import com.appcenter.BJJ.domain.member.dto.MemberVO;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
 import com.appcenter.BJJ.domain.member.service.MemberService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
-import com.appcenter.BJJ.global.oauth.OAuth2Unlink;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,7 +26,6 @@ import java.util.Map;
 @Tag(name = "Member", description = "회원 API")
 public class MemberController {
     private final MemberService memberService;
-    private final OAuth2Unlink oAuth2Unlink;
 
     @Operation(summary = "회원가입",
             description = """
