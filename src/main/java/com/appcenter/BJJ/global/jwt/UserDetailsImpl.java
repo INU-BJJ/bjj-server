@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,6 +18,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails, OAuth2User {
     private Member member;
+
     public String getNickname() {
         return member.getNickname();
     }
