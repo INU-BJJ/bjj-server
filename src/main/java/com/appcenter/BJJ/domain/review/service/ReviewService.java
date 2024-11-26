@@ -6,11 +6,8 @@ import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.Sort;
-import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
-import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
+import com.appcenter.BJJ.domain.review.dto.*;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
-import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +97,7 @@ public class ReviewService {
                 .build();
     }
 
-    public MyReviewRes findMyReviews(Long memberId) {
+    public MyReviewsGroupedRes findMyReviews(Long memberId) {
         log.info("[로그] findMyReviews(), memberId : {}", memberId);
 
         Map<String, List<MyReviewDetailRes>> myReviewDetailResListMap = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
@@ -120,24 +117,24 @@ public class ReviewService {
             });
         });
 
-        return MyReviewRes.builder()
+        return MyReviewsGroupedRes.builder()
                 .myReviewDetailList(myReviewDetailResListMap)
                 .build();
     }
 
-    public ReviewRes findMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
+    public MyReviewsPagedRes findMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
         log.info("[로그] findMyReviewsByCafeteria(), memberId : {}", memberId);
 
-        List<ReviewDetailRes> reviewDetailResList = reviewRepository
+        List<MyReviewDetailRes> myReviewDetailResList = reviewRepository
                 .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, pageNumber, pageSize);
 
-        List<Long> reviewIdList = reviewDetailResList.stream().map(ReviewDetailRes::getReviewId).toList();
+        List<Long> reviewIdList = myReviewDetailResList.stream().map(MyReviewDetailRes::getReviewId).toList();
 
         List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
         Map<Long, List<Image>> imageListMap = images
                 .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
 
-        reviewDetailResList.forEach(reviewDetailRes -> {
+        myReviewDetailResList.forEach(reviewDetailRes -> {
             List<String> imageNameList = imageListMap
                     .getOrDefault(reviewDetailRes.getReviewId(), List.of())
                     .stream().map(Image::getName).toList();
@@ -148,8 +145,8 @@ public class ReviewService {
         Long totalCount = reviewRepository.countMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName);
         boolean isLastPage = (pageNumber + pageSize >= totalCount);
 
-        return ReviewRes.builder()
-                .reviewDetailList(reviewDetailResList)
+        return MyReviewsPagedRes.builder()
+                .myReviewDetailList(myReviewDetailResList)
                 .isLastPage(isLastPage)
                 .build();
     }
