@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.review.controller;
 
+import com.appcenter.BJJ.domain.review.dto.ReviewLikeReq.ReviewLikeDelete;
 import com.appcenter.BJJ.domain.review.dto.ReviewLikeReq.ReviewLikePost;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -10,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -32,5 +30,15 @@ public class ReviewLikeController {
         Long reviewLikeId = reviewLikeService.create(reviewLikePost, userDetails.getMember().getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewLikeId);
+    }
+
+    @Operation(summary = "리뷰 좋아요 취소")
+    @DeleteMapping
+    public ResponseEntity<Void> deleteReviewLike(@RequestBody ReviewLikeDelete reviewLikeDelete, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/review-likes, memberNickname: {}", userDetails.getNickname());
+
+        reviewLikeService.delete(reviewLikeDelete, userDetails.getMember().getId());
+
+        return ResponseEntity.noContent().build();
     }
 }

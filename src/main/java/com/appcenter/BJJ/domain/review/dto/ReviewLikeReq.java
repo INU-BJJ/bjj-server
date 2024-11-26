@@ -21,4 +21,11 @@ public interface ReviewLikeReq {
                     .build();
         }
     }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    class ReviewLikeDelete {
+        @Schema(description = "리뷰 id", example = "1")
+        private Long reviewId;
+    }
 }

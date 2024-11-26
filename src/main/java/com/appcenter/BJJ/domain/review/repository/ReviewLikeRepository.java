@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
 
     boolean existsByMemberIdAndReviewId(long memberId, long reviewId);
+
+    void deleteByMemberIdAndReviewId(long memberId, long reviewId);
 }

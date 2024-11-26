@@ -53,4 +53,8 @@ public class Review {
     public void increaseLikeCount() {
         likeCount++;
     }
+
+    public void decreaseLikeCount() {
+        likeCount--;
+    }
 }
