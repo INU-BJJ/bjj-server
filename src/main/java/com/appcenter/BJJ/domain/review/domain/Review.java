@@ -49,4 +49,8 @@ public class Review {
         this.memberId = memberId;
         this.menuPair = menuPair;
     }
+
+    public void increaseLikeCount() {
+        likeCount++;
+    }
 }

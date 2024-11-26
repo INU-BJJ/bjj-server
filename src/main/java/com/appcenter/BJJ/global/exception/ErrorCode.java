@@ -10,6 +10,7 @@ public enum ErrorCode {
     //400 Bad Request
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "이메일 및 비밀번호가 맞지 않습니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다."),
+    CANNOT_LIKE_OWN_REVIEW(HttpStatus.BAD_REQUEST, "자신의 리뷰에는 좋아요를 누를 수 없습니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
@@ -22,11 +23,15 @@ public enum ErrorCode {
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템이 존재하지 않습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 삭제되었거나 존재하지 않는 리뷰입니다."),
 
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 닉네임입니다."),
-    ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다.");
+    ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
+    ALREADY_LIKED_REVIEW(HttpStatus.CONFLICT, "이미 좋아요를 누른 리뷰입니다."),
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
