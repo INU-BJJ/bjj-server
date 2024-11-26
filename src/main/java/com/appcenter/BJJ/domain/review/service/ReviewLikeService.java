@@ -56,7 +56,7 @@ public class ReviewLikeService {
         // 자신의 리뷰에는 좋아요 취소를 시도할 수 없음
         if (review.getMemberId() == memberId) {
             log.warn("회원 {}이 자신의 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, review.getId());
-            throw new CustomException(ErrorCode.CANNOT_LIKE_OWN_REVIEW);
+            throw new CustomException(ErrorCode.CANNOT_UNLIKE_OWN_REVIEW);
         }
 
         // 좋아요를 누르지 않은 리뷰인 경우 좋아요 취소를 할 수 없음
