@@ -6,11 +6,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public interface ReviewLikeReq {
+public class ReviewLikeReq {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    class ReviewLikePost {
+    public static class ReviewLikePost {
         @Schema(description = "리뷰 id", example = "1")
         private Long reviewId;
 
@@ -24,7 +24,7 @@ public interface ReviewLikeReq {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    class ReviewLikeDelete {
+    public static class ReviewLikeDelete {
         @Schema(description = "리뷰 id", example = "1")
         private Long reviewId;
     }
