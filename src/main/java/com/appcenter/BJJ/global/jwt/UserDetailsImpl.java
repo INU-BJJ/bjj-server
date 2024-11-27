@@ -17,6 +17,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails, OAuth2User {
     private Member member;
+
     public String getNickname() {
         return member.getNickname();
     }
