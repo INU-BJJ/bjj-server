@@ -7,10 +7,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public interface ReviewReq {
+public class ReviewReq {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    class ReviewPost {
+    public static class ReviewPost {
         @Schema(description = "리뷰 내용", example = "맛이 차암 좋읍니다.")
         private String comment;
         @Schema(description = "리뷰 별점", example = "5")
