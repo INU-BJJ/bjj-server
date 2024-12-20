@@ -2,8 +2,8 @@ package com.appcenter.BJJ.domain.member.service;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.LoginReq;
+import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
-import com.appcenter.BJJ.domain.member.dto.MemberVO;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
 import com.appcenter.BJJ.domain.member.repository.MemberRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
@@ -36,7 +36,6 @@ public class MemberService {
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         member.updateMemberInfo(signupReq.getNickname(), "ROLE_USER");
-        memberRepository.save(member);
         log.info("MemberService.signup() - ROLE_USER로 변경 완료 및 회원가입 성공");
 
         String accessToken = getToken(member.getProviderId(), JwtProvider.validAccessTime);
@@ -57,9 +56,9 @@ public class MemberService {
                 .build();
     }
 
-    public void deleteMember(MemberVO memberVO) {
+    public void deleteMember(MemberOAuthVO memberOAuthVO) {
         // [notice] 이후 member 관련된 내용도 다같이 지우기 //
-        Long memberId = oAuth2Unlink.of(memberVO);
+        Long memberId = oAuth2Unlink.unlinkHandler(memberOAuthVO);
         if (!memberRepository.existsById(memberId)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
@@ -91,7 +90,6 @@ public class MemberService {
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         member.updateNickname(newNickname);
-        memberRepository.save(member);
         return newNickname;
     }
 
@@ -108,8 +106,8 @@ public class MemberService {
         memberRepository.save(member);
 
         member.updateTestProviderId(String.valueOf(member.getId()));
-        memberRepository.save(member);
         log.info("MemberService.login() - ROLE_GUEST 회원 생성 성공");
+
         return MemberRes.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
@@ -124,7 +122,7 @@ public class MemberService {
         isNicknameAvailable(loginReq.getNickname());
 
         member.updateMemberInfo(loginReq.getNickname(), "ROLE_USER");
-        memberRepository.save(member);
+
         return getToken(member.getProviderId(), JwtProvider.validAccessTime);
     }
 }
