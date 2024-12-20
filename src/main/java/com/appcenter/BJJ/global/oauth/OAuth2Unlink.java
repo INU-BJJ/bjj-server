@@ -44,7 +44,6 @@ public class OAuth2Unlink {
             case "kakao" -> unlinkKakao(memberOAuthVO.getProviderId());
             default -> throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
-        ;
         return memberOAuthVO.getMemberId();
     }
 
