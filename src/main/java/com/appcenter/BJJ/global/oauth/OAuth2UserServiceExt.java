@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.global.oauth;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.member.domain.OAuth2Client;
 import com.appcenter.BJJ.domain.member.repository.MemberRepository;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +28,16 @@ public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
 
 
         Member member = memberRepository.findByEmailAndProviderId(oAuth2UserInfo.getEmail(), oAuth2UserInfo.getProviderId()).orElseGet(
-
                 () -> Member.builder()
                         .provider(oAuth2UserInfo.getProvider())
                         .providerId(oAuth2UserInfo.getProviderId())
                         .nickname(oAuth2UserInfo.getNickname())
                         .email(oAuth2UserInfo.getEmail())
-
-                        .oauthToken(userRequest.getAccessToken().getTokenValue())
-                        .issuedAt(userRequest.getAccessToken().getIssuedAt())
-                        .expiresAt(userRequest.getAccessToken().getExpiresAt())
+                        .oAuth2Client(OAuth2Client.builder()
+                                .oauthToken(userRequest.getAccessToken().getTokenValue())
+                                .issuedAt(userRequest.getAccessToken().getIssuedAt())
+                                .expiresAt(userRequest.getAccessToken().getExpiresAt())
+                                .build())
                         .build()
         );
 
@@ -47,7 +48,11 @@ public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
             log.info("OAuth2UserServiceExt.loadUser() - 기존 회원 이메일 : {}, 기존 회원 role : {}", member.getEmail(), member.getRole());
 
             // loadUser시 재접속, 토큰 재발급됨
-            member.updateOauthToken(userRequest.getAccessToken().getTokenValue(), userRequest.getAccessToken().getIssuedAt(), userRequest.getAccessToken().getExpiresAt());
+            member.updateOauthToken(OAuth2Client.builder()
+                    .oauthToken(userRequest.getAccessToken().getTokenValue())
+                    .issuedAt(userRequest.getAccessToken().getIssuedAt())
+                    .expiresAt(userRequest.getAccessToken().getExpiresAt())
+                    .build());
             memberRepository.save(member);
         }
 
