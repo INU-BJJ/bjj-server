@@ -1,12 +1,15 @@
 package com.appcenter.BJJ.domain.member.controller;
 
 import com.appcenter.BJJ.domain.member.dto.LoginReq;
+import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
 import com.appcenter.BJJ.domain.member.service.MemberService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +30,9 @@ public class MemberController {
     @Operation(summary = "회원가입",
             description = """
                     - 소셜로그인 처음 이용시 연결\s
-                    - requestDTO : SignupDTO\s""")
+                    - request : SignupReq\s""")
     @PostMapping("/sign-up")
-    public ResponseEntity<Map<String, String>> signUp(@RequestBody SignupReq signupReq) {
+    public ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody SignupReq signupReq) {
         log.info("MemberController.signUp() - 진입");
         Map<String, String> signupRes = new HashMap<>();
         signupRes.put("token", memberService.signUp(signupReq));
@@ -46,28 +49,36 @@ public class MemberController {
 
     @Operation(summary = "닉네임 중복 확인")
     @PostMapping("/check-nickname")
-    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+    public ResponseEntity<Boolean> checkNickname(@Valid @RequestParam String nickname) {
         return ResponseEntity.ok(memberService.isNicknameAvailable(nickname));
     }
 
     @Operation(summary = "닉네임 수정")
     @PatchMapping("/nickname")
-    public ResponseEntity<Map<String, String>> putNickname(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam String nickname) {
+    public ResponseEntity<Map<String, String>> putNickname(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                           @NotBlank(message = "닉네임은 필수항목입니다.") @RequestParam String nickname) {
         Map<String, String> nicknameRes = new HashMap<>();
         nicknameRes.put("nickname", memberService.changeNickname(userDetails.getNickname(), nickname));
         return ResponseEntity.ok(nicknameRes);
     }
 
-    // test 회원가입 및 로그인
-    @Operation(summary = "[test] 회원가입")
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteMember(@Valid @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        memberService.deleteMember(MemberOAuthVO.from(userDetails.getMember()));
+        return ResponseEntity.noContent().build();
+    }
+
+    // test 회원가입 및 로그인 //
+    @Operation(summary = "[test] 소셜로그인")
     @PostMapping("/test/social-login")
-    public ResponseEntity<MemberRes> socialLogin(@RequestBody LoginReq loginReq) {
+    public ResponseEntity<MemberRes> socialLogin(@Valid @RequestBody LoginReq loginReq) {
         return ResponseEntity.ok(memberService.socialLogin(loginReq));
     }
 
     @Operation(summary = "[test] 로그인")
     @PostMapping("/test/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginReq loginReq) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginReq loginReq) {
         Map<String, String> signupRes = new HashMap<>();
         signupRes.put("token", memberService.login(loginReq));
         return ResponseEntity.ok(signupRes);
