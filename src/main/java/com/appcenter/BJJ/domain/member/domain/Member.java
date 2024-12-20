@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,24 +27,18 @@ public class Member {
 
     private String role;
 
-    private String oauthToken;
-
-    private Instant issuedAt;
-
-    private Instant expiresAt;
+    private OAuth2Client oAuth2Client;
 
 
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, String oauthToken, Instant issuedAt, Instant expiresAt) {
+    private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
         this.role = "ROLE_GUEST";
-        this.oauthToken = oauthToken;
-        this.issuedAt = issuedAt;
-        this.expiresAt = expiresAt;
+        this.oAuth2Client = oAuth2Client;
     }
 
     public void updateMemberInfo(String nickname, String role) {
@@ -62,14 +54,14 @@ public class Member {
         this.nickname = nickname;
     }
 
-    public void updateOauthToken(String oauthToken, Instant issuedAt, Instant expiresAt) {
-        this.oauthToken = oauthToken;
-        this.issuedAt = issuedAt;
-        this.expiresAt = expiresAt;
+    public void updateOauthToken(OAuth2Client oAuth2Client) {
+        this.oAuth2Client = oAuth2Client;
     }
 
     // test용 메소드
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
+
+    // 도메인 -> dto : from // dto -> 도메인 : of
 }
