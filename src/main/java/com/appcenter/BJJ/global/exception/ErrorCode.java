@@ -26,11 +26,7 @@ public enum ErrorCode {
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 닉네임입니다."),
-    ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
-
-    //500 Internal Server Error
-    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 문제가 발생했습니다.");
-
+    ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
