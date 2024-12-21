@@ -27,18 +27,14 @@ public class Member {
 
     private String role;
 
-    private OAuth2Client oAuth2Client;
-
-
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
+    private Member(String nickname, String email, String provider, String providerId) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
         this.role = "ROLE_GUEST";
-        this.oAuth2Client = oAuth2Client;
     }
 
     public void updateMemberInfo(String nickname, String role) {
@@ -54,14 +50,7 @@ public class Member {
         this.nickname = nickname;
     }
 
-    public void updateOauthToken(OAuth2Client oAuth2Client) {
-        this.oAuth2Client = oAuth2Client;
-    }
-
-    // test용 메소드
-    public void updateTestProviderId(String id) {
+    public void updateTestProviderId(String id){
         this.providerId = id;
     }
-
-    // 도메인 -> dto : from // dto -> 도메인 : of
 }

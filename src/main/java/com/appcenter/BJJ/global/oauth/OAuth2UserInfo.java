@@ -3,7 +3,6 @@ package com.appcenter.BJJ.global.oauth;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Slf4j
 public class OAuth2UserInfo {
     private String provider;
     private String providerId;
