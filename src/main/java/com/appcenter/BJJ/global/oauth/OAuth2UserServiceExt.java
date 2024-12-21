@@ -28,7 +28,6 @@ public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
 
 
         Member member = memberRepository.findByEmailAndProviderId(oAuth2UserInfo.getEmail(), oAuth2UserInfo.getProviderId()).orElseGet(
-
                 () -> Member.builder()
                         .provider(oAuth2UserInfo.getProvider())
                         .providerId(oAuth2UserInfo.getProviderId())

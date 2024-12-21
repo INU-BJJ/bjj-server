@@ -1,26 +1,32 @@
 package com.appcenter.BJJ.domain.member.dto;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.member.domain.OAuth2Client;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
 
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberOAuthVO {
-    private final Long memberId;
-    private final String provider;
-    private final String providerId;
-    private final String oauthToken;
-    private final Instant issuedAt;
-    private final Instant expiresAt;
+    private Long memberId;
+    private String provider;
+    private String providerId;
+    private String oauthToken;
+    private Instant issuedAt;
+    private Instant expiresAt;
 
-    public MemberOAuthVO(Member member) {
-        this.memberId = member.getId();
-        this.provider = member.getProvider();
-        this.providerId = member.getProviderId();
-        this.oauthToken = member.getOAuth2Client().getOauthToken();
-        this.issuedAt = member.getOAuth2Client().getIssuedAt();
-        this.expiresAt = member.getOAuth2Client().getExpiresAt();
+    public static MemberOAuthVO from(Member member) {
+        return MemberOAuthVO.builder()
+                .memberId(member.getId())
+                .provider(member.getProvider())
+                .providerId(member.getProviderId())
+                .oauthToken(member.getOAuth2Client().getOauthToken())
+                .issuedAt(member.getOAuth2Client().getIssuedAt())
+                .expiresAt(member.getOAuth2Client().getExpiresAt())
+                .build();
     }
 }

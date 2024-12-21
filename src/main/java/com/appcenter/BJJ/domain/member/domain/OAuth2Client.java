@@ -9,7 +9,7 @@ import java.time.Instant;
 @Getter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuth2Client {
     private String oauthToken;
     private Instant issuedAt;

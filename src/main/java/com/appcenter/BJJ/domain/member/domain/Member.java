@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.Optional;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -65,4 +62,6 @@ public class Member {
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
+
+    // 도메인 -> dto : from // dto -> 도메인 : of
 }
