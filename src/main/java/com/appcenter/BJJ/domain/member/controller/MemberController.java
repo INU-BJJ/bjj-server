@@ -1,8 +1,8 @@
 package com.appcenter.BJJ.domain.member.controller;
 
 import com.appcenter.BJJ.domain.member.dto.LoginReq;
-import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
+import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
 import com.appcenter.BJJ.domain.member.service.MemberService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -65,7 +65,7 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("")
     public ResponseEntity<?> deleteMember(@Valid @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        memberService.deleteMember(MemberOAuthVO.from(userDetails.getMember()));
+        memberService.deleteMember(new MemberOAuthVO(userDetails.getMember()));
         return ResponseEntity.noContent().build();
     }
 
@@ -83,4 +83,5 @@ public class MemberController {
         signupRes.put("token", memberService.login(loginReq));
         return ResponseEntity.ok(signupRes);
     }
+
 }
