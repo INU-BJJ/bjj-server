@@ -97,7 +97,6 @@ public class OAuth2Unlink {
         String kakaoURL = "https://kapi.kakao.com/v1/user/unlink";
         Map response = RestClient.builder()
                 .baseUrl(kakaoURL)
-                //appkey임
                 .defaultHeader("Authorization", "KakaoAK " + appKey)
                 .build()
                 .get()
