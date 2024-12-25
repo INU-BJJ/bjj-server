@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.menu.controller;
 
+import com.appcenter.BJJ.domain.menu.dto.MenuRes;
 import com.appcenter.BJJ.domain.menu.service.MenuLikeService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -38,5 +41,16 @@ public class MenuController {
         menuLikeService.removeLikeFromMenu(menuId, userDetails.getMember().getId());
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/liked")
+    @Operation(summary = "회원이 좋아요 누른 메뉴 조회")
+    public ResponseEntity<List<MenuRes>> getLikedMenus(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/menus/liked");
+
+        List<MenuRes> likedMenuList = menuLikeService.getLikedMenus(userDetails.getMember().getId());
+
+        return ResponseEntity.ok(likedMenuList);
     }
 }

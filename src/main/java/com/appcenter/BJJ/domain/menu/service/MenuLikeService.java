@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.menu.service;
 
 import com.appcenter.BJJ.domain.menu.domain.Menu;
 import com.appcenter.BJJ.domain.menu.domain.MenuLike;
+import com.appcenter.BJJ.domain.menu.dto.MenuRes;
 import com.appcenter.BJJ.domain.menu.repository.MenuLikeRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -65,5 +68,18 @@ public class MenuLikeService {
 
         // 메뉴 좋아요 엔티티 제거
         menuLikeRepository.deleteByMenuIdAndMemberId(menuId, memberId);
+    }
+
+    public List<MenuRes> getLikedMenus(long memberId) {
+        log.info("[로그] getLikedMenus() 시작, memberId: {}", memberId);
+
+        List<Menu> likedMenuList = menuLikeRepository.findLikedMenusByMemberId(memberId);
+
+        return likedMenuList.stream()
+                .map(menu -> MenuRes.builder()
+                        .menuId(menu.getId())
+                        .menuName(menu.getMenuName())
+                        .build()
+                ).toList();
     }
 }
