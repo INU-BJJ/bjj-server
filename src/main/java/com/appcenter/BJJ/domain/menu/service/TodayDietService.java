@@ -43,10 +43,10 @@ public class TodayDietService {
     private final MenuPairRepository menuPairRepository;
     private final TodayDietRepository todayDietRepository;
 
-    public List<TodayDietRes> findByCafeteria(String cafeteriaName) {
-        log.info("[로그] findByCafeteria() 시작");
+    public List<TodayDietRes> findByCafeteria(String cafeteriaName, long memberId) {
+        log.info("[로그] findByCafeteria() 시작, cafeteriaName: {}, memberId: {}", cafeteriaName, memberId);
 
-        List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName);
+        List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName, memberId);
         log.info("[로그] todayDietResList.size() : {}", todayDietResList.size());
 
         todayDietResList.forEach(todayDietRes -> {

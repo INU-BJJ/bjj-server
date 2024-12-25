@@ -3,11 +3,13 @@ package com.appcenter.BJJ.domain.menu.controller;
 import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
 import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
 import com.appcenter.BJJ.domain.menu.service.TodayDietService;
+import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,10 +31,10 @@ public class TodayDietController {
                     - responseDTO : TodayDietRes""")
 
     @GetMapping
-    public ResponseEntity<List<TodayDietRes>> getTodayDietsByCafeteriaName(String cafeteriaName) {
+    public ResponseEntity<List<TodayDietRes>> getTodayDietsByCafeteriaName(String cafeteriaName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/today-diets?cafeteriaName={}", cafeteriaName);
 
-        List<TodayDietRes> todayDietList = todayDietService.findByCafeteria(cafeteriaName);
+        List<TodayDietRes> todayDietList = todayDietService.findByCafeteria(cafeteriaName, userDetails.getMember().getId());
 
         return ResponseEntity.ok(todayDietList);
     }

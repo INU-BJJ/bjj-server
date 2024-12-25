@@ -38,6 +38,5 @@ public class TodayDietRes {
     @Setter
     private String reviewImageName;
     @Schema(description = "좋아하는 메뉴 여부", example = "true")
-    @Setter
-    private boolean isLikedMenu;
+    private final boolean isLikedMenu;
 }

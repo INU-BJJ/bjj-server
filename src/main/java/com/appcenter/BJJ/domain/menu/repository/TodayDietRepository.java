@@ -27,15 +27,17 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
             c.name,
             c.corner,
             mp.reviewCount,
-            mp.reviewAverageRating
+            mp.reviewAverageRating,
+            CASE WHEN ml.memberId = :memberId THEN true ELSE false END
         )
         FROM TodayDiet td
         JOIN MenuPair mp ON td.menuPairId = mp.id
         JOIN Menu m ON mp.mainMenuId = m.id
         JOIN Cafeteria c ON m.cafeteriaId = c.id
+        LEFT JOIN MenuLike ml ON ml.menuId = m.id AND ml.memberId = :memberId
         WHERE c.name = :cafeteriaName AND td.date = CURRENT_DATE
     """)
-    List<TodayDietRes> findTodayDietsByCafeteriaName(String cafeteriaName);
+    List<TodayDietRes> findTodayDietsByCafeteriaName(String cafeteriaName, long memberId);
 
     @Query("""
         SELECT new com.appcenter.BJJ.domain.menu.dto.TodayMenuRes(
