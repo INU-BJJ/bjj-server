@@ -29,4 +29,14 @@ public class MenuController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(menuLikeId);
     }
+
+    @DeleteMapping("/{menuId}/likes")
+    @Operation(summary = "메뉴 좋아요 취소")
+    public ResponseEntity<Void> unlikeMenu(@PathVariable long menuId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] DELETE /api/menus/{}/likes", menuId);
+
+        menuLikeService.removeLikeFromMenu(menuId, userDetails.getMember().getId());
+
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -45,4 +45,25 @@ public class MenuLikeService {
 
         return menuLikeRepository.save(menuLike).getId();
     }
+
+    @Transactional
+    public void removeLikeFromMenu(long menuId, long memberId) {
+        log.info("[로그] removeLikeFromMenu() 시작, menuId: {}, memberId: {}", menuId, memberId);
+
+        // 메뉴가 존재하지 않을 경우 예외
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
+
+        // 이미 좋아요를 누른 경우 예외
+        if (!menuLikeRepository.existsByMenuIdAndMemberId(menuId, memberId)) {
+            log.warn("회원 {}이 좋아요를 누르지 않은 메뉴 {}에 좋아요 취소를 시도했습니다.", memberId, menuId);
+            throw new CustomException(ErrorCode.NOT_LIKED_MENU);
+        }
+
+        // 메뉴의 좋아요 수 감소
+        menu.decrementLikeCount();
+
+        // 메뉴 좋아요 엔티티 제거
+        menuLikeRepository.deleteByMenuIdAndMemberId(menuId, memberId);
+    }
 }

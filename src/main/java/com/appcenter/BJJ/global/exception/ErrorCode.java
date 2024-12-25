@@ -10,6 +10,7 @@ public enum ErrorCode {
     //400 Bad Request
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "이메일 및 비밀번호가 맞지 않습니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다."),
+    NOT_LIKED_MENU(HttpStatus.BAD_REQUEST, "좋아요를 누르지 않은 메뉴입니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
