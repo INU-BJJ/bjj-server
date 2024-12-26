@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.review.controller;
 
-import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
+import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
+import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
@@ -72,10 +73,10 @@ public class ReviewController {
                      - 각 식당별 최대 3개씩 리뷰 조회\s
                      - responseDTO : MyReviewRes""")
     @GetMapping("/my")
-    public ResponseEntity<MyReviewRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MyReviewsGroupedRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my, memberNickname: {}", userDetails.getNickname());
 
-        MyReviewRes myReviewRes = reviewService.findMyReviews(userDetails.getMember().getId());
+        MyReviewsGroupedRes myReviewRes = reviewService.findMyReviews(userDetails.getMember().getId());
 
         return ResponseEntity.ok(myReviewRes);
     }
@@ -88,12 +89,12 @@ public class ReviewController {
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - responseDTO : ReviewRes""")
     @GetMapping("/my/cafeteria")
-    public ResponseEntity<ReviewRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MyReviewsPagedRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
 
-        ReviewRes ReviewRes = reviewService.findMyReviewsByCafeteria(userDetails.getMember().getId(), cafeteriaName, pageNumber, pageSize);
+        MyReviewsPagedRes myReviewsPagedRes = reviewService.findMyReviewsByCafeteria(userDetails.getMember().getId(), cafeteriaName, pageNumber, pageSize);
 
-        return ResponseEntity.ok(ReviewRes);
+        return ResponseEntity.ok(myReviewsPagedRes);
     }
 
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")

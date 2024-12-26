@@ -265,10 +265,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
     }
 
     @Override
-    public List<ReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
+    public List<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ReviewDetailRes> query = cb.createQuery(ReviewDetailRes.class);
+        CriteriaQuery<MyReviewDetailRes> query = cb.createQuery(MyReviewDetailRes.class);
         Root<Review> review = query.from(Review.class);
 
         // 조건문 리스트
@@ -301,12 +301,11 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
         // 쿼리에서 선택할 내용 설정
         query.select(cb.construct(
-                ReviewDetailRes.class,
+                MyReviewDetailRes.class,
                 review.get("id"),
                 review.get("comment"),
                 review.get("rating"),
                 review.get("likeCount"),
-                cb.literal(false),
                 review.get("createdDate"),
                 menuPair.get("id"),
                 mainMenu.get("menuName"),
@@ -318,7 +317,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         query.orderBy(cb.desc(review.get("id")));
 
         // 페이징 처리
-        TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);
+        TypedQuery<MyReviewDetailRes> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult(pageNumber);
         typedQuery.setMaxResults(pageSize);
 
