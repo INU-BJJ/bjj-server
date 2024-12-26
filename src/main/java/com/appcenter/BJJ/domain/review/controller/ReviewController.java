@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
+import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -29,6 +30,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final MenuPairService menuPairService;
+    private final ReviewLikeService reviewLikeService;
 
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -105,6 +107,26 @@ public class ReviewController {
         if (menuPairId != null) {
             menuPairService.refreshReviewCountAndRating(menuPairId);
         }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "리뷰 좋아요")
+    @PostMapping("{reviewId}/likes")
+    public ResponseEntity<Long> likeReview(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews/{}/likes, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        Long reviewLikeId = reviewLikeService.addLikeToReview(reviewId, userDetails.getMember().getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewLikeId);
+    }
+
+    @Operation(summary = "리뷰 좋아요 취소")
+    @DeleteMapping("{reviewId}/likes")
+    public ResponseEntity<Void> unlikeReview(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews/{}/likes, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        reviewLikeService.removeLikeFromReview(reviewId, userDetails.getMember().getId());
 
         return ResponseEntity.noContent().build();
     }

@@ -1,8 +1,7 @@
 package com.appcenter.BJJ.domain.review.service;
 
 import com.appcenter.BJJ.domain.review.domain.Review;
-import com.appcenter.BJJ.domain.review.dto.ReviewLikeReq.ReviewLikeDelete;
-import com.appcenter.BJJ.domain.review.dto.ReviewLikeReq.ReviewLikePost;
+import com.appcenter.BJJ.domain.review.domain.ReviewLike;
 import com.appcenter.BJJ.domain.review.repository.ReviewLikeRepository;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
@@ -22,52 +21,58 @@ public class ReviewLikeService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public Long create(ReviewLikePost reviewLikePost, long memberId) {
-        log.info("[로그] create(), reviewLikePost.getReviewId : {}", reviewLikePost.getReviewId());
+    public Long addLikeToReview(long reviewId, long memberId) {
+        log.info("[로그] addLikeToReview(), reviewId : {}, memberId: {}", reviewId, memberId);
 
-        Review review = reviewRepository.findById(reviewLikePost.getReviewId())
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         // 자신의 리뷰에는 좋아요를 시도할 수 없음
         if (review.getMemberId() == memberId) {
-            log.warn("회원 {}이 자신의 리뷰 {}에 좋아요를 시도했습니다.", memberId, review.getId());
+            log.warn("회원 {}이 자신의 리뷰 {}에 좋아요를 시도했습니다.", memberId, reviewId);
             throw new CustomException(ErrorCode.CANNOT_LIKE_OWN_REVIEW);
         }
 
         // 이미 좋아요 누른 리뷰인 경우 좋아요를 할 수 없음
-        if (reviewLikeRepository.existsByMemberIdAndReviewId(memberId, review.getId())) {
-            log.warn("회원 {}이 이미 좋아요를 누른 리뷰 {}에 다시 좋아요를 시도했습니다.", memberId, review.getId());
+        if (reviewLikeRepository.existsByReviewIdAndMemberId(reviewId, memberId)) {
+            log.warn("회원 {}이 이미 좋아요를 누른 리뷰 {}에 다시 좋아요를 시도했습니다.", memberId, reviewId);
             throw new CustomException(ErrorCode.ALREADY_LIKED_REVIEW);
         }
 
         // 리뷰 엔티티에서 좋아요 개수 필드 업데이트
         review.increaseLikeCount();
 
-        return reviewLikeRepository.save(reviewLikePost.toEntity(memberId)).getId();
+        // 리뷰 좋아요 엔티티 생성 및 저장
+        ReviewLike reviewLike = ReviewLike.builder()
+                .reviewId(reviewId)
+                .memberId(memberId)
+                .build();
+
+        return reviewLikeRepository.save(reviewLike).getId();
     }
 
     @Transactional
-    public void delete(ReviewLikeDelete reviewLikeDelete, long memberId) {
-        log.info("[로그] delete(), reviewLikeDelete.getReviewId : {}", reviewLikeDelete.getReviewId());
+    public void removeLikeFromReview(long reviewId, long memberId) {
+        log.info("[로그] removeLikeFromReview(), reviewId : {}, memberId: {}", reviewId, memberId);
 
-        Review review = reviewRepository.findById(reviewLikeDelete.getReviewId())
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         // 자신의 리뷰에는 좋아요 취소를 시도할 수 없음
         if (review.getMemberId() == memberId) {
-            log.warn("회원 {}이 자신의 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, review.getId());
+            log.warn("회원 {}이 자신의 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, reviewId);
             throw new CustomException(ErrorCode.CANNOT_UNLIKE_OWN_REVIEW);
         }
 
         // 좋아요를 누르지 않은 리뷰인 경우 좋아요 취소를 할 수 없음
-        if (!reviewLikeRepository.existsByMemberIdAndReviewId(memberId, review.getId())) {
-            log.warn("회원 {}이 좋아요를 누르지 않은 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, review.getId());
+        if (!reviewLikeRepository.existsByReviewIdAndMemberId(reviewId, memberId)) {
+            log.warn("회원 {}이 좋아요를 누르지 않은 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, reviewId);
             throw new CustomException(ErrorCode.NOT_LIKED_REVIEW);
         }
 
         // 리뷰 엔티티에서 좋아요 개수 필드 업데이트
         review.decreaseLikeCount();
 
-        reviewLikeRepository.deleteByMemberIdAndReviewId(memberId, review.getId());
+        reviewLikeRepository.deleteByReviewIdAndMemberId(reviewId, memberId);
     }
 }
