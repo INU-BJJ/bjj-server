@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,8 +28,8 @@ public class SecurityConfig {
     private final AuthenticationProviderImpl authenticationProvider;
     private final OAuth2UserServiceExt oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final AuthenticationEntryPointImpl authenticationEntryPoint;
-    private final AccessDeniedHandlerImpl accessDeniedHandler;
+    private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
+    private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,18 +42,18 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("swagger-ui/**", "v3/**", "/h2-console/**").permitAll()
-                        .requestMatchers("api/members/sign-up/**", "api/members/test/**", "api/members/check-nickname").permitAll()
-                        .requestMatchers("oauth2/authorization/**").permitAll()
-                        .requestMatchers("images/**").permitAll()
+                        // [notice] test 관련된 거 나중에 없애기
+                        .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
+                        .requestMatchers("/oauth2/authorization/**").permitAll()
                         .anyRequest().authenticated())
+
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtValidateFilter(), JwtFilter.class)
                 .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler));
+                        .authenticationEntryPoint(authenticationEntryPointImpl)
+                        .accessDeniedHandler(accessDeniedHandlerImpl));
 
         http.oauth2Login(oauth -> oauth
                 //사용자 정보를 가져오기 위한 함수
@@ -60,6 +61,13 @@ public class SecurityConfig {
                 .successHandler(oAuth2SuccessHandler));
 
         return http.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer ignoringCustomizer() {
+        // spring security 무시
+        return (web) -> web.ignoring().requestMatchers("/favicon.ico")
+                .requestMatchers("/swagger-ui/**", "/v3/**", "/h2-console/**");
     }
 
     @Bean

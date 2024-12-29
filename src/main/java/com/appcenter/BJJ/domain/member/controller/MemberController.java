@@ -69,6 +69,18 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "redirect용 (사용X)")
+    @GetMapping("/sign-up")
+    public ResponseEntity<?> resolveRedirectSign(@RequestParam String email, @RequestParam String token) {
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "redirect용 (사용X)")
+    @GetMapping("/success")
+    public ResponseEntity<?> resolveRedirectSuccess(@RequestParam String token) {
+        return ResponseEntity.noContent().build();
+    }
+
     // test 회원가입 및 로그인 //
     @Operation(summary = "[test] 소셜로그인")
     @PostMapping("/test/social-login")
