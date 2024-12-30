@@ -10,7 +10,6 @@ public enum ErrorCode {
     //400 Bad Request
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "이메일 및 비밀번호가 맞지 않습니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다."),
-    NOT_LIKED_MENU(HttpStatus.BAD_REQUEST, "좋아요를 누르지 않은 메뉴입니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
@@ -29,7 +28,6 @@ public enum ErrorCode {
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 닉네임입니다."),
     ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
-    ALREADY_LIKED_MENU(HttpStatus.CONFLICT, "이미 좋아요를 누른 메뉴입니다."),
 
     ;
 

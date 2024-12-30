@@ -24,50 +24,33 @@ public class MenuLikeService {
     private final MenuRepository menuRepository;
 
     @Transactional
-    public long addLikeToMenu(long menuId, long memberId) {
-        log.info("[로그] addLikeToMenu() 시작, menuId: {}, memberId: {}", menuId, memberId);
+    public boolean toggleMenuLike(long menuId, long memberId) {
+        log.info("[로그] toggleMenuLike() 시작, menuId: {}, memberId: {}", menuId, memberId);
 
         // 메뉴가 존재하지 않을 경우 예외
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
 
-        // 이미 좋아요를 누른 경우 예외
-        if (menuLikeRepository.existsByMenuIdAndMemberId(menuId, memberId)) {
-            log.warn("회원 {}이 이미 좋아요를 누른 메뉴 {}에 다시 좋아요를 시도했습니다.", memberId, menuId);
-            throw new CustomException(ErrorCode.ALREADY_LIKED_MENU);
+        // 현재 사용자가 해당 메뉴를 좋아요 했는지 확인
+        boolean isLiked = menuLikeRepository.existsByMenuIdAndMemberId(menuId, memberId);
+
+        if (isLiked) {
+            // 좋아요 취소 처리
+            menuLikeRepository.deleteByMenuIdAndMemberId(menuId, memberId);
+            menu.decrementLikeCount(); // 좋아요 개수 감소
+        } else {
+            // 좋아요 추가 처리
+            MenuLike menuLike = MenuLike.builder()
+                    .menuId(menuId)
+                    .memberId(memberId)
+                    .build();
+            menuLikeRepository.save(menuLike);
+
+            menu.incrementLikeCount(); // 좋아요 개수 증가
         }
 
-        // 메뉴의 좋아요 수 증가
-        menu.incrementLikeCount();
-
-        // 메뉴 좋아요 엔티티 생성 및 저장
-        MenuLike menuLike = MenuLike.builder()
-                .menuId(menuId)
-                .memberId(memberId)
-                .build();
-
-        return menuLikeRepository.save(menuLike).getId();
-    }
-
-    @Transactional
-    public void removeLikeFromMenu(long menuId, long memberId) {
-        log.info("[로그] removeLikeFromMenu() 시작, menuId: {}, memberId: {}", menuId, memberId);
-
-        // 메뉴가 존재하지 않을 경우 예외
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
-
-        // 이미 좋아요를 누른 경우 예외
-        if (!menuLikeRepository.existsByMenuIdAndMemberId(menuId, memberId)) {
-            log.warn("회원 {}이 좋아요를 누르지 않은 메뉴 {}에 좋아요 취소를 시도했습니다.", memberId, menuId);
-            throw new CustomException(ErrorCode.NOT_LIKED_MENU);
-        }
-
-        // 메뉴의 좋아요 수 감소
-        menu.decrementLikeCount();
-
-        // 메뉴 좋아요 엔티티 제거
-        menuLikeRepository.deleteByMenuIdAndMemberId(menuId, memberId);
+        // 최종 상태 반환: true면 좋아요 추가, false면 좋아요 취소
+        return !isLiked;
     }
 
     public List<MenuRes> getLikedMenus(long memberId) {
