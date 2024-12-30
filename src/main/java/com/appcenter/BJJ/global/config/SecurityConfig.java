@@ -45,6 +45,7 @@ public class SecurityConfig {
                         // [notice] test 관련된 거 나중에 없애기
                         .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
+                        .requestMatchers("images/**").permitAll()
                         .anyRequest().authenticated())
 
                 .sessionManagement(session -> session
