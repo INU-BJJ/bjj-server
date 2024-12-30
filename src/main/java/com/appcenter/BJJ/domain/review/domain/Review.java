@@ -50,11 +50,11 @@ public class Review {
         this.menuPair = menuPair;
     }
 
-    public void increaseLikeCount() {
+    public void incrementLikeCount() {
         likeCount++;
     }
 
-    public void decreaseLikeCount() {
+    public void decrementLikeCount() {
         likeCount--;
     }
 }
