@@ -1,13 +1,13 @@
 package com.appcenter.BJJ.domain.review.controller;
 
+import com.appcenter.BJJ.domain.menu.service.MenuPairService;
+import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
-import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
-import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -119,6 +119,6 @@ public class ReviewController {
 
         boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(isLiked);
+        return ResponseEntity.ok(isLiked);
     }
 }
