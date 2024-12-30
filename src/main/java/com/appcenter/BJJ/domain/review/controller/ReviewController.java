@@ -112,24 +112,13 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "리뷰 좋아요")
-    @PostMapping("{reviewId}/likes")
-    public ResponseEntity<Long> likeReview(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        log.info("[로그] POST /api/reviews/{}/likes, memberNickname: {}", reviewId, userDetails.getNickname());
+    @Operation(summary = "리뷰 좋아요 토글", description = "좋아요 추가 시 true, 좋아요 취소 시 false 반환")
+    @PostMapping("{reviewId}/like")
+    public ResponseEntity<Boolean> toggleLike(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews/{}/like, memberNickname: {}", reviewId, userDetails.getNickname());
 
-        Long reviewLikeId = reviewLikeService.addLikeToReview(reviewId, userDetails.getMember().getId());
+        boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(reviewLikeId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(isLiked);
     }
-
-    @Operation(summary = "리뷰 좋아요 취소")
-    @DeleteMapping("{reviewId}/likes")
-    public ResponseEntity<Void> unlikeReview(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        log.info("[로그] POST /api/reviews/{}/likes, memberNickname: {}", reviewId, userDetails.getNickname());
-
-        reviewLikeService.removeLikeFromReview(reviewId, userDetails.getMember().getId());
-
-        return ResponseEntity.noContent().build();
-    }
-
 }

@@ -21,8 +21,8 @@ public class ReviewLikeService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public Long addLikeToReview(long reviewId, long memberId) {
-        log.info("[로그] addLikeToReview(), reviewId : {}, memberId: {}", reviewId, memberId);
+    public boolean toggleReviewLike(long reviewId, long memberId) {
+        log.info("[로그] toggleReviewLike(), reviewId : {}, memberId: {}", reviewId, memberId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
@@ -33,46 +33,25 @@ public class ReviewLikeService {
             throw new CustomException(ErrorCode.CANNOT_LIKE_OWN_REVIEW);
         }
 
-        // 이미 좋아요 누른 리뷰인 경우 좋아요를 할 수 없음
-        if (reviewLikeRepository.existsByReviewIdAndMemberId(reviewId, memberId)) {
-            log.warn("회원 {}이 이미 좋아요를 누른 리뷰 {}에 다시 좋아요를 시도했습니다.", memberId, reviewId);
-            throw new CustomException(ErrorCode.ALREADY_LIKED_REVIEW);
+        // 현재 사용자가 해당 리뷰를 좋아요 했는지 확인
+        boolean isLiked = reviewLikeRepository.existsByReviewIdAndMemberId(reviewId, memberId);
+
+        if (isLiked) {
+            // 좋아요 취소 처리
+            reviewLikeRepository.deleteByReviewIdAndMemberId(reviewId, memberId);
+            review.decrementLikeCount(); // 좋아요 개수 감소
+        } else {
+            // 좋아요 추가 처리
+            ReviewLike reviewLike = ReviewLike.builder()
+                    .reviewId(reviewId)
+                    .memberId(memberId)
+                    .build();
+            reviewLikeRepository.save(reviewLike);
+
+            review.incrementLikeCount(); // 좋아요 개수 증가
         }
 
-        // 리뷰 엔티티에서 좋아요 개수 필드 업데이트
-        review.increaseLikeCount();
-
-        // 리뷰 좋아요 엔티티 생성 및 저장
-        ReviewLike reviewLike = ReviewLike.builder()
-                .reviewId(reviewId)
-                .memberId(memberId)
-                .build();
-
-        return reviewLikeRepository.save(reviewLike).getId();
-    }
-
-    @Transactional
-    public void removeLikeFromReview(long reviewId, long memberId) {
-        log.info("[로그] removeLikeFromReview(), reviewId : {}, memberId: {}", reviewId, memberId);
-
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-
-        // 자신의 리뷰에는 좋아요 취소를 시도할 수 없음
-        if (review.getMemberId() == memberId) {
-            log.warn("회원 {}이 자신의 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, reviewId);
-            throw new CustomException(ErrorCode.CANNOT_UNLIKE_OWN_REVIEW);
-        }
-
-        // 좋아요를 누르지 않은 리뷰인 경우 좋아요 취소를 할 수 없음
-        if (!reviewLikeRepository.existsByReviewIdAndMemberId(reviewId, memberId)) {
-            log.warn("회원 {}이 좋아요를 누르지 않은 리뷰 {}에 좋아요 취소를 시도했습니다.", memberId, reviewId);
-            throw new CustomException(ErrorCode.NOT_LIKED_REVIEW);
-        }
-
-        // 리뷰 엔티티에서 좋아요 개수 필드 업데이트
-        review.decreaseLikeCount();
-
-        reviewLikeRepository.deleteByReviewIdAndMemberId(reviewId, memberId);
+        // 최종 상태 반환: true면 좋아요 추가, false면 좋아요 취소
+        return !isLiked;
     }
 }
