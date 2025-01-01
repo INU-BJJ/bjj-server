@@ -1,12 +1,13 @@
 package com.appcenter.BJJ.domain.review.controller;
 
+import com.appcenter.BJJ.domain.menu.service.MenuPairService;
+import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
-import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
+import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
-import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final MenuPairService menuPairService;
+    private final ReviewLikeService reviewLikeService;
 
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -110,4 +112,13 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "리뷰 좋아요 토글", description = "좋아요 추가 시 true, 좋아요 취소 시 false 반환")
+    @PostMapping("{reviewId}/like")
+    public ResponseEntity<Boolean> toggleLike(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews/{}/like, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
+
+        return ResponseEntity.ok(isLiked);
+    }
 }
