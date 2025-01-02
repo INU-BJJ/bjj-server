@@ -49,4 +49,12 @@ public class Review {
         this.memberId = memberId;
         this.menuPair = menuPair;
     }
+
+    public void incrementLikeCount() {
+        likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        likeCount--;
+    }
 }

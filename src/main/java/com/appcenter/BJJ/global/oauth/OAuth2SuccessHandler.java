@@ -30,6 +30,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("OAuth2SuccessHandler 진입");
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String token = jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
+
         String redirectUrl;
         if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
             log.info("OAuth2SuccessHandler.onAuthenticationSuccess() - 회원가입으로 이동");

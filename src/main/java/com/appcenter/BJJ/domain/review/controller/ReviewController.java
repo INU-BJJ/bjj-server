@@ -1,11 +1,13 @@
 package com.appcenter.BJJ.domain.review.controller;
 
-import com.appcenter.BJJ.domain.review.dto.MyReviewRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
-import com.appcenter.BJJ.domain.review.dto.ReviewRes;
-import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
+import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
+import com.appcenter.BJJ.domain.review.dto.ReviewRes;
+import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
+import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +31,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final MenuPairService menuPairService;
+    private final ReviewLikeService reviewLikeService;
 
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -70,10 +73,10 @@ public class ReviewController {
                      - 각 식당별 최대 3개씩 리뷰 조회\s
                      - responseDTO : MyReviewRes""")
     @GetMapping("/my")
-    public ResponseEntity<MyReviewRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MyReviewsGroupedRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my, memberNickname: {}", userDetails.getNickname());
 
-        MyReviewRes myReviewRes = reviewService.findMyReviews(userDetails.getMember().getId());
+        MyReviewsGroupedRes myReviewRes = reviewService.findMyReviews(userDetails.getMember().getId());
 
         return ResponseEntity.ok(myReviewRes);
     }
@@ -86,12 +89,12 @@ public class ReviewController {
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - responseDTO : ReviewRes""")
     @GetMapping("/my/cafeteria")
-    public ResponseEntity<ReviewRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MyReviewsPagedRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
 
-        ReviewRes ReviewRes = reviewService.findMyReviewsByCafeteria(userDetails.getMember().getId(), cafeteriaName, pageNumber, pageSize);
+        MyReviewsPagedRes myReviewsPagedRes = reviewService.findMyReviewsByCafeteria(userDetails.getMember().getId(), cafeteriaName, pageNumber, pageSize);
 
-        return ResponseEntity.ok(ReviewRes);
+        return ResponseEntity.ok(myReviewsPagedRes);
     }
 
     @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")
@@ -109,4 +112,13 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "리뷰 좋아요 토글", description = "좋아요 추가 시 true, 좋아요 취소 시 false 반환")
+    @PostMapping("{reviewId}/like")
+    public ResponseEntity<Boolean> toggleLike(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] POST /api/reviews/{}/like, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
+
+        return ResponseEntity.ok(isLiked);
+    }
 }
