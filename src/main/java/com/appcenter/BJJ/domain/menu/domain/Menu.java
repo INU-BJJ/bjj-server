@@ -29,11 +29,13 @@ public class Menu {
         this.likeCount = 0;
     }
 
-    public Integer IncreaseLike() {
-        return ++likeCount;
+    public void incrementLikeCount() {
+        ++likeCount;
     }
 
-    public Integer DecreaseLike() {
-        return --likeCount;
+    public void decrementLikeCount() {
+        if (likeCount > 0) {
+            --likeCount;
+        }
     }
 }
