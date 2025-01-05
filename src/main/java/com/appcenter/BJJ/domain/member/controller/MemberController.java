@@ -41,7 +41,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 조회")
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("MemberController.getMember() - 진입");
         return ResponseEntity.ok(memberService.getMember(userDetails.getMember().getId()));
@@ -63,7 +63,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping("")
+    @DeleteMapping
     public ResponseEntity<?> deleteMember(@Valid @AuthenticationPrincipal UserDetailsImpl userDetails) {
         memberService.deleteMember(MemberOAuthVO.from(userDetails.getMember()));
         return ResponseEntity.noContent().build();
