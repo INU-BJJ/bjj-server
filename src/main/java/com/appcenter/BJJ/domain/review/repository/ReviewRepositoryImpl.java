@@ -151,7 +151,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
         // 페이징 처리
         TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult(pageNumber);
+        typedQuery.setFirstResult(pageNumber * pageSize);
         typedQuery.setMaxResults(pageSize);
 
         return typedQuery.getResultList();
@@ -318,7 +318,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
         // 페이징 처리
         TypedQuery<MyReviewDetailRes> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult(pageNumber);
+        typedQuery.setFirstResult(pageNumber * pageSize);
         typedQuery.setMaxResults(pageSize);
 
         return typedQuery.getResultList();

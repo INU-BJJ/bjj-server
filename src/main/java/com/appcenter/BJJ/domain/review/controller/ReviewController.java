@@ -51,7 +51,7 @@ public class ReviewController {
             description = """
                     - 식당별 리뷰와 리뷰에 대한 모든 정보 보여줌\s
                     - pageSize만큼 리뷰 조회\s
-                    - pageNumber는 0부터 시작 (0..9 -> 10->19 -> 20..29)\s
+                    - pageNumber는 0부터 시작 (0, 1, 2, ...)\s
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - sort는 정렬 방법 (BestMatch : 메뉴일치순, MostLiked : 좋아요순, NewestFirst : 최신순)
                     - isWithImages는 포토리뷰만 여부
@@ -85,9 +85,9 @@ public class ReviewController {
             description = """
                     - 특정 식당에 회원이 작성한 리뷰 조회\s
                     - pageSize만큼 리뷰 조회\s
-                    - pageNumber은 1부터 시작 (0..9 -> 10->19 -> 20..29)\s
+                    - pageNumber은 1부터 시작 (0, 1, 2, ...)\s
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
-                    - responseDTO : ReviewRes""")
+                    - responseDTO : MyReviewPagedRes""")
     @GetMapping("/my/cafeteria")
     public ResponseEntity<MyReviewsPagedRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
