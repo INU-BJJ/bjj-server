@@ -14,6 +14,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -25,43 +28,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
     private EntityManager entityManager;
 
     @Override
-    public Long countReviewsWithImagesAndMemberDetails(Long memberId, Long mainMenuId, Long subMenuId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<Review> review = countQuery.from(Review.class);
-
-        // 조건문 리스트
-        List<Predicate> predicates = new ArrayList<>();
-
-        // MenuPair 조인
-        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
-
-        // Menu 조인
-        Root<Menu> mainMenu = countQuery.from(Menu.class);
-        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
-        Root<Menu> subMenu = countQuery.from(Menu.class);
-        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
-
-        // Menu 조건문
-        predicates.add(cb.or(
-                cb.equal(mainMenu.get("id"), mainMenuId),
-                cb.equal(mainMenu.get("id"), subMenuId),
-                cb.equal(subMenu.get("id"), mainMenuId),
-                cb.equal(subMenu.get("id"), subMenuId)
-        ));
-
-        // 포토 리뷰만 조건 추가
-        if (Boolean.TRUE.equals(isWithImages)) {
-            predicates.add(cb.greaterThan(cb.size(review.get("images")), 0));
-        }
-
-        countQuery.select(cb.count(review)).where(predicates.toArray(new Predicate[0]));
-        return entityManager.createQuery(countQuery).getSingleResult();
-    }
-
-    @Override
-    public List<ReviewDetailRes> findReviewsWithImagesAndMemberDetails(Long memberId, Long mainMenuId, Long subMenuId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
+    public Slice<ReviewDetailRes> findReviewsWithImagesAndMemberDetails(Long memberId, Long mainMenuId, Long subMenuId, Sort sort, Boolean isWithImages, Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ReviewDetailRes> query = cb.createQuery(ReviewDetailRes.class);
@@ -149,12 +116,27 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 memberSubquery
         )).where(predicates.toArray(new Predicate[0]));
 
-        // 페이징 처리
         TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult(pageNumber * pageSize);
-        typedQuery.setMaxResults(pageSize);
 
-        return typedQuery.getResultList();
+        // Slice 객체로 변환 후 반환
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+
+        typedQuery.setFirstResult(pageNumber * pageSize);
+        typedQuery.setMaxResults(pageSize + 1);
+
+        List<ReviewDetailRes> resultList = typedQuery.getResultList();
+
+        // 다음 페이지 존재 여부 판단
+        boolean hasNext = resultList.size() > pageSize;
+
+        // 결과를 한 페이지 크기로 제한
+        if (hasNext) {
+            resultList = resultList.subList(0, pageSize);
+        }
+
+        // Slice 객체로 반환
+        return new SliceImpl<>(resultList, pageable, hasNext);
     }
 
     @Override
@@ -227,45 +209,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
     }
 
     @Override
-    public Long countMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<Review> review = countQuery.from(Review.class);
-
-        // 조건문 리스트
-        List<Predicate> predicates = new ArrayList<>();
-
-        // MenuPair와 Image 조인
-        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
-
-        // Menu 조인
-        Root<Menu> mainMenu = countQuery.from(Menu.class);
-        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
-        Root<Menu> subMenu = countQuery.from(Menu.class);
-        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
-
-        // Cafeteria 조인
-        Root<Cafeteria> cafeteria = countQuery.from(Cafeteria.class);
-        predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
-
-        // Cafeteria 조건문
-        predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
-
-        // Member 조건문
-        predicates.add(cb.equal(review.get("memberId"), memberId));
-
-        // Member에 대한 서브쿼리
-        Subquery<String> memberSubquery = countQuery.subquery(String.class);
-        Root<Member> member = memberSubquery.from(Member.class);
-        memberSubquery.select(member.get("nickname"))
-                .where(cb.equal(member.get("id"), review.get("memberId")));
-
-        countQuery.select(cb.count(review)).where(predicates.toArray(new Predicate[0]));
-        return entityManager.createQuery(countQuery).getSingleResult();
-    }
-
-    @Override
-    public List<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
+    public Slice<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<MyReviewDetailRes> query = cb.createQuery(MyReviewDetailRes.class);
@@ -316,11 +260,27 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
         query.orderBy(cb.desc(review.get("id")));
 
-        // 페이징 처리
-        TypedQuery<MyReviewDetailRes> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult(pageNumber * pageSize);
-        typedQuery.setMaxResults(pageSize);
 
-        return typedQuery.getResultList();
+        TypedQuery<MyReviewDetailRes> typedQuery = entityManager.createQuery(query);
+
+        // Slice 객체로 변환 후 반환
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+
+        typedQuery.setFirstResult(pageNumber * pageSize);
+        typedQuery.setMaxResults(pageSize + 1);
+
+        List<MyReviewDetailRes> resultList = typedQuery.getResultList();
+
+        // 다음 페이지 존재 여부 판단
+        boolean hasNext = resultList.size() > pageSize;
+
+        // 결과를 한 페이지 크기로 제한
+        if (hasNext) {
+            resultList = resultList.subList(0, pageSize);
+        }
+
+        // Slice 객체로 반환
+        return new SliceImpl<>(resultList, pageable, hasNext);
     }
 }
