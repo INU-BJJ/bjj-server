@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewImageRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
@@ -120,5 +121,15 @@ public class ReviewController {
         boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
 
         return ResponseEntity.ok(isLiked);
+    }
+
+    @Operation(summary= "리뷰 이미지 조회", description = "메뉴쌍에 대한 리뷰 id와 리뷰 이미지 경로 목록 반환")
+    @GetMapping("images")
+    public ResponseEntity<ReviewImageRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
+        log.info("[로그] GET /api/reviews/images?menuPairId={}&pageNumber={}&pageSize={}", menuPairId, pageNumber, pageSize);
+
+        ReviewImageRes reviewImageRes = reviewService.findReviewImagesByMenuPairId(menuPairId, pageNumber, pageSize);
+
+        return ResponseEntity.ok(reviewImageRes);
     }
 }

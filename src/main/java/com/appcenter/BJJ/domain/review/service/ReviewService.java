@@ -12,6 +12,8 @@ import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -174,5 +176,19 @@ public class ReviewService {
         }
 
         return menuPairId;
+    }
+
+    public ReviewImageRes findReviewImagesByMenuPairId(Long menuPairId, int pageNumber, int pageSize) {
+        log.info("[로그] findReviewImagesByMenuPairId(), menuPairId : {}, pageNumber : {}, pageSize: {}", menuPairId, pageNumber, pageSize);
+
+        MenuPair menuPair = menuPairRepository.findById(menuPairId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+
+        Slice<ReviewImageDetailRes> reviewImageDetailResSlice = reviewRepository.findReviewImagesByMenuPairId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
+
+        return ReviewImageRes.builder()
+                .reviewImageDetailList(reviewImageDetailResSlice.getContent())
+                .isLastPage(reviewImageDetailResSlice.isLast())
+                .build();
     }
 }
