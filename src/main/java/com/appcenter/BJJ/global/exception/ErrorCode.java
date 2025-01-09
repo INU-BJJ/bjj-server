@@ -22,9 +22,10 @@ public enum ErrorCode {
 
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원이 존재하지 않습니다."),
-    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템이 존재하지 않습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 삭제되었거나 존재하지 않는 리뷰입니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 메뉴가 존재하지 않습니다."),
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템이 존재하지 않습니다."),
+    BACKGROUND_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배경이 존재하지 않습니다."),
 
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 이메일입니다."),
@@ -32,9 +33,7 @@ public enum ErrorCode {
     ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
 
     //500 Internal Server Error
-    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 문제가 발생했습니다.")
-
-    ;
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 문제가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
