@@ -26,7 +26,7 @@ public class UserDetailsImpl implements UserDetails, OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(member.getRole()));
+        roles.add(new SimpleGrantedAuthority(member.getRole().name()));
         return roles;
     }
 

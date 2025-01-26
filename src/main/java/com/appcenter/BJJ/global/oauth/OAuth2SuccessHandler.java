@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.global.oauth;
 
+import com.appcenter.BJJ.domain.member.MemberRole;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
 
         String redirectUrl;
-        if (userDetails.getMember().getRole().equals("ROLE_GUEST")) {
+        if (userDetails.getMember().getRole().equals(MemberRole.GUEST)) {
             log.info("OAuth2SuccessHandler.onAuthenticationSuccess() - 회원가입으로 이동");
             redirectUrl = UriComponentsBuilder.fromHttpUrl(signUpUrl)
                     .queryParam("email", userDetails.getMember().getEmail())

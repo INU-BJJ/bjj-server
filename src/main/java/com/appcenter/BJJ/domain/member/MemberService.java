@@ -1,11 +1,10 @@
-package com.appcenter.BJJ.domain.member.service;
+package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.LoginReq;
 import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
-import com.appcenter.BJJ.domain.member.repository.MemberRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
@@ -35,7 +34,7 @@ public class MemberService {
         Member member = memberRepository.findByEmailAndProvider(signupReq.getEmail(), signupReq.getProvider()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        member.updateMemberInfo(signupReq.getNickname(), "ROLE_USER");
+        member.updateMemberInfo(signupReq.getNickname(), MemberRole.USER);
         log.info("MemberService.signup() - ROLE_USER로 변경 완료 및 회원가입 성공");
 
         String accessToken = getToken(member.getProviderId(), JwtProvider.validAccessTime);
@@ -121,7 +120,7 @@ public class MemberService {
         );
         isNicknameAvailable(loginReq.getNickname());
 
-        member.updateMemberInfo(loginReq.getNickname(), "ROLE_USER");
+        member.updateMemberInfo(loginReq.getNickname(), MemberRole.USER);
 
         return getToken(member.getProviderId(), JwtProvider.validAccessTime);
     }
