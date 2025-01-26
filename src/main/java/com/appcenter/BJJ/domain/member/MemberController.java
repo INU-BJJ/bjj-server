@@ -1,10 +1,9 @@
-package com.appcenter.BJJ.domain.member.controller;
+package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.dto.LoginReq;
 import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
 import com.appcenter.BJJ.domain.member.dto.MemberRes;
 import com.appcenter.BJJ.domain.member.dto.SignupReq;
-import com.appcenter.BJJ.domain.member.service.MemberService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
