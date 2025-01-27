@@ -10,14 +10,13 @@ import java.time.Instant;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberOAuthVO {
-    private Long memberId;
-    private String provider;
-    private String providerId;
-    private String oauthToken;
-    private Instant issuedAt;
-    private Instant expiresAt;
+    private final Long memberId;
+    private final String provider;
+    private final String providerId;
+    private final String oauthToken;
+    private final Instant issuedAt;
+    private final Instant expiresAt;
 
     public static MemberOAuthVO from(Member member) {
         return MemberOAuthVO.builder()
