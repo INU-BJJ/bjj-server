@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.member.domain;
+package com.appcenter.BJJ.domain.item.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,16 +19,17 @@ public class Inventory {
 
     private Long memberId;
 
-    private Long itemId;
+    private int itemId;
 
     private boolean isWearing;
 
-    private LocalDate validItem;
+    private LocalDate validPeriod;
+
     @Builder
-    private Inventory(Long memberId, Long itemId, boolean isWearing, LocalDate validItem) {
+    private Inventory(Long memberId, int itemId, boolean isWearing, LocalDate validPeriod) {
         this.memberId = memberId;
         this.itemId = itemId;
         this.isWearing = isWearing;
-        this.validItem = validItem;
+        this.validPeriod = validPeriod;
     }
 }
