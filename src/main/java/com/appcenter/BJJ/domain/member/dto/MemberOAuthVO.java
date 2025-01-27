@@ -1,8 +1,6 @@
 package com.appcenter.BJJ.domain.member.dto;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
