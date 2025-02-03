@@ -18,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -34,16 +36,12 @@ public class ItemService {
     private String ITEM_IMG_DIR;
 
     public List<ItemRes> putItemFile(MultipartFile infoFile, MultipartFile imageFile) throws IOException {
-        String fileName = infoFile.getOriginalFilename();
-        log.info("putItemFile(): fileName: {}, imageFile: {}", fileName, imageFile.getOriginalFilename());
 
-        InputStream imageInput = imageFile.getInputStream();
-        log.info("putItemFile(): " + imageInput.read());
-
-        String itemType = unZip(imageFile);
+        List<String> fileNameList = unZip(imageFile);
+        ItemType itemType = getItemType(imageFile);
 
         List<Item> itemList = jsonToList(infoFile).stream()
-                .map(itemVO -> Item.create(itemVO, itemVO.getId() + ".png", ItemType.valueOf(itemType.toUpperCase())))
+                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getId() - 1), itemType))
                 .toList();
 
         itemRepository.saveAll(itemList);
@@ -59,21 +57,23 @@ public class ItemService {
                 .toList();
     }
 
-    private String unZip(MultipartFile zipImageFile) throws IOException {
-
+    private List<String> unZip(MultipartFile zipImageFile) throws IOException {
         InputStream inputStream = zipImageFile.getInputStream();
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-        ZipEntry entry;
 
-        String itemType = Objects.requireNonNull(zipImageFile.getOriginalFilename()).split("\\.")[0];
-        log.info("unZip(): " + itemType);
+        ZipEntry entry;
+        List<String> fileNameList = new ArrayList<>();
+        ItemType itemType = getItemType(zipImageFile);
 
         while ((entry = zipInputStream.getNextEntry()) != null) {
             if (entry.isDirectory()) continue;
 
             String imageFileName = entry.getName().split("/")[1];
+            fileNameList.add(imageFileName);
+
             File imageFile = new File(ITEM_IMG_DIR + itemType + "/" + imageFileName);
 
+            //이미지 파일 write
             try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
                 byte[] bytes = new byte[1024];
                 int length;
@@ -84,12 +84,19 @@ public class ItemService {
         }
         zipInputStream.closeEntry();
 
-        return itemType;
+        return fileNameList.stream()
+                // 파일의 이름을 기준으로 정렬
+                .sorted(Comparator.comparingInt(fileName -> Integer.parseInt(fileName.split("\\.")[0])))
+                .toList();
     }
 
     private List<ItemVO> jsonToList(MultipartFile file) throws IOException {
         String jsonFile = new String(file.getBytes(), StandardCharsets.UTF_8);
         return objectMapper.readValue(jsonFile, new TypeReference<>() {
         });
+    }
+
+    private ItemType getItemType(MultipartFile file) {
+        return ItemType.valueOf(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[0].toUpperCase());
     }
 }
