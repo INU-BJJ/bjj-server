@@ -8,6 +8,7 @@ import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.ReviewLike;
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
 import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import jakarta.persistence.EntityManager;
@@ -322,5 +323,49 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         typedQuery.setMaxResults(pageSize);
 
         return typedQuery.getResultList();
+    }
+
+    @Override
+    public List<BestReviewDto> findMostLikedReviewIdsInMainMenuIds(List<Long> mainMenuIds) {
+        // EntityManager 생성
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BestReviewDto> query = cb.createQuery(BestReviewDto.class);
+
+        // 조건문 리스트
+        List<Predicate> predicates = new ArrayList<>();
+
+        // Root 정의
+        Root<Review> review = query.from(Review.class);
+        Join<Review, MenuPair> menuPair = review.join("menuPair");
+
+        // 서브쿼리 1: 최대 like_count를 구하는 서브쿼리
+        Subquery<Long> subQuery1 = query.subquery(Long.class);
+        Root<Review> subReview = subQuery1.from(Review.class);
+        Join<Review, MenuPair> subMenuPair = subReview.join("menuPair");
+        subQuery1.select(cb.max(subReview.get("likeCount")))
+                .where(cb.equal(subMenuPair.get("mainMenuId"), menuPair.get("mainMenuId")));
+
+        // 서브쿼리 2: 최대 like_count와 같은 like_count 중에서 최대 review_id(가장 최근 리뷰)를 구하는 서브쿼리
+        Subquery<Long> subQuery2 = query.subquery(Long.class);
+        Root<Review> subReview2 = subQuery2.from(Review.class);
+        Join<Review, MenuPair> subMenuPair2 = subReview2.join("menuPair");
+        subQuery2.select(cb.max(subReview2.get("id")))
+                .where(cb.equal(subMenuPair2.get("mainMenuId"), menuPair.get("mainMenuId")),
+                        cb.equal(subReview2.get("likeCount"), subQuery1));
+
+        // 조건문 추가
+        predicates.add(menuPair.get("mainMenuId").in(mainMenuIds));
+        predicates.add(cb.equal(review.get("id"), subQuery2));  // review_id가 서브쿼리에서 구한 값과 일치하는 경우
+
+        // 메인 쿼리 정의
+        query.select(cb.construct(
+                BestReviewDto.class,
+                menuPair.get("mainMenuId"), // main_menu_id
+                review.get("id") // review_id
+                ))
+                .where(predicates.toArray(new Predicate[0]));
+
+        // 쿼리 실행
+        return entityManager.createQuery(query).getResultList();
     }
 }

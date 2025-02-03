@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.review.repository;
 
 import com.appcenter.BJJ.domain.review.domain.Sort;
+import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
 import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 
@@ -14,4 +15,5 @@ public interface ReviewRepositoryCustom {
     Map<String, List<MyReviewDetailRes>> findMyReviewsWithImagesAndMemberDetailsAndCafeteria(Long memberId);
     Long countMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName);
     List<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize);
+    List<BestReviewDto> findMostLikedReviewIdsInMainMenuIds(List<Long> mainMenuIds);
 }
