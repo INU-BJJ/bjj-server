@@ -21,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Item", description = "아이템 API")
 public class ItemController {
+    // 운영자만 사용하는 api (아이템 추가, 수정 등의 유지보수를 위해)
     private final ItemService itemService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
