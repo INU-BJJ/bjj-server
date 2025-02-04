@@ -2,10 +2,12 @@ package com.appcenter.BJJ.domain.review.repository;
 
 import com.appcenter.BJJ.domain.menu.dto.MenuRatingStatsDto;
 import com.appcenter.BJJ.domain.review.domain.Review;
+import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
@@ -29,4 +31,36 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r")
     Float findAverageRating();
+
+    @Query("""
+        SELECT new com.appcenter.BJJ.domain.review.dto.ReviewDetailRes(
+            r.id,
+            r.comment,
+            r.rating,
+            r.likeCount,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM ReviewLike rl
+                    WHERE rl.reviewId = :reviewId
+                        AND rl.memberId = :memberId
+                )
+                THEN TRUE
+                ELSE FALSE
+            END,
+            r.createdDate,
+            mp.id,
+            mm.menuName,
+            sm.menuName,
+            m.id,
+            m.nickname
+        )
+        FROM Review r
+        JOIN r.menuPair mp
+        JOIN Menu mm ON mp.mainMenuId = mm.id
+        JOIN Menu sm ON mp.subMenuId = sm.id
+        JOIN Member m ON r.memberId = m.id
+        WHERE r.id = :reviewId
+    """)
+    Optional<ReviewDetailRes> findReviewWithMenuAndMemberDetails(Long reviewId, Long memberId);
 }

@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
@@ -120,5 +121,15 @@ public class ReviewController {
         boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
 
         return ResponseEntity.ok(isLiked);
+    }
+
+    @Operation(summary = "리뷰 상세 조회")
+    @GetMapping("{reviewId}")
+    public ResponseEntity<ReviewDetailRes> getReviewDetail(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/reviews/{}, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        ReviewDetailRes reviewDetailRes = reviewService.findReviewWithDetail(reviewId, userDetails.getMember().getId());
+
+        return ResponseEntity.ok(reviewDetailRes);
     }
 }
