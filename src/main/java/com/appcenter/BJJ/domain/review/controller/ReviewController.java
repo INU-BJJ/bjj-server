@@ -5,6 +5,7 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewImageRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
@@ -52,7 +53,7 @@ public class ReviewController {
             description = """
                     - 식당별 리뷰와 리뷰에 대한 모든 정보 보여줌\s
                     - pageSize만큼 리뷰 조회\s
-                    - pageNumber는 0부터 시작 (0..9 -> 10->19 -> 20..29)\s
+                    - pageNumber는 0부터 시작 (0, 1, 2, ...)\s
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - sort는 정렬 방법 (BestMatch : 메뉴일치순, MostLiked : 좋아요순, NewestFirst : 최신순)
                     - isWithImages는 포토리뷰만 여부
@@ -86,9 +87,9 @@ public class ReviewController {
             description = """
                     - 특정 식당에 회원이 작성한 리뷰 조회\s
                     - pageSize만큼 리뷰 조회\s
-                    - pageNumber은 1부터 시작 (0..9 -> 10->19 -> 20..29)\s
+                    - pageNumber은 1부터 시작 (0, 1, 2, ...)\s
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
-                    - responseDTO : ReviewRes""")
+                    - responseDTO : MyReviewPagedRes""")
     @GetMapping("/my/cafeteria")
     public ResponseEntity<MyReviewsPagedRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
@@ -121,6 +122,16 @@ public class ReviewController {
         boolean isLiked = reviewLikeService.toggleReviewLike(reviewId, userDetails.getMember().getId());
 
         return ResponseEntity.ok(isLiked);
+    }
+
+    @Operation(summary= "리뷰 이미지 조회", description = "메뉴쌍에 대한 리뷰 id와 리뷰 이미지 경로 목록 반환")
+    @GetMapping("images")
+    public ResponseEntity<ReviewImageRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
+        log.info("[로그] GET /api/reviews/images?menuPairId={}&pageNumber={}&pageSize={}", menuPairId, pageNumber, pageSize);
+
+        ReviewImageRes reviewImageRes = reviewService.findReviewImagesByMenuPairId(menuPairId, pageNumber, pageSize);
+
+        return ResponseEntity.ok(reviewImageRes);
     }
 
     @Operation(summary = "리뷰 상세 조회")

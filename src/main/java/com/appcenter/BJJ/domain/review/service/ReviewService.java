@@ -14,6 +14,8 @@ import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,7 +76,10 @@ public class ReviewService {
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
 
-        List<ReviewDetailRes> reviewDetailResList = reviewRepository.findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), pageNumber, pageSize, sort, isWithImages);
+        Slice<ReviewDetailRes> reviewDetailResSlice = reviewRepository
+                .findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), sort, isWithImages, PageRequest.of(pageNumber, pageSize));
+        List<ReviewDetailRes> reviewDetailResList = reviewDetailResSlice.getContent();
+        boolean isLast = reviewDetailResSlice.isLast();
 
         List<Long> reviewIdList = reviewDetailResList.stream().map(ReviewDetailRes::getReviewId).toList();
 
@@ -89,13 +94,9 @@ public class ReviewService {
             reviewDetailRes.setImageNames(imageNameList);
         });
 
-        // 마지막 페이지 여부 확인
-        Long totalCount = reviewRepository.countReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), pageNumber, pageSize, sort, isWithImages);
-        boolean isLastPage = (pageNumber + pageSize >= totalCount);
-
         return ReviewRes.builder()
                 .reviewDetailList(reviewDetailResList)
-                .isLastPage(isLastPage)
+                .isLastPage(isLast)
                 .build();
     }
 
@@ -127,8 +128,10 @@ public class ReviewService {
     public MyReviewsPagedRes findMyReviewsByCafeteria(Long memberId, String cafeteriaName, int pageNumber, int pageSize) {
         log.info("[로그] findMyReviewsByCafeteria(), memberId : {}", memberId);
 
-        List<MyReviewDetailRes> myReviewDetailResList = reviewRepository
-                .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, pageNumber, pageSize);
+        Slice<MyReviewDetailRes> myReviewDetailResSlice = reviewRepository
+                .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, PageRequest.of(pageNumber, pageSize));
+        List<MyReviewDetailRes> myReviewDetailResList = myReviewDetailResSlice.getContent();
+        boolean isLast = myReviewDetailResSlice.isLast();
 
         List<Long> reviewIdList = myReviewDetailResList.stream().map(MyReviewDetailRes::getReviewId).toList();
 
@@ -143,13 +146,9 @@ public class ReviewService {
             reviewDetailRes.setImageNames(imageNameList);
         });
 
-        // 마지막 페이지 여부 확인
-        Long totalCount = reviewRepository.countMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName);
-        boolean isLastPage = (pageNumber + pageSize >= totalCount);
-
         return MyReviewsPagedRes.builder()
                 .myReviewDetailList(myReviewDetailResList)
-                .isLastPage(isLastPage)
+                .isLastPage(isLast)
                 .build();
     }
 
@@ -176,6 +175,20 @@ public class ReviewService {
         }
 
         return menuPairId;
+    }
+
+    public ReviewImageRes findReviewImagesByMenuPairId(Long menuPairId, int pageNumber, int pageSize) {
+        log.info("[로그] findReviewImagesByMenuPairId(), menuPairId : {}, pageNumber : {}, pageSize: {}", menuPairId, pageNumber, pageSize);
+
+        MenuPair menuPair = menuPairRepository.findById(menuPairId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+
+        Slice<ReviewImageDetailRes> reviewImageDetailResSlice = reviewRepository.findReviewImagesByMenuPairId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
+
+        return ReviewImageRes.builder()
+                .reviewImageDetailList(reviewImageDetailResSlice.getContent())
+                .isLastPage(reviewImageDetailResSlice.isLast())
+                .build();
     }
 
     public ReviewDetailRes findReviewWithDetail(long reviewId, long memberId) {
