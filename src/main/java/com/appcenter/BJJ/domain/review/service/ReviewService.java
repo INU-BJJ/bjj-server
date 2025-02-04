@@ -9,6 +9,8 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.*;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -187,5 +189,17 @@ public class ReviewService {
                 .reviewImageDetailList(reviewImageDetailResSlice.getContent())
                 .isLastPage(reviewImageDetailResSlice.isLast())
                 .build();
+    }
+
+    public ReviewDetailRes findReviewWithDetail(long reviewId, long memberId) {
+        log.info("[로그] findReviewWithDetail(), reviewId : {}, memberId: {}", reviewId, memberId);
+
+        ReviewDetailRes reviewDetailRes = reviewRepository.findReviewWithMenuAndMemberDetails(reviewId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_DETAIL_NOT_FOUND));
+
+        List<String> imageNames = imageRepository.findByReviewId(reviewId).stream().map(Image::getName).toList();
+        reviewDetailRes.setImageNames(imageNames);
+
+        return reviewDetailRes;
     }
 }

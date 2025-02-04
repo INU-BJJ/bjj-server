@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewImageRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.dto.ReviewRes;
@@ -131,5 +132,15 @@ public class ReviewController {
         ReviewImageRes reviewImageRes = reviewService.findReviewImagesByMenuPairId(menuPairId, pageNumber, pageSize);
 
         return ResponseEntity.ok(reviewImageRes);
+    }
+
+    @Operation(summary = "리뷰 상세 조회")
+    @GetMapping("{reviewId}")
+    public ResponseEntity<ReviewDetailRes> getReviewDetail(@PathVariable long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/reviews/{}, memberNickname: {}", reviewId, userDetails.getNickname());
+
+        ReviewDetailRes reviewDetailRes = reviewService.findReviewWithDetail(reviewId, userDetails.getMember().getId());
+
+        return ResponseEntity.ok(reviewDetailRes);
     }
 }

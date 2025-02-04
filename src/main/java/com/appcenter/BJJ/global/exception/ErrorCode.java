@@ -25,6 +25,7 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템이 존재하지 않습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 삭제되었거나 존재하지 않는 리뷰입니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 메뉴가 존재하지 않습니다."),
+    REVIEW_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰의 상세 정보를 불러올 수 없습니다"),
 
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 이메일입니다."),
