@@ -61,4 +61,14 @@ public class MenuController {
 
         return ResponseEntity.ok(menuRankingPagedRes);
     }
+
+    @PostMapping("/test/ranking")
+    @Operation(summary = "[test] 전체 메뉴의 랭킹 업데이트")
+    public ResponseEntity<Void> updateRanking() {
+        log.info("[로그] POST /api/menus/test/ranking");
+
+        menuRankingService.updateAllMenuRankings();
+
+        return ResponseEntity.ok(null);
+    }
 }
