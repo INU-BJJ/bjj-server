@@ -50,7 +50,7 @@ public class MenuRankingService {
         int semester = getSemester(now);
 
         // 최소 리뷰 개수를 충족한 메뉴 랭킹 리스트를 최대 maxMenuRank개 가져오기
-        int minRatingCount = 5; // 최소 리뷰 개수
+        int minRatingCount = 1; // 최소 리뷰 개수
         int maxMenuRank = 30;   // 랭킹 최대 값
         if (pageNumber * pageSize + pageSize > maxMenuRank) {
             pageSize = maxMenuRank - pageNumber * pageSize;
@@ -113,21 +113,40 @@ public class MenuRankingService {
                 .build();
     }
 
+    @Transactional
+    public void updateAllMenuRankings() {
+        log.info("[로그] updateMenuRankingWithAllMenus() 시작");
+
+        // 모든 식단의 메인 메뉴 ID 목록 조회
+        List<Long> menuIdList = todayDietRepository.findAllMainMenuIds();
+        log.info("[로그] menuIdList = {}", menuIdList);
+
+        // 메뉴 이름 및 식당 조회
+        processMenuRankingCalculation(menuIdList);
+    }
 
     @PostConstruct  // bean 생성 후 실행
     @Transactional
     @Scheduled(cron = "0 0 4 * * *") // 오전 4시마다 실행
-    protected void updateMenuRanking() {
+    protected void updateDailyMenuRankings() {
         log.info("[로그] updateRankings() 시작");
+
+        // 어제 날짜 구하기
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        // 어제 식단의 메뉴 ID 목록 조회
+        List<Long> menuIdList = todayDietRepository.findMainMenuIdsByDate(yesterday);
+        log.info("[로그] menuIdList = {}", menuIdList);
+
+        processMenuRankingCalculation(menuIdList);
+    }
+
+    private void processMenuRankingCalculation(List<Long> menuIdList) {
 
         // 어제 날짜 및 학기 구하기
         LocalDateTime now = LocalDateTime.now();
         LocalDate yesterday = now.toLocalDate().minusDays(1);
         int semester = getSemester(yesterday);
-
-        // 어제 식단의 메뉴 ID 목록 조회
-        List<Long> menuIdList = todayDietRepository.findMainMenuIdsByDate(yesterday);
-        log.info("[로그] menuIdList = {}", menuIdList);
 
         // 메뉴 이름 및 식당 조회
         List<MenuInfoDto> menuInfoDtos = menuRepository.findMenusWithCafeteriaInMenuIds(menuIdList);
