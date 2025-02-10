@@ -35,13 +35,13 @@ public class ItemService {
     @Value("${storage.images.item}")
     private String ITEM_IMG_DIR;
 
-    public List<ItemRes> putItemFile(MultipartFile infoFile, MultipartFile imageFile) throws IOException {
+    public List<ItemRes> putItemFile(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
 
-        List<String> fileNameList = unZip(imageFile);
-        ItemType itemType = getItemType(imageFile);
+        ItemType itemType = ItemType.valueOf(Objects.requireNonNull(zipImageFile.getOriginalFilename()).split("\\.")[0].toUpperCase());
+        List<String> fileNameList = unZip(zipImageFile, itemType);
 
         List<Item> itemList = jsonToList(infoFile).stream()
-                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getId() - 1), itemType))
+                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getItemId() - 1), itemType))
                 .toList();
 
         itemRepository.saveAll(itemList);
@@ -57,13 +57,12 @@ public class ItemService {
                 .toList();
     }
 
-    private List<String> unZip(MultipartFile zipImageFile) throws IOException {
+    private List<String> unZip(MultipartFile zipImageFile, ItemType itemType) throws IOException {
         InputStream inputStream = zipImageFile.getInputStream();
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
         ZipEntry entry;
         List<String> fileNameList = new ArrayList<>();
-        ItemType itemType = getItemType(zipImageFile);
 
         while ((entry = zipInputStream.getNextEntry()) != null) {
             if (entry.isDirectory()) continue;
@@ -94,9 +93,5 @@ public class ItemService {
         String jsonFile = new String(file.getBytes(), StandardCharsets.UTF_8);
         return objectMapper.readValue(jsonFile, new TypeReference<>() {
         });
-    }
-
-    private ItemType getItemType(MultipartFile file) {
-        return ItemType.valueOf(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[0].toUpperCase());
     }
 }
