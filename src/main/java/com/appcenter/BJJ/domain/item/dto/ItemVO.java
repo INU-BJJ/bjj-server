@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Builder
 public class ItemVO {
-    private final int id;
+    private final Integer itemId;
 
     private final int price;
 
