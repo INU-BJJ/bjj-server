@@ -2,7 +2,7 @@ package com.appcenter.BJJ.domain.item.service;
 
 import com.appcenter.BJJ.domain.item.domain.Inventory;
 import com.appcenter.BJJ.domain.item.domain.Item;
-import com.appcenter.BJJ.domain.item.dto.GotchaRes;
+import com.appcenter.BJJ.domain.item.dto.GachaRes;
 import com.appcenter.BJJ.domain.item.enums.ItemLevel;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +24,7 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final ItemRepository itemRepository;
 
-    public GotchaRes gotcha(Long memberId, ItemType itemType) {
+    public GachaRes gacha(Long memberId, ItemType itemType) {
 
         //[notice] 이후에 100으로 바꾸기
         int gotchaId = getRandomInt(10);
@@ -41,13 +41,13 @@ public class InventoryService {
                 .memberId(memberId)
                 .itemId(item.getItemId())
                 .isWearing(false)
-                .validPeriod(LocalDate.now().plusDays(7))
+                .validPeriod(LocalDateTime.now().plusDays(7))
                 .build();
         inventoryRepository.save(inventory);
 
         log.info("gotcha(): itemId= {}", itemId);
 
-        return GotchaRes.builder()
+        return GachaRes.builder()
                 .itemId(item.getItemId())
                 .itemName(item.getImageName())
                 .itemType(item.getItemType())
