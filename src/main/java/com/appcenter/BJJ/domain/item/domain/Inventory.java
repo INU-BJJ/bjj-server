@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,10 +24,10 @@ public class Inventory {
 
     private boolean isWearing;
 
-    private LocalDate validPeriod;
+    private LocalDateTime validPeriod;
 
     @Builder
-    private Inventory(Long memberId, int itemId, boolean isWearing, LocalDate validPeriod) {
+    private Inventory(Long memberId, int itemId, boolean isWearing, LocalDateTime validPeriod) {
         this.memberId = memberId;
         this.itemId = itemId;
         this.isWearing = isWearing;
