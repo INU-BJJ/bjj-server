@@ -17,7 +17,7 @@ public class ReviewDetailRes {
     private final String comment;
     @Schema(description = "리뷰 별점", example = "5")
     private final Integer rating;
-    @Schema(description = "리뷰 이미지 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
+    @Schema(description = "리뷰 이미지 이름", example = "[\"aa356b24-0169-4c0c-8bf4-836ed3c6b31d.png\", \"72d2efb7-a5d6-439e-93ca-3dd578fa4f67.png\"]")
     @Setter
     private List<String> imageNames;
     @Schema(description = "리뷰 좋아요 개수", example = "123")

@@ -54,4 +54,19 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
         WHERE c.name = :cafeteriaName AND td.date = CURRENT_DATE
     """)
     List<TodayMenuRes> findTodayMainMenusByCafeteriaName(String cafeteriaName);
+
+    @Query("""
+        SELECT mp.mainMenuId
+        FROM TodayDiet td
+        JOIN MenuPair mp ON td.menuPairId = mp.id
+        WHERE td.date = :date
+    """)
+    List<Long> findMainMenuIdsByDate(LocalDate date);
+
+    @Query("""
+        SELECT mp.mainMenuId
+        FROM TodayDiet td
+        JOIN MenuPair mp ON td.menuPairId = mp.id
+    """)
+    List<Long> findAllMainMenuIds();
 }

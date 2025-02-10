@@ -55,7 +55,5 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           script_stop: true
           script: |
-            export STORAGE_IMAGES_REVIEW=${{ secrets.STORAGE_IMAGES_REVIEW }}
-            export STORAGE_IMAGES_CAFETERIA=${{ secrets.STORAGE_IMAGES_CAFETERIA }}
-            export STORAGE_IMAGES_ITEM=${{ secrets.STORAGE_IMAGES_ITEM }}
-              sh bjj/deploy-bjj.sh
+            export STORAGE_IMAGES=${{ secrets.STORAGE_IMAGES }}
+            sh bjj/deploy-bjj.sh
