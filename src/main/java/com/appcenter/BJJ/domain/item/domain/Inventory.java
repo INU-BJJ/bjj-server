@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.member.domain;
+package com.appcenter.BJJ.domain.item.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -19,16 +19,17 @@ public class Inventory {
 
     private Long memberId;
 
-    private Long itemId;
+    private int itemId;
 
     private boolean isWearing;
 
-    private LocalDate validItem;
+    private LocalDateTime validPeriod;
+
     @Builder
-    private Inventory(Long memberId, Long itemId, boolean isWearing, LocalDate validItem) {
+    private Inventory(Long memberId, int itemId, boolean isWearing, LocalDateTime validPeriod) {
         this.memberId = memberId;
         this.itemId = itemId;
         this.isWearing = isWearing;
-        this.validItem = validItem;
+        this.validPeriod = validPeriod;
     }
 }

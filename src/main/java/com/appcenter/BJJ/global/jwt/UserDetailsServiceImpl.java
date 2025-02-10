@@ -1,7 +1,7 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.member.repository.MemberRepository;
+import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

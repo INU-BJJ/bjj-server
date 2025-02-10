@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.member.domain;
 
+import com.appcenter.BJJ.domain.member.MemberRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +26,8 @@ public class Member {
 
     private int point;
 
-    private String role;
+    @Enumerated(value = EnumType.STRING)
+    private MemberRole role;
 
     private OAuth2Client oAuth2Client;
 
@@ -37,11 +39,11 @@ public class Member {
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
-        this.role = "ROLE_GUEST";
+        this.role = MemberRole.GUEST;
         this.oAuth2Client = oAuth2Client;
     }
 
-    public void updateMemberInfo(String nickname, String role) {
+    public void updateMemberInfo(String nickname, MemberRole role) {
         this.nickname = nickname;
         this.role = role;
     }
