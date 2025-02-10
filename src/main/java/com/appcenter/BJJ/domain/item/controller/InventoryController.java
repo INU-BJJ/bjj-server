@@ -1,6 +1,6 @@
 package com.appcenter.BJJ.domain.item.controller;
 
-import com.appcenter.BJJ.domain.item.dto.GotchaRes;
+import com.appcenter.BJJ.domain.item.dto.GachaRes;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.service.InventoryService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -23,7 +23,7 @@ public class InventoryController {
 
     @Operation(summary = "아이템 뽑기")
     @PostMapping
-    public ResponseEntity<GotchaRes> gotchaItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType) {
-        return ResponseEntity.ok(inventoryService.gotcha(userDetails.getMember().getId(), itemType));
+    public ResponseEntity<GachaRes> gotchaItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType) {
+        return ResponseEntity.ok(inventoryService.gacha(userDetails.getMember().getId(), itemType));
     }
 }
