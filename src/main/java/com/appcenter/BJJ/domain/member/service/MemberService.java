@@ -45,7 +45,7 @@ public class MemberService {
 
     public MemberRes getMember(Long id) {
         Member member = memberRepository.findById(id).orElseThrow(
-                () -> new CustomException(ErrorCode.INVALID_CREDENTIALS)
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         log.info("MemberService.getMember() - 회원 정보 조회 성공");
 
