@@ -13,6 +13,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Slf4j
 @Component
@@ -27,6 +28,9 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(ErrorDTO.builder().msg(errorCode.getMessage()).build()));
+        response.getWriter().write(objectMapper.writeValueAsString(ErrorDTO.builder()
+                .code(errorCode.getCode())
+                .msg(Collections.singletonList(errorCode.getMessage()))
+                .build()));
     }
 }

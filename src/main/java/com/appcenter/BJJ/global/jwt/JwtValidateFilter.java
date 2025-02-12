@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Slf4j
 public class JwtValidateFilter extends OncePerRequestFilter {
@@ -41,7 +42,10 @@ public class JwtValidateFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         try {
-            response.getWriter().write(objectMapper.writeValueAsString(ErrorDTO.builder().msg(errorCode.getMessage()).build()));
+            response.getWriter().write(objectMapper.writeValueAsString(ErrorDTO.builder()
+                    .code(errorCode.getCode())
+                    .msg(Collections.singletonList(errorCode.getMessage()))
+                    .build()));
         } catch (IOException e) {
             log.warn("IOException 발생");
         }
