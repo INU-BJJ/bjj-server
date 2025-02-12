@@ -26,14 +26,13 @@ public class ItemService {
 
     public DetailItemRes gacha(Long memberId, ItemType itemType) {
 
-        //[notice] 이후에 100으로 바꾸기
         //아이템 랜덤으로 뽑기
-        int gachaId = getRandomInt(10);
+        int itemSize = (int) itemRepository.count();
+        int gachaId = getRandomInt(itemSize);
         ItemLevel itemLevel = getItemLevel(gachaId);
 
         List<Item> itemList = itemRepository.findByItemLevelAndItemType(itemLevel, itemType);
         Integer itemId = getRandomInt(itemList.size());
-        log.info("gacha(): itemId= {}", itemId);
 
         Item item = itemRepository.findByItemId(itemId).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
