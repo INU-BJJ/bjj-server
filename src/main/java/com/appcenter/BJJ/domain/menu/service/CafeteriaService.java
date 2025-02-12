@@ -1,7 +1,10 @@
 package com.appcenter.BJJ.domain.menu.service;
 
 import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
+import com.appcenter.BJJ.domain.menu.dto.CafeteriaInfoRes;
 import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,18 @@ import java.util.List;
 public class CafeteriaService {
 
     private final CafeteriaRepository cafeteriaRepository;
+
+    public CafeteriaInfoRes findCafeteriaInfoByName(String name) {
+        Cafeteria cafeteria = cafeteriaRepository.findFirstByName(name)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFETERIA_NOT_FOUND));
+
+        return CafeteriaInfoRes.builder()
+                .name(cafeteria.getName())
+                .location(cafeteria.getLocation())
+                .operationTime(cafeteria.getOperationTime())
+                .imageName(cafeteria.getImage())
+                .build();
+    }
 
     @PostConstruct
     @Transactional
