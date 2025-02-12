@@ -24,6 +24,7 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "404-2", "해당 아이템이 존재하지 않습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "404-3", "리뷰가 삭제되었거나 존재하지 않는 리뷰입니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "404-4", "해당 메뉴가 존재하지 않습니다."),
+    REVIEW_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5","해당 리뷰의 상세 정보를 불러올 수 없습니다"),
 
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),
@@ -32,6 +33,7 @@ public enum ErrorCode {
 
     //500 Internal Server Error
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;
