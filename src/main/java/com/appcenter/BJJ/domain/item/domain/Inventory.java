@@ -19,17 +19,25 @@ public class Inventory {
 
     private Long memberId;
 
-    private int itemId;
+    private Integer itemId;
 
-    private boolean isWearing;
+    private Boolean isWearing;
+
+    private Boolean isOwned;
 
     private LocalDateTime validPeriod;
 
     @Builder
-    private Inventory(Long memberId, int itemId, boolean isWearing, LocalDateTime validPeriod) {
+    private Inventory(Long memberId, Integer itemId, boolean isWearing, boolean isOwned, LocalDateTime validPeriod) {
         this.memberId = memberId;
         this.itemId = itemId;
+        this.isOwned = isOwned;
         this.isWearing = isWearing;
         this.validPeriod = validPeriod;
+    }
+
+    public void updateValidPeriodAndIsOwned(LocalDateTime validPeriod) {
+        this.validPeriod = validPeriod.plusDays(7);
+        this.isOwned = true;
     }
 }
