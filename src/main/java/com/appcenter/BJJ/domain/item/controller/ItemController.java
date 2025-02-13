@@ -1,20 +1,16 @@
 package com.appcenter.BJJ.domain.item.controller;
 
-import com.appcenter.BJJ.domain.item.dto.ItemRes;
+import com.appcenter.BJJ.domain.item.dto.DetailItemRes;
+import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.service.ItemService;
+import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,15 +18,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Item", description = "아이템 API")
 public class ItemController {
-    // 운영자만 사용하는 api (아이템 추가, 수정 등의 유지보수를 위해)
 
     private final ItemService itemService;
 
-    @Operation(summary = "아이템 이미지 저장",
-            description = "character / backgound 로 파일명 설정하고 이용")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<ItemRes>> postItem(@RequestPart MultipartFile infoFile, @RequestPart MultipartFile imageFile) throws IOException {
-        return new ResponseEntity<>(itemService.putItemFile(infoFile, imageFile), HttpStatus.CREATED);
+    @Operation(summary = "아이템 뽑기")
+    @PostMapping
+    public ResponseEntity<DetailItemRes> gachaItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType) {
+        return ResponseEntity.ok(itemService.gacha(userDetails.getMember().getId(), itemType));
     }
 
+    @Operation(summary = "전체 아이템 조회", description = "날짜 == 현재 : 안 뽑힌 아이템 / 날짜 != 현재 : 뽑힌 아이템")
+    @GetMapping
+    public ResponseEntity<List<DetailItemRes>> getItems(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(itemService.getItems(userDetails.getMember().getId()));
+    }
+
+    @Operation(summary = "개별 아이템 조회", description = "날짜 == 현재 : 안 뽑힌 아이템 / 날짜 != 현재 : 뽑힌 아이템")
+    @GetMapping("/{itemId}")
+    public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
+        return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemId));
+    }
 }

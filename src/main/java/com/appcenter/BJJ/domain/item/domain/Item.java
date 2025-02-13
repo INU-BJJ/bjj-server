@@ -20,7 +20,7 @@ public class Item {
 
     private Integer itemId;
 
-    private int price;
+    private String itemName;
 
     private String imageName;
 
@@ -31,9 +31,9 @@ public class Item {
     private ItemLevel itemLevel;
 
     @Builder
-    private Item(Integer itemId, int price, String imageName, ItemType itemType, ItemLevel itemLevel) {
+    private Item(Integer itemId, String itemName, String imageName, ItemType itemType, ItemLevel itemLevel) {
         this.itemId = itemId;
-        this.price = price;
+        this.itemName = itemName;
         this.imageName = imageName;
         this.itemType = itemType;
         this.itemLevel = itemLevel;
@@ -42,7 +42,7 @@ public class Item {
     public static Item create(ItemVO itemVO, String imageName, ItemType itemType) {
         return Item.builder()
                 .itemId(itemVO.getItemId())
-                .price(itemVO.getPrice())
+                .itemName(itemVO.getItemName())
                 .imageName(imageName)
                 .itemType(itemType)
                 .itemLevel(itemVO.getItemLevel())
