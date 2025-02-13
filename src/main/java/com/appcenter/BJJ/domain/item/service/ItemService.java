@@ -10,14 +10,12 @@ import com.appcenter.BJJ.domain.item.repository.ItemRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -53,8 +51,6 @@ public class ItemService {
         inventory.updateValidPeriodAndIsOwned(inventory.getValidPeriod());
         inventoryRepository.save(inventory);
 
-        log.info("gacha(): itemId= {}", itemId);
-
         return DetailItemRes.builder()
                 .itemId(item.getItemId())
                 .itemName(item.getItemName())
@@ -69,10 +65,7 @@ public class ItemService {
     }
 
     public List<DetailItemRes> getItems(Long memberId) {
-        log.info("getItems(): 들어옴");
-        List<DetailItemRes> itemList = itemRepository.getAllDetailItemsByMemberId(memberId);
-        log.info("getItems(): 아이템 리스트 이름 {}", itemList.get(0).getItemName());
-        return itemList;
+        return itemRepository.getAllDetailItemsByMemberId(memberId);
     }
 
     public DetailItemRes getItem(Long memberId, Integer itemId) {
