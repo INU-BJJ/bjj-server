@@ -17,15 +17,39 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findByItemId(int ItemId);
 
-    @Query("select new com.appcenter.BJJ.domain.item.dto.DetailItemRes(" +
-            "item.itemId, item.itemName, item.itemType, item.itemLevel, item.imageName, " +
-            "coalesce(inven.validPeriod, CURRENT TIMESTAMP ), coalesce(inven.isWearing, false),coalesce(inven.isOwned, false)) " +
-            "from Item item left join Inventory inven on item.itemId = inven.itemId and inven.memberId = :memberId")
+    @Query("""
+            SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
+            item.itemId,
+            item.itemName,
+            item.itemType,
+            item.itemLevel,
+            item.imageName,
+            inven.validPeriod,
+            coalesce(inven.isWearing, false),
+            coalesce(inven.isOwned, false)
+            )
+            From Item item
+            LEFT JOIN Inventory inven
+            ON item.itemId = inven.itemId
+            AND inven.memberId = :memberId
+            """)
     List<DetailItemRes> getAllDetailItemsByMemberId(Long memberId);
 
-    @Query("select new com.appcenter.BJJ.domain.item.dto.DetailItemRes(" +
-            "item.itemId, item.itemName, item.itemType, item.itemLevel, item.imageName, " +
-            "coalesce(inven.validPeriod, CURRENT_TIMESTAMP), coalesce(inven.isWearing, false),coalesce(inven.isOwned, false)) " +
-            "from Item item left join Inventory inven on item.itemId = inven.itemId and inven.memberId = :memberId where item.itemId = :itemId")
+    @Query("""
+            SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
+            item.itemId,
+            item.itemName,
+            item.itemType,
+            item.itemLevel,
+            item.imageName,
+            inven.validPeriod,
+            coalesce(inven.isWearing, false),
+            coalesce(inven.isOwned, false))
+            FROM Item item
+            LEFT JOIN Inventory inven
+            ON item.itemId = inven.itemId
+            AND inven.memberId = :memberId
+            WHERE item.itemId = :itemId
+            """)
     Optional<DetailItemRes> getDetailItemByMemberIdAndItemId(Long memberId, Integer itemId);
 }
