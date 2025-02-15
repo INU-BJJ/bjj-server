@@ -1,7 +1,10 @@
 package com.appcenter.BJJ.domain.menu.service;
 
 import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
+import com.appcenter.BJJ.domain.menu.dto.CafeteriaInfoRes;
 import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,18 @@ import java.util.List;
 public class CafeteriaService {
 
     private final CafeteriaRepository cafeteriaRepository;
+
+    public CafeteriaInfoRes findCafeteriaInfoByName(String name) {
+        Cafeteria cafeteria = cafeteriaRepository.findFirstByName(name)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFETERIA_NOT_FOUND));
+
+        return CafeteriaInfoRes.builder()
+                .name(cafeteria.getName())
+                .location(cafeteria.getLocation())
+                .operationTime(cafeteria.getOperationTime())
+                .imageName(cafeteria.getImage())
+                .build();
+    }
 
     @PostConstruct
     @Transactional
@@ -59,37 +74,37 @@ public class CafeteriaService {
 
         // 학기 중
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("중식(백반)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("중식(백반)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("중식(일품)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("중식(일품)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("석식").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("석식").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("국밥").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("국밥").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("4코너 (뒤쪽)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("4코너 (뒤쪽)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("학생식당").corner("5코너 (뒤쪽)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("학생식당").corner("5코너 (뒤쪽)").location("11호관 (복지회관) 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 10:30~14:00 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_student.png").build());
 
         cafeteriaList.add(Cafeteria.builder()
-                .name("2호관식당").corner("중식").location("2호관 (교수회관) 2층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:30~13:30 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("2호관식당").corner("중식").location("2호관 (교수회관) 2층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:30~13:30 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_02.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("2호관식당").corner("석식").location("2호관 (교수회관) 2층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:30~13:30 석식 17:00~18:30 / 주말 : 휴점").image(null).build());
+                .name("2호관식당").corner("석식").location("2호관 (교수회관) 2층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:30~13:30 석식 17:00~18:30 / 주말 : 휴점").image("cafeteria_01.png").build());
 
         cafeteriaList.add(Cafeteria.builder()
-                .name("제1기숙사식당").corner("조식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image(null).build());
+                .name("제1기숙사식당").corner("조식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image("cafeteria_dormitory_01.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("제1기숙사식당").corner("중식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image(null).build());
+                .name("제1기숙사식당").corner("중식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image("cafeteria_dormitory_01.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("제1기숙사식당").corner("석식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image(null).build());
+                .name("제1기숙사식당").corner("석식").location("18-1호관 (제1기숙사) 1층").operationTime("운영시간 (학기 중) - 평일 : 조식 08:00~09:30 중식 11:30~13:30 / 주말 : 중식 11:00~13:00 석식 17:00~18:30").image("cafeteria_dormitory_01.png").build());
 
         cafeteriaList.add(Cafeteria.builder()
-                .name("27호관식당").corner("중식").location("27호관 (제2공동 실습관) 4층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 / 주말 : 휴점").image(null).build());
+                .name("27호관식당").corner("중식").location("27호관 (제2공동 실습관) 4층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 / 주말 : 휴점").image("cafeteria_27.png").build());
 
         cafeteriaList.add(Cafeteria.builder()
-                .name("사범대식당").corner("중식").location("미추홀 (별관 A동) 지하 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 석식 17:00~18:10 / 주말 : 휴점").image(null).build());
+                .name("사범대식당").corner("중식").location("미추홀 (별관 A동) 지하 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 석식 17:00~18:10 / 주말 : 휴점").image("cafeteria_education.png").build());
         cafeteriaList.add(Cafeteria.builder()
-                .name("사범대식당").corner("석식").location("미추홀 (별관 A동) 지하 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 석식 17:00~18:10 / 주말 : 휴점").image(null).build());
+                .name("사범대식당").corner("석식").location("미추홀 (별관 A동) 지하 1층").operationTime("운영시간 (학기 중) - 평일 : 중식 11:00~13:30 석식 17:00~18:10 / 주말 : 휴점").image("cafeteria_education.png").build());
 
         cafeteriaRepository.saveAll(cafeteriaList);
     }
