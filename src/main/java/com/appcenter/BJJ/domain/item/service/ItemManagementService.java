@@ -8,7 +8,6 @@ import com.appcenter.BJJ.domain.item.repository.ItemRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemManagementService {
@@ -38,11 +36,11 @@ public class ItemManagementService {
 
     public List<ItemRes> uploadItems(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
 
-        ItemType itemType = ItemType.valueOf(Objects.requireNonNull(zipImageFile.getOriginalFilename()).split("\\.")[0].toUpperCase());
+        String itemType = Objects.requireNonNull(zipImageFile.getOriginalFilename()).split("\\.")[0];
         List<String> fileNameList = unZip(zipImageFile, itemType);
 
         List<Item> itemList = jsonToList(infoFile).stream()
-                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getItemId() - 1), itemType))
+                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getItemId() - 1), ItemType.valueOf(itemType.toUpperCase())))
                 .toList();
 
         itemRepository.saveAll(itemList);
@@ -56,7 +54,7 @@ public class ItemManagementService {
                 .build()).collect(Collectors.toList());
     }
 
-    private List<String> unZip(MultipartFile zipImageFile, ItemType itemType) throws IOException {
+    private List<String> unZip(MultipartFile zipImageFile, String itemType) throws IOException {
         InputStream inputStream = zipImageFile.getInputStream();
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
