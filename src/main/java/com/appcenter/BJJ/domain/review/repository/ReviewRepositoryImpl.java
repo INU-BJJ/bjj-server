@@ -71,6 +71,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 ));
         Predicate isLiked = cb.exists(likeSubquery);
 
+        // 자신이 작성한 리뷰인지 여부
+        Expression<Object> isOwned = cb.selectCase()
+                .when(cb.equal(review.get("memberId"), memberId), true)
+                .otherwise(false);
+
+
         // 포토 리뷰만 조건 추가
         if (Boolean.TRUE.equals(isWithImages)) {
             predicates.add(cb.greaterThan(cb.size(review.get("images")), 0));
@@ -114,7 +120,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 mainMenu.get("menuName"),
                 subMenu.get("menuName"),
                 review.get("memberId"),
-                memberSubquery
+                memberSubquery,
+                isOwned
         )).where(predicates.toArray(new Predicate[0]));
 
         TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);

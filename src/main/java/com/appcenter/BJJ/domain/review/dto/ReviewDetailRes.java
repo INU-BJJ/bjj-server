@@ -38,4 +38,6 @@ public class ReviewDetailRes {
     private final String memberNickname;
     @Schema(description = "작성자 프로필 이미지 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
     private String memberImageName;
+    @Schema(description = "리뷰를 조회하는 유저가 리뷰를 작성한 유저인지 여부", example = "true")
+    private final boolean isOwned;
 }
