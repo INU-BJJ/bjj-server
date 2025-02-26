@@ -68,13 +68,18 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
             mm.menuName,
             sm.menuName,
             m.id,
-            m.nickname
+            m.nickname,
+            CASE
+                WHEN m.id = :memberId
+                THEN TRUE
+                ELSE FALSE
+            END
         )
         FROM Review r
         JOIN r.menuPair mp
         JOIN Menu mm ON mp.mainMenuId = mm.id
         JOIN Menu sm ON mp.subMenuId = sm.id
-        JOIN Member m ON r.memberId = m.id
+        LEFT JOIN Member m ON r.memberId = m.id
         WHERE r.id = :reviewId
     """)
     Optional<ReviewDetailRes> findReviewWithMenuAndMemberDetails(Long reviewId, Long memberId);
