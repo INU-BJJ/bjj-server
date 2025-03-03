@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MyReviewDetailRes {
     @Schema(description = "리뷰 id", example = "1")

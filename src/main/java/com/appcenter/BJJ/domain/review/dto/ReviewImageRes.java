@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReviewImageRes {
 
     @Schema(description = "리뷰 이미지 상세정보")
