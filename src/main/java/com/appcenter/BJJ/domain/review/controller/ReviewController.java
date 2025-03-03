@@ -12,6 +12,11 @@ import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +78,17 @@ public class ReviewController {
             description = """
                     - 회원이 작성한 리뷰 조회\s
                      - 각 식당별 최대 3개씩 리뷰 조회\s
-                     - responseDTO : MyReviewRes""")
+                     - responseDTO : MyReviewsGroupedRes""")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "식당별 그룹된 리뷰",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MyReviewsGroupedRes.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "학생식당": [{"reviewId": 109, "comment": "맛이 차암 좋읍니다.", "rating": 5, "imageNames": ["7ff63a3b-a4a2-4142-b9f7-828a1e8c004d.jpg", "0992fb7e-0ec8-4804-8967-38843b808d09.png"], "likeCount": 0, "createdDate": "2025-02-03", "menuPairId": 81, "mainMenuName": "매콤순대볶음", "subMenuName": "호박새우젓국/미니돈까스*데미S", "memberId": 2, "memberNickname": "이춘삼", "memberImageName": null}],
+                                      "2호관식당": [{"reviewId": 88, "comment": "맛이 차암 좋읍니다.", "rating": 5, "imageNames": ["53af5e4b-2f09-4803-a5e6-30d770e2171c.jpg", "20f6721e-db67-456c-95a3-1ad850601aa9.png"], "likeCount": 0, "createdDate": "2025-02-03", "menuPairId": 85, "mainMenuName": "순살닭볶음탕", "subMenuName": "계란파국", "memberId": 2, "memberNickname": "이춘삼", "memberImageName": null}]
+                                    }""")))
+    })
     @GetMapping("/my")
     public ResponseEntity<MyReviewsGroupedRes> getMyReviews(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my, memberNickname: {}", userDetails.getNickname());
