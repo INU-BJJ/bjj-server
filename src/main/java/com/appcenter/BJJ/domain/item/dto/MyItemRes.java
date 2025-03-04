@@ -1,17 +1,17 @@
 package com.appcenter.BJJ.domain.item.dto;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
-public class MyItemRes extends ItemRes {
+@Builder
+public class MyItemRes {
 
-    @JsonUnwrapped
-    private ItemVO itemVO;
+    private final String nickname;
 
-    private String nickname;
+    private final Integer itemId;
 
-    private int point;
+    private final String imageName;
+
+    private final int point;
 }

@@ -40,4 +40,8 @@ public class Inventory {
         this.validPeriod = validPeriod.plusDays(7);
         this.isOwned = true;
     }
+
+    public void updateIsWearing() {
+        this.isWearing = !isWearing;
+    }
 }

@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByItemLevelAndItemType(ItemLevel itemLevel, ItemType itemType);
 
-    Optional<Item> findByItemId(int ItemId);
+    Optional<Item> findByItemId(Integer ItemId);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(

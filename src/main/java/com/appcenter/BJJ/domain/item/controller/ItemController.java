@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.item.controller;
 
 import com.appcenter.BJJ.domain.item.dto.DetailItemRes;
+import com.appcenter.BJJ.domain.item.dto.MyItemRes;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.service.ItemService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -21,6 +22,12 @@ public class ItemController {
 
     private final ItemService itemService;
 
+    @Operation(summary = "메인 아이템 조회")
+    @GetMapping("/my")
+    public ResponseEntity<MyItemRes> getMyItem(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(itemService.getMyItem(userDetails.getMember().getId()));
+    }
+
     @Operation(summary = "아이템 뽑기")
     @PostMapping
     public ResponseEntity<DetailItemRes> gachaItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType) {
@@ -37,5 +44,12 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
         return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemId));
+    }
+
+    @Operation(summary = "아이템 착용", description = "기본아이템의 경우, dto의 모든 필드 값 == null")
+    @PatchMapping("/{itemId}")
+    //TODO 배경에 대한 착용도 추가하기
+    public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
+        itemService.updateIsWearing(userDetails.getMember().getId(), itemId);
     }
 }
