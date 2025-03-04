@@ -1,6 +1,6 @@
 package com.appcenter.BJJ.domain.menu.controller;
 
-import com.appcenter.BJJ.domain.menu.dto.MenuRankingPagedRes;
+import com.appcenter.BJJ.domain.menu.dto.MenuRankingsPagedRes;
 import com.appcenter.BJJ.domain.menu.dto.MenuRes;
 import com.appcenter.BJJ.domain.menu.service.MenuLikeService;
 import com.appcenter.BJJ.domain.menu.service.MenuRankingService;
@@ -54,12 +54,12 @@ public class MenuController {
                     - 마지막 페이지 여부 알려줌 (lastPage)\s
                     - responseDTO : MenuRankingRes
                     """)
-    public ResponseEntity<MenuRankingPagedRes> getRanking(int pageNumber, int pageSize) {
+    public ResponseEntity<MenuRankingsPagedRes> getRanking(int pageNumber, int pageSize) {
         log.info("[로그] GET /api/menus/ranking?pageNumber={}&pageSize={}", pageNumber, pageSize);
 
-        MenuRankingPagedRes menuRankingPagedRes = menuRankingService.getMenuRanking(pageNumber, pageSize);
+        MenuRankingsPagedRes menuRankingsPagedRes = menuRankingService.getMenuRanking(pageNumber, pageSize);
 
-        return ResponseEntity.ok(menuRankingPagedRes);
+        return ResponseEntity.ok(menuRankingsPagedRes);
     }
 
     @PostMapping("/test/ranking")

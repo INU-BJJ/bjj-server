@@ -5,9 +5,9 @@ import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewImageRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewImagesPagedRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
-import com.appcenter.BJJ.domain.review.dto.ReviewRes;
+import com.appcenter.BJJ.domain.review.dto.ReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -65,13 +65,13 @@ public class ReviewController {
                     - responseDTO : ReviewRes
                     """)
     @GetMapping
-    public ResponseEntity<ReviewRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReviewsPagedRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews?menuPairId={}&pageNumber={}&pageSize={}&sort={}&isWithImages={}", menuPairId, pageNumber, pageSize, sort, isWithImages);
 
         // page는 1부터 시작
-        ReviewRes reviewRes = reviewService.findByMenuPair(userDetails.getMember().getId(), menuPairId, pageNumber, pageSize, sort, isWithImages);
+        ReviewsPagedRes reviewsPagedRes = reviewService.findByMenuPair(userDetails.getMember().getId(), menuPairId, pageNumber, pageSize, sort, isWithImages);
 
-        return ResponseEntity.ok(reviewRes);
+        return ResponseEntity.ok(reviewsPagedRes);
     }
 
     @Operation(summary = "회원이 작성한 리뷰 조회",
@@ -141,12 +141,12 @@ public class ReviewController {
 
     @Operation(summary= "리뷰 이미지 조회", description = "메뉴쌍에 대한 리뷰 id와 리뷰 이미지 경로 목록 반환")
     @GetMapping("images")
-    public ResponseEntity<ReviewImageRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
+    public ResponseEntity<ReviewImagesPagedRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
         log.info("[로그] GET /api/reviews/images?menuPairId={}&pageNumber={}&pageSize={}", menuPairId, pageNumber, pageSize);
 
-        ReviewImageRes reviewImageRes = reviewService.findReviewImagesByMenuPairId(menuPairId, pageNumber, pageSize);
+        ReviewImagesPagedRes reviewImagesPagedRes = reviewService.findReviewImagesByMenuPairId(menuPairId, pageNumber, pageSize);
 
-        return ResponseEntity.ok(reviewImageRes);
+        return ResponseEntity.ok(reviewImagesPagedRes);
     }
 
     @Operation(summary = "리뷰 상세 조회")

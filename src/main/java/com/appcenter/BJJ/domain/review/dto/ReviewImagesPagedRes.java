@@ -1,8 +1,6 @@
 package com.appcenter.BJJ.domain.review.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ReviewImageRes {
+public class ReviewImagesPagedRes {
 
     @Schema(description = "리뷰 이미지 상세정보")
     private final List<ReviewImageDetailRes> reviewImageDetailList;
