@@ -43,5 +43,5 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             WHERE inven.memberId = :memberId
             AND inven.isWearing = true
             """)
-    boolean existsIsWearingByMemberId(Long memberId);
+    boolean existsWearingItemByMemberId(Long memberId);
 }

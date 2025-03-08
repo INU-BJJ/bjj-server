@@ -50,6 +50,6 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     //TODO 배경에 대한 착용도 추가하기
     public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
-        itemService.updateIsWearing(userDetails.getMember().getId(), itemId);
+        itemService.toggleIsWearing(userDetails.getMember().getId(), itemId);
     }
 }

@@ -41,7 +41,7 @@ public class Inventory {
         this.isOwned = true;
     }
 
-    public void updateIsWearing() {
+    public void toggleIsWearing() {
         this.isWearing = !isWearing;
     }
 }
