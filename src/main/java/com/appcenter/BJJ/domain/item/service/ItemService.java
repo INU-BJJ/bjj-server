@@ -107,10 +107,10 @@ public class ItemService {
     }
 
     private int getRequiredPointForGacha(int point, ItemType itemType) {
-        if (itemType == ItemType.CHARACTER && point - 500 >= 0) {
-            return 500;
-        } else if (itemType == ItemType.BACKGROUND && point - 1000 >= 0) {
-            return 1000;
+        if (itemType == ItemType.CHARACTER && point - 50 >= 0) {
+            return 50;
+        } else if (itemType == ItemType.BACKGROUND && point - 100 >= 0) {
+            return 100;
         } else {
             throw new CustomException(ErrorCode.NOT_ENOUGH_POINTS);
         }
