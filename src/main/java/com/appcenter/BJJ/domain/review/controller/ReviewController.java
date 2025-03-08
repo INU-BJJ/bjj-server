@@ -54,15 +54,14 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
     }
 
-    @Operation(summary = "리뷰 조회",
+    @Operation(summary = "특정 식단의 리뷰 목록 조회",
             description = """
-                    - 식당별 리뷰와 리뷰에 대한 모든 정보 보여줌\s
-                    - pageSize만큼 리뷰 조회\s
-                    - pageNumber는 0부터 시작 (0, 1, 2, ...)\s
-                    - 마지막 페이지 여부 알려줌 (lastPage)\s
-                    - sort는 정렬 방법 (BestMatch : 메뉴일치순, MostLiked : 좋아요순, NewestFirst : 최신순)
-                    - isWithImages는 포토리뷰만 여부
-                    - responseDTO : ReviewRes
+                    - 특정 식단(메뉴쌍)에 대한 모든 리뷰와 리뷰에 대한 정보를 불러옴
+                    - pageSize: 한 번에 조회할 데이터 개수
+                    - pageNumber: 0부터 시작하는 정수 (0, 1, 2, ...)
+                    - lastPage: 마지막 페이지 여부
+                    - sort: 정렬 방법 (BestMatch: 메뉴일치순, MostLiked: 좋아요순, NewestFirst: 최신순)
+                    - isWithImages: 포토 리뷰만 조회할 지 여부 (true: 포토 리뷰만, false: 포토 리뷰 포함 모든 리뷰)
                     """)
     @GetMapping
     public ResponseEntity<ReviewsPagedRes> getReviews(Long menuPairId, int pageNumber, int pageSize, Sort sort, boolean isWithImages, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -74,11 +73,11 @@ public class ReviewController {
         return ResponseEntity.ok(reviewsPagedRes);
     }
 
-    @Operation(summary = "회원이 작성한 리뷰 조회",
+    @Operation(summary = "회원이 작성한 식당별 리뷰 목록 조회",
             description = """
-                    - 회원이 작성한 리뷰 조회\s
-                     - 각 식당별 최대 3개씩 리뷰 조회\s
-                     - responseDTO : MyReviewsGroupedRes""")
+                    - 회원이 작성한 모든 리뷰를 식당별로 분류하여 불러옴
+                    - 각 식당별 최대 3개씩만 리뷰 조회
+                    """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "식당별 그룹된 리뷰",
                     content = @Content(mediaType = "application/json",
@@ -98,13 +97,13 @@ public class ReviewController {
         return ResponseEntity.ok(myReviewRes);
     }
 
-    @Operation(summary = "특정 식당에 회원이 작성한 리뷰 조회",
+    @Operation(summary = "특정 식당에 회원이 작성한 리뷰 목록 조회",
             description = """
-                    - 특정 식당에 회원이 작성한 리뷰 조회\s
-                    - pageSize만큼 리뷰 조회\s
-                    - pageNumber은 1부터 시작 (0, 1, 2, ...)\s
-                    - 마지막 페이지 여부 알려줌 (lastPage)\s
-                    - responseDTO : MyReviewPagedRes""")
+                    - 특정 식당에 회원이 작성한 모든 리뷰를 불러옴
+                    - pageSize: 한 번에 조회할 데이터 개수
+                    - pageNumber: 0부터 시작하는 정수 (0, 1, 2, ...)
+                    - lastPage: 마지막 페이지 여부
+                    """)
     @GetMapping("/my/cafeteria")
     public ResponseEntity<MyReviewsPagedRes> getMyReviewsByCafeteria(String cafeteriaName, int pageNumber, int pageSize, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/reviews/my/cafeteria?cafeteriaName={}, memberNickname: {}", cafeteriaName, userDetails.getNickname());
@@ -114,7 +113,7 @@ public class ReviewController {
         return ResponseEntity.ok(myReviewsPagedRes);
     }
 
-    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰 삭제시 noContent")
+    @Operation(summary = "리뷰 삭제", description = "리뷰 삭제 성공 시 응답으로 noContent")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Long> deleteReview(@PathVariable Long reviewId) {
         log.info("[로그] DELETE /api/reviews/{}", reviewId);
@@ -139,7 +138,13 @@ public class ReviewController {
         return ResponseEntity.ok(isLiked);
     }
 
-    @Operation(summary= "리뷰 이미지 조회", description = "메뉴쌍에 대한 리뷰 id와 리뷰 이미지 경로 목록 반환")
+    @Operation(summary= "특정 식단의 리뷰 이미지 목록 조회",
+            description = """
+                    - 특정 식단(메뉴쌍)에 대한 리뷰 id와 리뷰 사진 파일명 목록 반환
+                    - pageSize: 한 번에 조회할 데이터 개수
+                    - pageNumber: 0부터 시작하는 정수 (0, 1, 2, ...)
+                    - lastPage: 마지막 페이지 여부
+    """)
     @GetMapping("images")
     public ResponseEntity<ReviewImagesPagedRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
         log.info("[로그] GET /api/reviews/images?menuPairId={}&pageNumber={}&pageSize={}", menuPairId, pageNumber, pageSize);

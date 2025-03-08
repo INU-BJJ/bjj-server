@@ -17,13 +17,13 @@ public class MenuRankingDetailRes {
     private final Float menuRating;
     @Schema(description = "식당 이름", example = "학생식당")
     private final String cafeteriaName;
-    @Schema(description = "식당 코너", example = "중식(백반)")
+    @Schema(description = "식당 코너 이름", example = "중식(백반)")
     private final String cafeteriaCorner;
     @Schema(description = "베스트 리뷰 id", example = "1")
     private final Long bestReviewId;
-    @Schema(description = "리뷰 이미지 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
+    @Schema(description = "리뷰 사진 파일 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
     private String reviewImageName;
-    @Schema(description = "업데이트 시간", example = "2025-01-06")
+    @Schema(description = "랭킹 최근 업데이트 날짜", example = "2025-01-06")
     private final LocalDate updatedAt;
 
     @Builder
