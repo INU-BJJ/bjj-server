@@ -49,7 +49,7 @@ public class Member {
     }
 
     public void updatePoint(int point) {
-        this.point += point;
+        this.point -= point;
     }
 
     public void updateNickname(String nickname) {
@@ -64,6 +64,4 @@ public class Member {
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
-
-    // 도메인 -> dto : from // dto -> 도메인 : of
 }
