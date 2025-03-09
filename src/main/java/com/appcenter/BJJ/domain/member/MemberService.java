@@ -19,14 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final OAuth2Unlink oAuth2Unlink;
 
+    @Transactional
     public String signUp(SignupReq signupReq) {
         log.info("MemberService.signup() - 진입");
         isNicknameAvailable(signupReq.getNickname());
@@ -55,6 +56,7 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional
     public void deleteMember(MemberOAuthVO memberOAuthVO) {
         // [notice] 이후 member 관련된 내용도 다같이 지우기 //
         Long memberId = oAuth2Unlink.unlinkHandler(memberOAuthVO);
@@ -82,6 +84,7 @@ public class MemberService {
         return true;
     }
 
+    @Transactional
     public String changeNickname(String currentNickname, String newNickname) {
         isNicknameAvailable(newNickname);
 
@@ -93,6 +96,7 @@ public class MemberService {
     }
 
     // test 회원가입 및 로그인 //
+    @Transactional
     public MemberRes socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
 
@@ -114,6 +118,7 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional
     public String login(LoginReq loginReq) {
         Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)

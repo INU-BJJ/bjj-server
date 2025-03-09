@@ -48,7 +48,11 @@ public class Member {
         this.role = role;
     }
 
-    public void updatePoint(int point) {
+    public void decreasePoint(int point) {
+        this.point -= point;
+    }
+
+    public void increasePoint(int point) {
         this.point += point;
     }
 
@@ -64,6 +68,4 @@ public class Member {
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
-
-    // 도메인 -> dto : from // dto -> 도메인 : of
 }

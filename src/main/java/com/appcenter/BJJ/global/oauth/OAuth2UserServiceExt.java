@@ -26,7 +26,6 @@ public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(userRequest.getClientRegistration().getRegistrationId(), oAuth2User.getAttributes());
 
-
         Member member = memberRepository.findByEmailAndProviderId(oAuth2UserInfo.getEmail(), oAuth2UserInfo.getProviderId()).orElseGet(
                 () -> Member.builder()
                         .provider(oAuth2UserInfo.getProvider())

@@ -10,6 +10,7 @@ public enum ErrorCode {
     //400 Bad Request
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "400-1", "입력값이 올바르지 않습니다."),
     CANNOT_LIKE_OWN_REVIEW(HttpStatus.BAD_REQUEST, "400-2", "자신의 리뷰에는 좋아요를 누를 수 없습니다."),
+    NOT_ENOUGH_POINTS(HttpStatus.BAD_REQUEST, "400-3", "포인트가 충분하지 않습니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-1", "인증 정보가 없습니다."),
@@ -24,7 +25,7 @@ public enum ErrorCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "404-2", "해당 아이템이 존재하지 않습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "404-3", "리뷰가 삭제되었거나 존재하지 않는 리뷰입니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "404-4", "해당 메뉴가 존재하지 않습니다."),
-    REVIEW_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5","해당 리뷰의 상세 정보를 불러올 수 없습니다"),
+    REVIEW_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5", "해당 리뷰의 상세 정보를 불러올 수 없습니다"),
     CAFETERIA_NOT_FOUND(HttpStatus.NOT_FOUND, "404-6", "해당 식당이 존재하지 않습니다"),
 
     //409 Conflict
