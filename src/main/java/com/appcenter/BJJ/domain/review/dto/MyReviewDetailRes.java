@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MyReviewDetailRes {
     @Schema(description = "리뷰 id", example = "1")
@@ -17,7 +15,7 @@ public class MyReviewDetailRes {
     private final String comment;
     @Schema(description = "리뷰 별점", example = "5")
     private final Integer rating;
-    @Schema(description = "리뷰 이미지 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
+    @Schema(description = "리뷰 사진 파일 이름", example = "[\"aa356b24-0169-4c0c-8bf4-836ed3c6b31d.png\", \"72d2efb7-a5d6-439e-93ca-3dd578fa4f67.png\"]")
     @Setter
     private List<String> imageNames;
     @Schema(description = "리뷰 좋아요 개수", example = "123")
@@ -34,6 +32,6 @@ public class MyReviewDetailRes {
     private final Long memberId;
     @Schema(description = "작성자 닉네임", example = "이춘삼")
     private final String memberNickname;
-    @Schema(description = "작성자 프로필 이미지 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
+    @Schema(description = "작성자 프로필 사진 파일 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
     private String memberImageName;
 }

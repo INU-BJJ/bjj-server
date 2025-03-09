@@ -42,7 +42,7 @@ public class MenuRankingService {
     private final MenuRepository menuRepository;
     private final ImageRepository imageRepository;
 
-    public MenuRankingPagedRes getMenuRanking(int pageNumber, int pageSize) {
+    public MenuRankingsPagedRes getMenuRanking(int pageNumber, int pageSize) {
         log.info("[로그] getMenuRanking() 시작, pageNumber: {}, pageSize: {}", pageNumber, pageSize);
 
         // 오늘 날짜 및 학기 구하기
@@ -107,7 +107,7 @@ public class MenuRankingService {
             }
         }
 
-        return MenuRankingPagedRes.builder()
+        return MenuRankingsPagedRes.builder()
                 .menuRankingDetailList(menuRankingDetailList)
                 .isLastPage(menuRankingSlice.isLast())
                 .build();

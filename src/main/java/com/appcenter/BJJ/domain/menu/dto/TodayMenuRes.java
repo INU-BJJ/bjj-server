@@ -16,6 +16,6 @@ public class TodayMenuRes {
     private final Long cafeteriaId;
     @Schema(description = "식당 이름", example = "학생식당")
     private final String cafeteriaName;
-    @Schema(description = "식당 코너", example = "중식(백반)")
+    @Schema(description = "식당 코너 이름", example = "중식(백반)")
     private final String cafeteriaCorner;
 }

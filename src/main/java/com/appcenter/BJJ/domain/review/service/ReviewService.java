@@ -70,7 +70,7 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
-    public ReviewRes findByMenuPair(Long memberId, Long menuPairId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
+    public ReviewsPagedRes findByMenuPair(Long memberId, Long menuPairId, int pageNumber, int pageSize, Sort sort, Boolean isWithImages) {
         log.info("[로그] findByMenuPair(), memberId : {}", memberId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
@@ -94,7 +94,7 @@ public class ReviewService {
             reviewDetailRes.setImageNames(imageNameList);
         });
 
-        return ReviewRes.builder()
+        return ReviewsPagedRes.builder()
                 .reviewDetailList(reviewDetailResList)
                 .isLastPage(isLast)
                 .build();
@@ -177,7 +177,7 @@ public class ReviewService {
         return menuPairId;
     }
 
-    public ReviewImageRes findReviewImagesByMenuPairId(Long menuPairId, int pageNumber, int pageSize) {
+    public ReviewImagesPagedRes findReviewImagesByMenuPairId(Long menuPairId, int pageNumber, int pageSize) {
         log.info("[로그] findReviewImagesByMenuPairId(), menuPairId : {}, pageNumber : {}, pageSize: {}", menuPairId, pageNumber, pageSize);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
@@ -185,7 +185,7 @@ public class ReviewService {
 
         Slice<ReviewImageDetailRes> reviewImageDetailResSlice = reviewRepository.findReviewImagesByMenuPairId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
 
-        return ReviewImageRes.builder()
+        return ReviewImagesPagedRes.builder()
                 .reviewImageDetailList(reviewImageDetailResSlice.getContent())
                 .isLastPage(reviewImageDetailResSlice.isLast())
                 .build();
