@@ -41,7 +41,7 @@ public class ItemService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        member.updatePoint(getRequiredPointForGacha(member.getPoint(), itemType));
+        member.decreasePoint(getRequiredPointForGacha(member.getPoint(), itemType));
 
         //아이템 랜덤으로 뽑기
         int gachaNum = getRandomInt(GACHA_RANGE);
