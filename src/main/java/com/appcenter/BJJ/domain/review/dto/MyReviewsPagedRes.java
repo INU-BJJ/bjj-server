@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MyReviewsPagedRes {
     @Schema(description = "내 리뷰 상세정보")
     private final List<MyReviewDetailRes> myReviewDetailList;

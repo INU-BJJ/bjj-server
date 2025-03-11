@@ -15,7 +15,6 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "image_tb")
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {
 

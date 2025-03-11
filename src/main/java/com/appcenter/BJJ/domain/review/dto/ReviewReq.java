@@ -15,7 +15,7 @@ public class ReviewReq {
         private String comment;
         @Schema(description = "리뷰 별점", example = "5")
         private Integer rating;
-        @Schema(description = "리뷰 menuPairId", example = "1")
+        @Schema(description = "리뷰 메뉴쌍 id", example = "1")
         private Long menuPairId;
 
         public Review toEntity(long memberId, MenuPair menuPair) {

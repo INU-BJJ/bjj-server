@@ -28,13 +28,13 @@ public class TodayDietRes {
     private final String restMenu;
     @Schema(description = "식당 이름", example = "학생식당")
     private final String cafeteriaName;
-    @Schema(description = "식당 코너", example = "중식(백반)")
+    @Schema(description = "식당 코너 이름", example = "중식(백반)")
     private final String cafeteriaCorner;
     @Schema(description = "리뷰 총 개수", example = "35")
     private final int reviewCount;
     @Schema(description = "메뉴 평균 평점", example = "4.7")
     private final Float reviewRatingAverage;
-    @Schema(description = "리뷰 이미지 경로", example = "C:\\BJJ\\ReviewImages\\23fsddfesff=3vlsdd-3sdf56.png")
+    @Schema(description = "리뷰 사진 파일 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
     @Setter
     private String reviewImageName;
     @Schema(description = "좋아하는 메뉴 여부", example = "true")

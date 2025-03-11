@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class CafeteriaInfoRes {
 
-    @Schema(description = "이름", example = "학생 식당")
+    @Schema(description = "식당 이름", example = "학생식당")
     private final String name;
 
     @Schema(description = "위치 정보", example = "11호관 (복지회관) 1층")
@@ -17,6 +17,6 @@ public class CafeteriaInfoRes {
     @Schema(description = "운영 시간", example = "운영시간 (학기 중) - 평일 : 중식 11:00~13:30 석식 17:00~18:10 / 주말 : 휴점")
     private final String operationTime;
 
-    @Schema(description = "사진 파일명", example = "cafeteria_01.png")
+    @Schema(description = "사진 파일 이름", example = "cafeteria_01.png")
     private final String imageName;
 }

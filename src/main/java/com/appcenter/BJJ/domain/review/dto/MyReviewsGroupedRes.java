@@ -11,7 +11,6 @@ import java.util.Map;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MyReviewsGroupedRes {
 
     @Schema(description = "식당 별 내 리뷰 상세정보")

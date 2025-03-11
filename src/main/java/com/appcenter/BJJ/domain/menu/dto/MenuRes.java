@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @Builder
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MenuRes {
     @Schema(description = "메뉴 id", example = "1")
     private final Long menuId;

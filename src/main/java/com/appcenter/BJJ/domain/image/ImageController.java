@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,10 +25,12 @@ public class ImageController {
     @Value("${storage.images.review}")
     private String REVIEW_IMG_DIR;
 
-    @Operation(summary = "이미지 경로 조회", deprecated = true)
-    @GetMapping
-    public ResponseEntity<byte[]> getImageByPath(String name) throws IOException {
-        log.info("[로그] GET /api/images?name={}", name);
+    @Operation(summary = "리뷰 이미지 조회",
+            description = "리뷰 이미지의 파일명을 {name}에 작성하여 이미지 조회",
+            deprecated = true)
+    @GetMapping("/review/{name}")
+    public ResponseEntity<byte[]> getReviewImageByName(@PathVariable String name) throws IOException {
+        log.info("[로그] GET /api/images/review/{}", name);
 
         byte[] image = Files.readAllBytes(new File(REVIEW_IMG_DIR + name).toPath());
 
