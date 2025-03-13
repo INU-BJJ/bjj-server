@@ -29,7 +29,7 @@ public class TodayDietController {
             description = """
                     - cafeteriaName: 식당명
                     - 특정 식당에서 모든 코너의 오늘의 식단 정보 조회
-                """)
+                    """)
     @GetMapping
     public ResponseEntity<List<TodayDietRes>> getTodayDietsByCafeteriaName(String cafeteriaName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] GET /api/today-diets?cafeteriaName={}", cafeteriaName);
@@ -43,7 +43,7 @@ public class TodayDietController {
             description = """
                     - cafeteriaName: 식당명
                     - 특정 식당에서 모든 코너의 오늘의 식단 중 메인 메뉴 정보 조회
-                """)
+                    """)
     @GetMapping("/main-menus")
     public ResponseEntity<List<TodayMenuRes>> getTodayMainMenusByCafeteriaName(String cafeteriaName) {
         log.info("[로그] GET /api/today-diets/main-menus?cafeteriaName={}", cafeteriaName);

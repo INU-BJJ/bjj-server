@@ -144,7 +144,7 @@ public class ReviewController {
                     - pageSize: 한 번에 조회할 데이터 개수
                     - pageNumber: 0부터 시작하는 정수 (0, 1, 2, ...)
                     - lastPage: 마지막 페이지 여부
-    """)
+                    """)
     @GetMapping("images")
     public ResponseEntity<ReviewImagesPagedRes> getImages(Long menuPairId, int pageNumber, int pageSize) {
         log.info("[로그] GET /api/reviews/images?menuPairId={}&pageNumber={}&pageSize={}", menuPairId, pageNumber, pageSize);
