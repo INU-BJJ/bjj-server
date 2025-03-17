@@ -1,10 +1,7 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.member.dto.LoginReq;
-import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
-import com.appcenter.BJJ.domain.member.dto.MemberRes;
-import com.appcenter.BJJ.domain.member.dto.SignupReq;
+import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
@@ -67,7 +64,7 @@ public class MemberService {
         log.info("MemberService.deleteMember() - 회원 탈퇴 성공");
     }
 
-    public String getToken(String providerId, Long time) {
+    private String getToken(String providerId, Long time) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(providerId, "");
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         log.info("MemberService-getToken: 회원이 존재합니다.");
@@ -95,7 +92,7 @@ public class MemberService {
         return newNickname;
     }
 
-    // test 회원가입 및 로그인 //
+    //TODO test용이기에 이후에 없애기
     @Transactional
     public MemberRes socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
@@ -128,5 +125,15 @@ public class MemberService {
         member.updateMemberInfo(loginReq.getNickname(), MemberRole.USER);
 
         return getToken(member.getProviderId(), JwtProvider.validAccessTime);
+    }
+
+    @Transactional
+    public PointRes updatePoint(Long memberId, int point) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        member.increasePoint(point);
+        return new PointRes(member.getNickname(), member.getPoint());
     }
 }
