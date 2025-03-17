@@ -30,9 +30,15 @@ public class ItemService {
     private static final int GACHA_RANGE = 10;
 
     public MyItemRes getMyItem(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
         return inventoryRepository.findMyItemResByMemberId(memberId).orElseGet(
                 //아이템이 하나도 없으면 null값 return (기본 아이템 장착)
-                () -> MyItemRes.builder().build()
+                () -> MyItemRes.builder()
+                        .nickname(member.getNickname())
+                        .point(member.getPoint())
+                        .build()
         );
     }
 
