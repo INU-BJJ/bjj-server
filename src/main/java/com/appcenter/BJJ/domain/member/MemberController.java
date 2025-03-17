@@ -1,9 +1,6 @@
 package com.appcenter.BJJ.domain.member;
 
-import com.appcenter.BJJ.domain.member.dto.LoginReq;
-import com.appcenter.BJJ.domain.member.dto.MemberOAuthVO;
-import com.appcenter.BJJ.domain.member.dto.MemberRes;
-import com.appcenter.BJJ.domain.member.dto.SignupReq;
+import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -80,7 +77,7 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    // test 회원가입 및 로그인 //
+    //TODO test용이기에 이후에 지우기
     @Operation(summary = "[test] 소셜로그인")
     @PostMapping("/test/social-login")
     public ResponseEntity<MemberRes> socialLogin(@Valid @RequestBody LoginReq loginReq) {
@@ -93,5 +90,11 @@ public class MemberController {
         Map<String, String> signupRes = new HashMap<>();
         signupRes.put("token", memberService.login(loginReq));
         return ResponseEntity.ok(signupRes);
+    }
+
+    @Operation(summary = "[test] 회원 포인트 추가")
+    @PatchMapping("/test")
+    public ResponseEntity<PointRes> updatePoint(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam int point) {
+        return ResponseEntity.ok(memberService.updatePoint(userDetails.getMember().getId(), point));
     }
 }
