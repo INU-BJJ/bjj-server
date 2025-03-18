@@ -19,7 +19,7 @@ public class DetailItemRes extends ItemRes {
 
     public DetailItemRes(Integer itemId, String itemName, ItemType itemType, ItemLevel itemLevel, String imageName,
                          LocalDateTime validPeriod, boolean isWearing, boolean isOwned) {
-        super(itemId, itemName, itemType, itemLevel, itemName);
+        super(itemId, itemName, itemType, itemLevel, imageName);
         this.validPeriod = validPeriod;
         this.isWearing = isWearing;
         this.isOwned = isOwned;
