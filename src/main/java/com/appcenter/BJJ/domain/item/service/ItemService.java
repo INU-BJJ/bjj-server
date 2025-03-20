@@ -58,11 +58,11 @@ public class ItemService {
         Item item = itemList.get(itemId - 1);
 
         //뽑은 아이템 저장
-        Inventory inventory = inventoryRepository.findByMemberIdAndItemId(memberId, item.getItemId()).orElse(
+        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemId(memberId, itemType, item.getId()).orElse(
                 //새로 뽑은 것
                 Inventory.builder()
                         .memberId(memberId)
-                        .itemId(item.getItemId())
+                        .itemId(item.getId())
                         .isWearing(false)
                         .isOwned(true)
                         .validPeriod(LocalDateTime.now())
@@ -73,7 +73,7 @@ public class ItemService {
         inventoryRepository.save(inventory);
 
         return DetailItemRes.builder()
-                .itemId(item.getItemId())
+                .itemId(item.getId())
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
@@ -85,29 +85,31 @@ public class ItemService {
 
     }
 
-    public List<DetailItemRes> getItems(Long memberId) {
-        return itemRepository.getAllDetailItemsByMemberId(memberId);
+    public List<DetailItemRes> getItems(Long memberId, ItemType itemType) {
+        return itemRepository.getAllDetailItemsByMemberId(memberId, itemType);
     }
 
-    public DetailItemRes getItem(Long memberId, Integer itemId) {
-        return itemRepository.getDetailItemByMemberIdAndItemId(memberId, itemId).orElseThrow(
+    public DetailItemRes getItem(Long memberId, Long itemId, ItemType itemType) {
+        return itemRepository.getDetailItemByIdAndMemberId(memberId, itemId, itemType).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
     }
 
     @Transactional
-    public void toggleIsWearing(Long memberId, Integer itemId) {
-        if (inventoryRepository.existsWearingItemByMemberId(memberId)) {
-            Inventory currentInven = inventoryRepository.findWearingItemByMemberId(memberId).orElseThrow(
+    public void toggleIsWearing(Long memberId, ItemType itemType, Long itemId) {
+        if (inventoryRepository.existsWearingItemByMemberIdAndItemType(memberId, itemType)) {
+            Inventory currentInven = inventoryRepository.findWearingItemByMemberIdAndItemType(memberId, itemType).orElseThrow(
                     () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
             );
+
             //현재 아이템 착용 비활성화
             currentInven.toggleIsWearing();
         }
 
-        Inventory inventory = inventoryRepository.findByMemberIdAndItemId(memberId, itemId).orElseThrow(
+        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemId(memberId, itemType, itemId).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
+
         //설정한 아이템 착용 활성화
         inventory.toggleIsWearing();
     }
@@ -134,9 +136,9 @@ public class ItemService {
         if (itemId <= 7) {
             return ItemLevel.COMMON;
         } else if (itemId <= 9) {
-            return ItemLevel.RARE;
+            return ItemLevel.NORMAL;
         } else {
-            return ItemLevel.LEGENDARY;
+            return ItemLevel.RARE;
         }
     }
 }

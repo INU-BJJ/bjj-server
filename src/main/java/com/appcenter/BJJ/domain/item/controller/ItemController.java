@@ -22,7 +22,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Operation(summary = "메인 아이템 조회")
+    @Operation(summary = "마이페이지 아이템 조회")
     @GetMapping("/my")
     public ResponseEntity<MyItemRes> getMyItem(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(itemService.getMyItem(userDetails.getMember().getId()));
@@ -36,20 +36,20 @@ public class ItemController {
 
     @Operation(summary = "전체 아이템 조회", description = "날짜 == 현재 : 안 뽑힌 아이템 / 날짜 != 현재 : 뽑힌 아이템")
     @GetMapping
-    public ResponseEntity<List<DetailItemRes>> getItems(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(itemService.getItems(userDetails.getMember().getId()));
+    public ResponseEntity<List<DetailItemRes>> getItems(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType) {
+        return ResponseEntity.ok(itemService.getItems(userDetails.getMember().getId(), itemType));
     }
 
     @Operation(summary = "개별 아이템 조회", description = "날짜 == 현재 : 안 뽑힌 아이템 / 날짜 != 현재 : 뽑힌 아이템")
     @GetMapping("/{itemId}")
-    public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
-        return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemId));
+    public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long itemId, @RequestParam ItemType itemType) {
+        return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemId, itemType));
     }
 
     @Operation(summary = "아이템 착용", description = "기본아이템의 경우, dto의 모든 필드 값 == null")
     @PatchMapping("/{itemId}")
     //TODO 배경에 대한 착용도 추가하기
-    public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Integer itemId) {
-        itemService.toggleIsWearing(userDetails.getMember().getId(), itemId);
+    public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType, @PathVariable Long itemId) {
+        itemService.toggleIsWearing(userDetails.getMember().getId(), itemType, itemId);
     }
 }

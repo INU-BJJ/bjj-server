@@ -13,13 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findByItemLevelAndItemType(ItemLevel itemLevel, ItemType itemType);
 
-    Optional<Item> findByItemId(Integer ItemId);
+    @Query("""
+            SELECT item FROM Item item
+            """)
+    List<Item> findByItemLevelAndItemType(ItemLevel itemLevel, ItemType itemType);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.itemId,
+            item.id,
             item.itemName,
             item.itemType,
             item.itemLevel,
@@ -29,15 +31,15 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isOwned, false)
             )
             From Item item
-            LEFT JOIN Inventory inven
-            ON item.itemId = inven.itemId
+            LEFT JOIN Inventory inven ON item.id = inven.itemId
             AND inven.memberId = :memberId
+            WHERE item.itemType = :itemType
             """)
-    List<DetailItemRes> getAllDetailItemsByMemberId(Long memberId);
+    List<DetailItemRes> getAllDetailItemsByMemberId(Long memberId, ItemType itemType);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.itemId,
+            item.id,
             item.itemName,
             item.itemType,
             item.itemLevel,
@@ -46,10 +48,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
             FROM Item item
-            LEFT JOIN Inventory inven
-            ON item.itemId = inven.itemId
+            LEFT JOIN Inventory inven ON inven.itemId = :itemId
             AND inven.memberId = :memberId
-            WHERE item.itemId = :itemId
+            WHERE item.id = :itemId
+            AND item.itemType = :itemType
             """)
-    Optional<DetailItemRes> getDetailItemByMemberIdAndItemId(Long memberId, Integer itemId);
+    Optional<DetailItemRes> getDetailItemByIdAndMemberId(Long memberId, Long itemId, ItemType itemType);
 }
