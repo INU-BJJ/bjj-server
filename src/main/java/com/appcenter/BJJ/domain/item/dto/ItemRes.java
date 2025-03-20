@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemRes {
 
-    private final Integer itemId;
+    private final Long itemId;
 
     private final String itemName;
 
