@@ -53,7 +53,7 @@ public class ItemService {
         int gachaNum = getRandomInt(GACHA_RANGE);
         ItemLevel itemLevel = getItemLevel(gachaNum);
 
-        List<Item> itemList = itemRepository.findByItemLevelAndItemType(itemLevel, itemType);
+        List<Item> itemList = itemRepository.getItemsByItemLevelAndItemType(itemLevel, itemType);
         Integer itemId = getRandomInt(itemList.size());
         Item item = itemList.get(itemId - 1);
 
@@ -86,11 +86,11 @@ public class ItemService {
     }
 
     public List<DetailItemRes> getItems(Long memberId, ItemType itemType) {
-        return itemRepository.getAllDetailItemsByMemberId(memberId, itemType);
+        return itemRepository.getAllDetailItemsByMemberIdAndItemType(memberId, itemType);
     }
 
     public DetailItemRes getItem(Long memberId, Long itemId, ItemType itemType) {
-        return itemRepository.getDetailItemByIdAndMemberId(memberId, itemId, itemType).orElseThrow(
+        return itemRepository.findDetailItemByIdAndMemberIdAndItemType(memberId, itemId, itemType).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
     }
@@ -131,11 +131,11 @@ public class ItemService {
         return random.nextInt(bound) + 1;
     }
 
-    private ItemLevel getItemLevel(int itemId) {
+    private ItemLevel getItemLevel(int randomNum) {
         // COMMON : 70%, RARE : 20%, LEGENDARY : 10% 확률
-        if (itemId <= 7) {
+        if (randomNum <= 7) {
             return ItemLevel.COMMON;
-        } else if (itemId <= 9) {
+        } else if (randomNum <= 9) {
             return ItemLevel.NORMAL;
         } else {
             return ItemLevel.RARE;
