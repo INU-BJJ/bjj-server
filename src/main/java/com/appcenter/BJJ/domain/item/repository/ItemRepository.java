@@ -14,10 +14,7 @@ import java.util.Optional;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("""
-            SELECT item FROM Item item
-            """)
-    List<Item> findByItemLevelAndItemType(ItemLevel itemLevel, ItemType itemType);
+    List<Item> getItemsByItemLevelAndItemType(ItemLevel itemLevel, ItemType itemType);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
@@ -35,7 +32,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             AND inven.memberId = :memberId
             WHERE item.itemType = :itemType
             """)
-    List<DetailItemRes> getAllDetailItemsByMemberId(Long memberId, ItemType itemType);
+    List<DetailItemRes> getAllDetailItemsByMemberIdAndItemType(Long memberId, ItemType itemType);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
@@ -53,5 +50,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             WHERE item.id = :itemId
             AND item.itemType = :itemType
             """)
-    Optional<DetailItemRes> getDetailItemByIdAndMemberId(Long memberId, Long itemId, ItemType itemType);
+    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Long itemId, ItemType itemType);
 }
