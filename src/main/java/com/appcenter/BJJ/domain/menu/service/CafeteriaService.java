@@ -7,12 +7,15 @@ import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,6 +33,15 @@ public class CafeteriaService {
                 .operationTime(cafeteria.getOperationTime())
                 .imageName(cafeteria.getImage())
                 .build();
+    }
+
+    public Optional<Long> findByNameAndCorner(String name, String corner) {
+        Optional<Long> optionalCafeteriaId = cafeteriaRepository.findIdByNameAndCorner(name, corner);
+        if (optionalCafeteriaId.isEmpty()) {
+            log.info("[로그] {} {} 코너가 DB에 존재하지 않습니다.", name, corner);
+        }
+
+        return optionalCafeteriaId;
     }
 
     @PostConstruct

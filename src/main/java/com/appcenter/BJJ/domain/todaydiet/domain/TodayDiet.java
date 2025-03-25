@@ -29,13 +29,10 @@ public class TodayDiet {
     private String restMenu;
 
     @Builder
-    private TodayDiet(String price, String kcal, LocalDate date) {
+    private TodayDiet(String price, String kcal, LocalDate date, Long menuPairId, String restMenu) {
         this.price = price;
         this.kcal = kcal;
         this.date = date;
-    }
-
-    public void determineMenu(Long menuPairId, String restMenu) {
         this.menuPairId = menuPairId;
         this.restMenu = restMenu;
     }

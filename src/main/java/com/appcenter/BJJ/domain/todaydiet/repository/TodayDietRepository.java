@@ -12,7 +12,8 @@ import java.util.List;
 
 public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
 
-    boolean existsByDate(LocalDate date);
+    @Query("SELECT COUNT(td.id) > 0 FROM TodayDiet td WHERE td.date >= :startDate")
+    boolean existsByStartDate(LocalDate startDate, Limit limit);
 
     @Query("""
         SELECT new com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes(
