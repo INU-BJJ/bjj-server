@@ -42,11 +42,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DietUpdateService {
 
+    private final ObjectMapper objectMapper;
     private final OpenAiChatModel chatModel;
-    private final TodayDietService todayDietService;
-    private final CafeteriaService cafeteriaService;
     private final MenuService menuService;
     private final MenuPairService menuPairService;
+    private final TodayDietService todayDietService;
+    private final CafeteriaService cafeteriaService;
 
     @Async
     @Retryable(
@@ -278,7 +279,6 @@ public class DietUpdateService {
     * JSON 문자열 데이터를 DietResponseDto로 변환 후 DietDto 리스트를 반환
     **/
     private List<DietDto> parseDietResponse(String jsonResponse) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         DietResponseDto responseDto = objectMapper.readValue(jsonResponse, DietResponseDto.class);
         return responseDto.getDiet();

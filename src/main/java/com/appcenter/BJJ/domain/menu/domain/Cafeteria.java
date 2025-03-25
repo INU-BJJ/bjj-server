@@ -22,16 +22,19 @@ public class Cafeteria {
 
     private String location;
 
-    private String operationTime;
+    private String semesterOperationTime; // 학기 중 운영 시간
+
+    private String vacationOperationTime; // 방학 중 운영 시간
 
     private String image;
 
     @Builder
-    private Cafeteria(String name, String corner, String location, String operationTime, String image) {
+    private Cafeteria(String name, String corner, String location, String semesterOperationTime, String vacationOperationTime, String image) {
         this.name = name;
         this.corner = corner;
         this.location = location;
-        this.operationTime = operationTime;
+        this.semesterOperationTime = semesterOperationTime;
+        this.vacationOperationTime = vacationOperationTime;
         this.image = image;
     }
 }
