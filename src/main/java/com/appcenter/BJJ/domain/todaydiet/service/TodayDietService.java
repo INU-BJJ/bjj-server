@@ -1,15 +1,16 @@
-package com.appcenter.BJJ.domain.menu.service;
+package com.appcenter.BJJ.domain.todaydiet.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.menu.domain.*;
 import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
-import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
-import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes;
 import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
-import com.appcenter.BJJ.domain.menu.repository.TodayDietRepository;
+import com.appcenter.BJJ.domain.todaydiet.repository.TodayDietRepository;
+import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.data.domain.Limit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

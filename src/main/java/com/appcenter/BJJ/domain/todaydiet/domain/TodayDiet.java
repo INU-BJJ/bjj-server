@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.menu.domain;
+package com.appcenter.BJJ.domain.todaydiet.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
