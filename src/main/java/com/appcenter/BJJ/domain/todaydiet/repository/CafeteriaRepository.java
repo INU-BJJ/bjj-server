@@ -1,6 +1,6 @@
-package com.appcenter.BJJ.domain.menu.repository;
+package com.appcenter.BJJ.domain.todaydiet.repository;
 
-import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
+import com.appcenter.BJJ.domain.todaydiet.domain.Cafeteria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

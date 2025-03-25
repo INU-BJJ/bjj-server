@@ -2,7 +2,7 @@ package com.appcenter.BJJ.domain.todaydiet.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
-import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
+import com.appcenter.BJJ.domain.todaydiet.repository.CafeteriaRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;

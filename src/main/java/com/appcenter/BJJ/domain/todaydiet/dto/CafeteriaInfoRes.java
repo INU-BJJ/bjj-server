@@ -1,4 +1,4 @@
-package com.appcenter.BJJ.domain.menu.dto;
+package com.appcenter.BJJ.domain.todaydiet.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

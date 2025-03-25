@@ -1,7 +1,6 @@
 package com.appcenter.BJJ.domain.todaydiet.service;
 
-import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
-import com.appcenter.BJJ.domain.menu.service.CafeteriaService;
+import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.menu.service.MenuService;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;

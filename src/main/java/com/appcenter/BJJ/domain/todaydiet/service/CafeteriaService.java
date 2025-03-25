@@ -1,8 +1,8 @@
-package com.appcenter.BJJ.domain.menu.service;
+package com.appcenter.BJJ.domain.todaydiet.service;
 
-import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
-import com.appcenter.BJJ.domain.menu.dto.CafeteriaInfoRes;
-import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
+import com.appcenter.BJJ.domain.todaydiet.domain.Cafeteria;
+import com.appcenter.BJJ.domain.todaydiet.dto.CafeteriaInfoRes;
+import com.appcenter.BJJ.domain.todaydiet.repository.CafeteriaRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
