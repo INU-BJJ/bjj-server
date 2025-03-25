@@ -18,8 +18,6 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer itemId;
-
     private String itemName;
 
     private String imageName;
@@ -31,8 +29,7 @@ public class Item {
     private ItemLevel itemLevel;
 
     @Builder
-    private Item(Integer itemId, String itemName, String imageName, ItemType itemType, ItemLevel itemLevel) {
-        this.itemId = itemId;
+    private Item(String itemName, String imageName, ItemType itemType, ItemLevel itemLevel) {
         this.itemName = itemName;
         this.imageName = imageName;
         this.itemType = itemType;
@@ -41,7 +38,6 @@ public class Item {
 
     public static Item create(ItemVO itemVO, String imageName, ItemType itemType) {
         return Item.builder()
-                .itemId(itemVO.getItemId())
                 .itemName(itemVO.getItemName())
                 .imageName(imageName)
                 .itemType(itemType)

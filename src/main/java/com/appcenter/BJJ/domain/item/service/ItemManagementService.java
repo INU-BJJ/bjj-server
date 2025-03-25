@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,16 +38,17 @@ public class ItemManagementService {
     public List<ItemRes> uploadItems(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
 
         String itemType = Objects.requireNonNull(zipImageFile.getOriginalFilename()).split("\\.")[0];
-        List<String> fileNameList = unZip(zipImageFile, itemType);
-
-        List<Item> itemList = jsonToList(infoFile).stream()
-                .map(itemVO -> Item.create(itemVO, fileNameList.get(itemVO.getItemId() - 1), ItemType.valueOf(itemType.toUpperCase())))
+        List<String> imageNameList = unZip(zipImageFile, itemType);
+        List<ItemVO> infoList = jsonToList(infoFile);
+        //imageNameList.size() == infoList.size()
+        List<Item> itemList = IntStream.range(0, imageNameList.size())
+                .mapToObj(index -> Item.create(infoList.get(index), imageNameList.get(index), ItemType.valueOf(itemType.toUpperCase())))
                 .toList();
 
         itemRepository.saveAll(itemList);
 
         return itemList.stream().map(item -> ItemRes.builder()
-                .itemId(item.getItemId())
+                .itemId(item.getId())
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
