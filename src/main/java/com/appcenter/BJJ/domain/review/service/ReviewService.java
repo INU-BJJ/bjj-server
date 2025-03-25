@@ -48,7 +48,7 @@ public class ReviewService {
         }
 
         MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));;
         Review review = reviewPost.toEntity(memberId, menuPair);
 
         // .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size exceeded]
@@ -74,7 +74,7 @@ public class ReviewService {
         log.info("[로그] findByMenuPair(), memberId : {}", memberId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));
 
         Slice<ReviewDetailRes> reviewDetailResSlice = reviewRepository
                 .findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), sort, isWithImages, PageRequest.of(pageNumber, pageSize));
@@ -184,7 +184,7 @@ public class ReviewService {
         log.info("[로그] findReviewImagesByMenuPairId(), menuPairId : {}, pageNumber : {}, pageSize: {}", menuPairId, pageNumber, pageSize);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 메뉴쌍이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));
 
         Slice<ReviewImageDetailRes> reviewImageDetailResSlice = reviewRepository.findReviewImagesByMenuPairId(menuPair.getMainMenuId(), menuPair.getSubMenuId(), PageRequest.of(pageNumber, pageSize));
 
