@@ -14,6 +14,54 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
+    @Query("""
+        SELECT COUNT(r.id) > 0
+        FROM Review r
+        JOIN r.menuPair mp
+        JOIN Menu m ON mp.mainMenuId = m.id
+        JOIN Cafeteria c ON m.cafeteriaId = c.id
+        WHERE r.createdDate = CURRENT_DATE
+            AND r.isDeleted = false
+            AND c.corner = :cafeteriaCorner
+    """)
+    boolean existsTodayUndeletedReviewByCafeteriaCorner(String cafeteriaCorner);
+
+    @Query("""
+        SELECT COUNT(r.id) > 0
+        FROM Review r
+        JOIN r.menuPair mp
+        JOIN Menu m ON mp.mainMenuId = m.id
+        JOIN Cafeteria c ON m.cafeteriaId = c.id
+        WHERE r.createdDate = CURRENT_DATE
+            AND r.isDeleted = false
+            AND c.corner != "조식"
+            AND c.corner != "석식"
+    """)
+    boolean existsTodayUndeletedReviewExcludingBreakfastAndDinner();
+
+    @Query("""
+        SELECT COUNT(r.id) > 0
+        FROM Review r
+        JOIN r.menuPair mp
+        JOIN Menu m ON mp.mainMenuId = m.id
+        JOIN Cafeteria c ON m.cafeteriaId = c.id
+        WHERE r.createdDate = CURRENT_DATE
+            AND c.corner = :cafeteriaCorner
+    """)
+    boolean existsTodayReviewByCafeteriaCorner(String cafeteriaCorner);
+
+    @Query("""
+        SELECT COUNT(r.id) > 0
+        FROM Review r
+        JOIN r.menuPair mp
+        JOIN Menu m ON mp.mainMenuId = m.id
+        JOIN Cafeteria c ON m.cafeteriaId = c.id
+        WHERE r.createdDate = CURRENT_DATE
+            AND c.corner != "조식"
+            AND c.corner != "석식"
+    """)
+    boolean existsTodayReviewExcludingBreakfastAndDinner();
+
     @Query("SELECT r FROM Review r WHERE r.id = :id AND r.isDeleted = false")
     Optional<Review> findUndeletedReviewById(Long id);
 

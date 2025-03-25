@@ -3,13 +3,13 @@ package com.appcenter.BJJ.domain.menu.service;
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.menu.domain.*;
-import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
 import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
 import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
 import com.appcenter.BJJ.domain.menu.repository.CafeteriaRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
 import com.appcenter.BJJ.domain.menu.repository.TodayDietRepository;
+import com.appcenter.BJJ.domain.review.utils.ReviewPolicy;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.data.domain.Limit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +41,7 @@ public class TodayDietService {
     private final MenuRepository menuRepository;
     private final MenuPairRepository menuPairRepository;
     private final TodayDietRepository todayDietRepository;
+    private final ReviewPolicy reviewPolicy;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName, long memberId) {
         log.info("[로그] findByCafeteria() 시작, cafeteriaName: {}, memberId: {}", cafeteriaName, memberId);
@@ -68,17 +68,9 @@ public class TodayDietService {
         LocalTime now = LocalTime.now();
         log.info("[로그] todayMenuResList.size() : {}, now : {}", todayMenuResList.size(), now);
 
-        return todayMenuResList.stream().filter(todayMenuRes -> {
-            if (now.isBefore(LocalTime.of(8, 0))) {
-                return false;
-            } else if (now.isBefore(LocalTime.of(10, 30))) {
-                return todayMenuRes.getCafeteriaCorner().contains("조식");
-            } else if (now.isBefore(LocalTime.of(17, 0))) {
-                return !todayMenuRes.getCafeteriaCorner().contains("석식");
-            } else {
-                return true;
-            }
-        }).toList();
+        return todayMenuResList.stream()
+                .filter(todayMenuRes -> reviewPolicy.isReviewableTime(todayMenuRes.getCafeteriaCorner(), LocalTime.now()))
+                .toList();
     }
 
     @PostConstruct  // bean 생성 후 실행

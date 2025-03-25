@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "400-1", "입력값이 올바르지 않습니다."),
     CANNOT_LIKE_OWN_REVIEW(HttpStatus.BAD_REQUEST, "400-2", "자신의 리뷰에는 좋아요를 누를 수 없습니다."),
     NOT_ENOUGH_POINTS(HttpStatus.BAD_REQUEST, "400-3", "포인트가 충분하지 않습니다."),
+    INVALID_REVIEW_TIME(HttpStatus.BAD_REQUEST, "400-4", "해당 리뷰를 작성할 수 있는 시간이 아닙니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-1", "인증 정보가 없습니다."),
@@ -34,6 +35,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-2", "이미 등록된 닉네임입니다."),
     ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "409-3", "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-4", "이미 동일 시간 대에 작성된 리뷰가 있습니다."),
 
     //500 Internal Server Error
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다.");
