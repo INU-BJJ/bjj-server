@@ -14,9 +14,13 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPair.id = :menuPairId")
-    Float findAverageRatingByMenuPairId(Long menuPairId);
+    @Query("SELECT r FROM Review r WHERE r.id = :id AND r.isDeleted = false")
+    Optional<Review> findUndeletedReviewById(Long id);
 
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.menuPair.id = :menuPairId AND r.isDeleted = false")
+    Float calculateAverageRatingByMenuPairId(Long menuPairId);
+
+    @Query("SELECT COUNT(r.id) FROM Review r WHERE r.menuPair.id = :menuPairId AND r.isDeleted = false")
     int countByMenuPair_Id(Long menuPairId);
 
     @Query("""
@@ -25,8 +29,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
             i.name
         )
         FROM Image i
-        WHERE i.review.menuPair.mainMenuId = :mainMenuId OR i.review.menuPair.mainMenuId = :subMenuId
-            OR i.review.menuPair.subMenuId = :mainMenuId OR i.review.menuPair.subMenuId = :subMenuId
+        JOIN i.review r
+        WHERE r.isDeleted = false
+            AND (
+                 r.menuPair.mainMenuId = :mainMenuId
+                 OR r.menuPair.mainMenuId = :subMenuId
+                 OR r.menuPair.subMenuId = :mainMenuId
+                 OR r.menuPair.subMenuId = :subMenuId
+             )
         ORDER BY i.id DESC
     """)
     Slice<ReviewImageDetailRes> findReviewImagesByMenuPairId(Long mainMenuId, Long subMenuId, Pageable pageable);
@@ -39,12 +49,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         )
         FROM Review r
         RIGHT JOIN r.menuPair mp
-        WHERE mp.mainMenuId IN :mainMenuIds
+        WHERE mp.mainMenuId IN :mainMenuIds AND r.isDeleted = false
         GROUP BY mp.mainMenuId
     """)
     List<MenuRatingStatsDto> calculateRatingStatsByMainMenuIds(List<Long> mainMenuIds);
 
-    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r")
+    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.isDeleted = false")
     Float findAverageRating();
 
     @Query("""
@@ -80,7 +90,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         JOIN Menu mm ON mp.mainMenuId = mm.id
         JOIN Menu sm ON mp.subMenuId = sm.id
         LEFT JOIN Member m ON r.memberId = m.id
-        WHERE r.id = :reviewId
+        WHERE r.id = :reviewId AND r.isDeleted = false
     """)
     Optional<ReviewDetailRes> findReviewWithMenuAndMemberDetails(Long reviewId, Long memberId);
 }

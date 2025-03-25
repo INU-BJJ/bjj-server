@@ -22,7 +22,7 @@ public class MenuPairService {
         log.info("[로그] refreshReviewCountAndRating() 시작");
 
         int reviewCount = reviewRepository.countByMenuPair_Id(menuPairId);
-        Float reviewAverageRating = reviewRepository.findAverageRatingByMenuPairId(menuPairId);
+        Float reviewAverageRating = reviewRepository.calculateAverageRatingByMenuPairId(menuPairId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid menuPair ID"));

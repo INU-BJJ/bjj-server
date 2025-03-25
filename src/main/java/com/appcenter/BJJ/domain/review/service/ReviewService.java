@@ -161,7 +161,12 @@ public class ReviewService {
         if (optionalReview.isPresent()) {
             Review review = optionalReview.get();
 
-            review.getImages().forEach(image -> {
+            review.deleteReview();
+
+            menuPairId = review.getMenuPair().getId();
+
+            // 이미지 및 리뷰 Hard Delete
+            /*review.getImages().forEach(image -> {
                 boolean result = image.removeImageFromPath(REVIEW_IMG_DIR);
 
                 if (!result) {
@@ -169,9 +174,7 @@ public class ReviewService {
                 }
             });
 
-            menuPairId = review.getMenuPair().getId();
-
-            reviewRepository.delete(review);
+            reviewRepository.delete(review);*/
         }
 
         return menuPairId;

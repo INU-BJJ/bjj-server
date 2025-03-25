@@ -132,7 +132,7 @@ public class MenuRankingService {
         log.info("[로그] updateRankings() 시작");
 
         // 어제 날짜 구하기
-        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate yesterday = LocalDate.now();//.minusDays(1);
 
         // 어제 식단의 메뉴 ID 목록 조회
         List<Long> menuIdList = todayDietRepository.findMainMenuIdsByDate(yesterday);
