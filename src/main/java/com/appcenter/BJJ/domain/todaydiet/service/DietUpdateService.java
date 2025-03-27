@@ -354,14 +354,7 @@ public class DietUpdateService {
         Queue<String> menus = dietDto.getMenus();
         String mainMenu = menus.poll();
         String subMenu = menus.isEmpty() ? "": menus.poll();
-        StringBuilder restMenuBuilder = new StringBuilder();
-        while (!menus.isEmpty()) {
-            restMenuBuilder.append(menus.poll());
-
-            if (!menus.isEmpty()) {
-                restMenuBuilder.append(", ");
-            }
-        }
+        String restMenu = String.join(", ", menus);
 
         // 메뉴가 존재하는지 확인하고, 없으면 새로 생성 후 id 반환
         Long mainMenuId = menuService.getOrCreateMenu(mainMenu, cafeteriaId);
@@ -378,7 +371,7 @@ public class DietUpdateService {
                 .kcal(dietDto.getCalorie())
                 .date(dietDto.getDate())
                 .menuPairId(menuPairId)
-                .restMenu(restMenuBuilder.toString())
+                .restMenu(restMenu)
                 .build();
     }
 }
