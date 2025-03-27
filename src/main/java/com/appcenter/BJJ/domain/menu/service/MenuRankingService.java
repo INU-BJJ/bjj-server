@@ -7,7 +7,7 @@ import com.appcenter.BJJ.domain.menu.dto.*;
 import com.appcenter.BJJ.domain.menu.repository.MenuLikeRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRankingRepository;
 import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
-import com.appcenter.BJJ.domain.menu.repository.TodayDietRepository;
+import com.appcenter.BJJ.domain.todaydiet.repository.TodayDietRepository;
 import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import jakarta.annotation.PostConstruct;

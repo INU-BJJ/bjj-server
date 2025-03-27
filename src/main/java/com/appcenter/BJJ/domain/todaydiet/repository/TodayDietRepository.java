@@ -1,8 +1,9 @@
-package com.appcenter.BJJ.domain.menu.repository;
+package com.appcenter.BJJ.domain.todaydiet.repository;
 
-import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
-import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
-import com.appcenter.BJJ.domain.menu.domain.TodayDiet;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes;
+import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,10 +12,11 @@ import java.util.List;
 
 public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
 
-    boolean existsByDate(LocalDate date);
+    @Query("SELECT COUNT(td.id) > 0 FROM TodayDiet td WHERE td.date >= :startDate")
+    boolean existsByStartDate(LocalDate startDate, Limit limit);
 
     @Query("""
-        SELECT new com.appcenter.BJJ.domain.menu.dto.TodayDietRes(
+        SELECT new com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes(
             td.id,
             td.price,
             td.kcal,
@@ -40,7 +42,7 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
     List<TodayDietRes> findTodayDietsByCafeteriaName(String cafeteriaName, long memberId);
 
     @Query("""
-        SELECT new com.appcenter.BJJ.domain.menu.dto.TodayMenuRes(
+        SELECT new com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes(
             mp.id,
             m.menuName,
             c.id,

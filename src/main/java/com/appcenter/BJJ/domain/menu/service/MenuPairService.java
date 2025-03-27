@@ -33,4 +33,14 @@ public class MenuPairService {
 
         menuPairRepository.save(menuPair);
     }
+
+    @Transactional
+    public Long getOrCreateMenuPair(Long mainMenuId, Long subMenuId) {
+        return menuPairRepository.findFirstByMainMenuIdAndSubMenuId(mainMenuId, subMenuId)
+                .orElseGet(() -> menuPairRepository.save(MenuPair.builder()
+                        .mainMenuId(mainMenuId)
+                        .subMenuId(subMenuId)
+                        .build())
+                ).getId();
+    }
 }

@@ -1,8 +1,8 @@
-package com.appcenter.BJJ.domain.menu.controller;
+package com.appcenter.BJJ.domain.todaydiet.controller;
 
-import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
-import com.appcenter.BJJ.domain.menu.dto.CafeteriaInfoRes;
-import com.appcenter.BJJ.domain.menu.service.CafeteriaService;
+import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
+import com.appcenter.BJJ.domain.todaydiet.dto.CafeteriaInfoRes;
+import com.appcenter.BJJ.domain.todaydiet.service.CafeteriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
