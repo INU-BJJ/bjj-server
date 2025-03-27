@@ -26,8 +26,12 @@ public class ReviewDetailRes {
     private final LocalDate createdDate;
     @Schema(description = "메뉴쌍 id", example = "1")
     private final Long menuPairId;
+    @Schema(description = "메인메뉴 id", example = "1")
+    private final Long mainMenuId;
     @Schema(description = "메인메뉴 이름", example = "등심돈까스")
     private final String mainMenuName;
+    @Schema(description = "서브메뉴 id", example = "2")
+    private final Long subMenuId;
     @Schema(description = "서브메뉴 이름", example = "쫄면")
     private final String subMenuName;
     @Schema(description = "작성자 id", example = "1")
