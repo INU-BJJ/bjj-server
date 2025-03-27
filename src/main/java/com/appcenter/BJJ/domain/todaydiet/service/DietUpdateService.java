@@ -81,7 +81,7 @@ public class DietUpdateService {
         // 식단 데이터 가공 및 저장
         List<TodayDiet> todayDiets = dietDtos.stream()
                 .flatMap(dietDto -> splitDietByCalories(dietDto).stream())
-                .map(this::toEntity)
+                .map(this::buildTodayDietWithMenus)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -347,9 +347,9 @@ public class DietUpdateService {
     }
 
     /*
-     * DietDto를 TodayDiet로 변환
+     * DietDto로 TodayDiet 객체 생성. 이 때 기존 Menu 및 MenuPair가 없으면 생성 및 저장
      **/
-    private TodayDiet toEntity(DietDto dietDto) {
+    private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
         String mainMenu = menus.poll();
