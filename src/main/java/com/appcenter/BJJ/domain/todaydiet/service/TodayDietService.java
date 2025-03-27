@@ -2,9 +2,6 @@ package com.appcenter.BJJ.domain.todaydiet.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
-import com.appcenter.BJJ.domain.todaydiet.repository.CafeteriaRepository;
-import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
-import com.appcenter.BJJ.domain.menu.repository.MenuRepository;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
 import com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes;
 import com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes;
@@ -26,10 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TodayDietService {
 
-    private final CafeteriaRepository cafeteriaRepository;
     private final ImageRepository imageRepository;
-    private final MenuRepository menuRepository;
-    private final MenuPairRepository menuPairRepository;
     private final TodayDietRepository todayDietRepository;
 
     public List<TodayDietRes> findByCafeteria(String cafeteriaName, long memberId) {
