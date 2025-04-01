@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -296,9 +293,15 @@ public class DietUpdateService {
     }
 
     /*
-     * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리
+     * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리,
+     * 추가로 '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 삭제
      **/
     private List<DietDto> splitDietByCalories(DietDto dietDto) {
+        Deque<String> menus = dietDto.getMenus();
+
+        // 첫 번째 메뉴 정리 ('<천원의아침밥>' 제거)
+        cleanFirstMenu(menus);
+
         // 칼로리, 가격, 구성원 가격 중 가장 긴 리스트의 크기를 구함
         int maxSize = Stream.of(
                 dietDto.getCalories().size(),
@@ -317,7 +320,7 @@ public class DietUpdateService {
                         .date(dietDto.getDate())
                         .cafeteriaId(dietDto.getCafeteriaId())
                         .cafeteriaCorner(dietDto.getCafeteriaCorner())
-                        .mainMenu(dietDto.pollMenu())
+                        .mainMenu(dietDto.pollFirstMenu())
                         .price(dietDto.getPrice(i))
                         .memberPrice(dietDto.getMemberPrice(i))
                         .calorie(dietDto.getCalorie(i))
@@ -326,9 +329,24 @@ public class DietUpdateService {
                 .toList();
 
         // (선택n구성) 메뉴 매칭
-        matchMenusToDiets(dietDto.getMenus(), dietDtos);
+        matchMenusToDiets(menus, dietDtos);
 
         return dietDtos;
+    }
+
+    /*
+     * '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 해당 문자열을 제거하고,
+     * 메뉴가 비어있는 경우 해당 메뉴 삭제
+     **/
+    private void cleanFirstMenu(Deque<String> menus) {
+        if (menus.isEmpty()) return;
+
+        String firstMenu = menus.pollFirst(); // 첫 번째 값 가져오기
+        firstMenu = firstMenu.replaceAll("\\s*<천원의아침밥>\\s*", "").trim(); // 앞뒤 공백 포함 '<천원의아침밥>' 문자열 제거
+
+        if (!firstMenu.isEmpty()) {
+            menus.addFirst(firstMenu); // 수정된 값 다시 삽입
+        }
     }
 
     /*
@@ -370,8 +388,8 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = cleanMenuPrefix(dietDto.pollMenu());
-        String subMenu = cleanMenuPrefix(dietDto.pollMenu());
+        String mainMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
+        String subMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
         String restMenu = String.join(", ", menus);
 
         // 메인 메뉴가 없는 경우 객체 생성 스킵

@@ -3,10 +3,10 @@ package com.appcenter.BJJ.domain.todaydiet.dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
 @Getter
 @ToString
@@ -15,7 +15,7 @@ public class DietDto {
     private LocalDate date;
     private Long cafeteriaId;
     private String cafeteriaCorner;
-    private Queue<String> menus;
+    private Deque<String> menus;
     private List<String> prices;
     private List<String> memberPrices;
     private List<String> calories;
@@ -27,7 +27,7 @@ public class DietDto {
         this.cafeteriaId = cafeteriaId;
         this.cafeteriaCorner = cafeteriaCorner;
         // 메인 메뉴만 받아서 입력
-        this.menus = new LinkedList<>();
+        this.menus = new ArrayDeque<>();
         menus.add(mainMenu);
         // 가격 하나만 받아서 입력
         this.prices = new ArrayList<>();
@@ -41,8 +41,8 @@ public class DietDto {
         this.notification = notification;
     }
 
-    public String pollMenu() {
-        return menus.isEmpty() ? "" : menus.poll();
+    public String pollFirstMenu() {
+        return menus.isEmpty() ? "" : menus.pollFirst();
     }
 
     public String getPrice(int index) {
