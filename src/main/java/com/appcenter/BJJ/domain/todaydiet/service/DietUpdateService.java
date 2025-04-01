@@ -36,6 +36,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -181,8 +183,8 @@ public class DietUpdateService {
                                     "cafeteriaCorner",
                                     "date",
                                     "menus",
-                                    "price",
-                                    "memberPrice",
+                                    "prices",
+                                    "memberPrices",
                                     "calories",
                                     "notification"
                                 ],
@@ -194,8 +196,14 @@ public class DietUpdateService {
                                         "type": "array",
                                         "items": { "type": "string" }
                                     },
-                                    "price": { "type": "string" },
-                                    "memberPrice": { "type": "string" },
+                                    "prices": {
+                                        "type": "array",
+                                        "items": { "type": "string" }
+                                    },
+                                    "memberPrices": {
+                                        "type": "array",
+                                        "items": { "type": "string" }
+                                    },
                                     "calories": {
                                         "type": "array",
                                         "items": { "type": "string" }
@@ -234,12 +242,14 @@ public class DietUpdateService {
                     - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 뚝)소고기버섯들깨탕)
                     - "<천원의아침밥>", "운영없음"처럼 음식이 아닌 데이터는 메뉴에 포함하지 않음
                     - 예: 8,000원
-                - `price`:
-                    - 가격 정보
+                - `prices`:
+                    - 가격 리스트
+                    - 각 가격을 분리하여 리스트로 저장
                     - "#,###원" 형식으로 변환
                     - 예: 8,000원
-                - `memberPrice`:
-                    - 할인된 구성원 가격 정보
+                - `memberPrices`:
+                    - 할인된 구성원 가격 리스트
+                    - 각 구성원 가격을 분리하여 리스트로 저장
                     - "#,###원" 형식으로 변환
                     - 예: 7,000원
                 - `calories`:
@@ -247,8 +257,8 @@ public class DietUpdateService {
                     - 각 칼로리를 분리하여 리스트로 저장
                     - "#,###kcal" 형식으로 변환
                     - 칼로리가 없는 경우:
-                        - 0kcal 반환
-                        - 메뉴가 or로 구분된 경우 [0kcal, 0kcal] 리스트로 반환
+                        - 가격 또는 구성원 가격의 수에 맞게 0kcal 반환
+                        - 메뉴가 or로 구분된 경우 or 개수에 맞게 [0kcal, 0kcal, ...] 형태의 리스트로 반환
                     - 예: 1,524kcal
                 - `notification`:
                     - 공지사항
@@ -286,34 +296,39 @@ public class DietUpdateService {
     }
 
     /*
-     * 칼로리가 여러 개인 경우 각각 하나의 식단으로 분리
+     * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리
      **/
     private List<DietDto> splitDietByCalories(DietDto dietDto) {
-        List<String> calories = dietDto.getCalories();
-        Queue<String> menus = dietDto.getMenus();
+        // 칼로리, 가격, 구성원 가격 중 가장 긴 리스트의 크기를 구함
+        int maxSize = Stream.of(
+                dietDto.getCalories().size(),
+                dietDto.getPrices().size(),
+                dietDto.getMemberPrices().size()
+        ).max(Integer::compare).orElse(0);
 
-        if (calories.size() >= 2) {
-            // 인덱스가 같은 메뉴와 칼로리를 매칭하여 저장
-            List<DietDto> dietDtos = calories.stream()
-                    .map(calorie -> DietDto.builder()
-                            .date(dietDto.getDate())
-                            .cafeteriaId(dietDto.getCafeteriaId())
-                            .cafeteriaCorner(dietDto.getCafeteriaCorner())
-                            .mainMenu(menus.poll())
-                            .price(dietDto.getPrice())
-                            .memberPrice(dietDto.getMemberPrice())
-                            .calorie(calorie)
-                            .notification(dietDto.getNotification())
-                            .build())
-                    .toList();
-
-            // (선택n구성) 메뉴 매칭
-            matchMenusToDiets(menus, dietDtos);
-
-            return dietDtos;
+        // 칼로리와 가격, 구성원 가격 각각이 모두 하나인 경우 리스트로 감싸서 바로 반환
+        if (maxSize < 2) {
+            return List.of(dietDto);
         }
 
-        return List.of(dietDto);
+        // 인덱스가 같은 메뉴와 칼로리, 가격, 구성원 가격을 매칭하여 저장
+        List<DietDto> dietDtos = IntStream.range(0, maxSize)
+                .mapToObj(i -> DietDto.builder()
+                        .date(dietDto.getDate())
+                        .cafeteriaId(dietDto.getCafeteriaId())
+                        .cafeteriaCorner(dietDto.getCafeteriaCorner())
+                        .mainMenu(dietDto.pollMenu())
+                        .price(dietDto.getPrice(i))
+                        .memberPrice(dietDto.getMemberPrice(i))
+                        .calorie(dietDto.getCalorie(i))
+                        .notification(dietDto.getNotification())
+                        .build())
+                .toList();
+
+        // (선택n구성) 메뉴 매칭
+        matchMenusToDiets(dietDto.getMenus(), dietDtos);
+
+        return dietDtos;
     }
 
     /*
@@ -354,9 +369,13 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = menus.poll();
-        String subMenu = menus.isEmpty() ? "": menus.poll();
+        String mainMenu = dietDto.pollMenu();
+        String subMenu = dietDto.pollMenu();
         String restMenu = String.join(", ", menus);
+
+        // 메인 메뉴가 없는 경우 객체 생성 스킵
+        if (mainMenu.isEmpty())
+            return null;
 
         // 메뉴가 존재하는지 확인하고, 없으면 새로 생성 후 id 반환
         Long mainMenuId = menuService.getOrCreateMenu(mainMenu, cafeteriaId);
@@ -369,8 +388,8 @@ public class DietUpdateService {
         Long menuPairId = menuPairService.getOrCreateMenuPair(mainMenuId, subMenuId);
 
         return TodayDiet.builder()
-                .price(dietDto.getPrice())
-                .kcal(dietDto.getCalorie())
+                .price(dietDto.getPrice(0))
+                .kcal(dietDto.getCalorie(0))
                 .date(dietDto.getDate())
                 .menuPairId(menuPairId)
                 .restMenu(restMenu)

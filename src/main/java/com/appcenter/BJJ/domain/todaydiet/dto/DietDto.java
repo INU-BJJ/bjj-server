@@ -16,8 +16,8 @@ public class DietDto {
     private Long cafeteriaId;
     private String cafeteriaCorner;
     private Queue<String> menus;
-    private String price;
-    private String memberPrice;
+    private List<String> prices;
+    private List<String> memberPrices;
     private List<String> calories;
     private String notification;
 
@@ -29,15 +29,31 @@ public class DietDto {
         // 메인 메뉴만 받아서 입력
         this.menus = new LinkedList<>();
         menus.add(mainMenu);
-        this.price = price;
-        this.memberPrice = memberPrice;
+        // 가격 하나만 받아서 입력
+        this.prices = new ArrayList<>();
+        prices.add(price);
+        // 구성원 가격 하나만 받아서 입력
+        this.memberPrices = new ArrayList<>();
+        memberPrices.add(memberPrice);
         // 칼로리 하나만 받아서 입력
         this.calories = new ArrayList<>();
         calories.add(calorie);
         this.notification = notification;
     }
 
-    public String getCalorie() {
-        return calories.isEmpty() ? "" : calories.get(0);
+    public String pollMenu() {
+        return menus.isEmpty() ? "" : menus.poll();
+    }
+
+    public String getPrice(int index) {
+        return prices.isEmpty() ? "" : prices.get(Math.min(index, prices.size() - 1));
+    }
+
+    public String getMemberPrice(int index) {
+        return memberPrices.isEmpty() ? "" : memberPrices.get(Math.min(index, memberPrices.size() - 1));
+    }
+
+    public String getCalorie(int index) {
+        return calories.isEmpty() ? "" : calories.get(Math.min(index, calories.size() - 1));
     }
 }
