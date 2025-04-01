@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -104,10 +105,11 @@ public class DietUpdateService {
         }
 
         Elements wrapWeeks = wrapWeekBox.select(".wrap-week");
-        for (Element wrapWeek : wrapWeeks) {
+        for (int i = 0; i < wrapWeeks.size(); i++) {
+            Element wrapWeek = wrapWeeks.get(i);
+
             // 날짜 가져오기
-            String date = wrapWeek.select(".date").text();
-            LocalDate localDate = LocalDate.parse(date.replaceAll("\\(.*\\)", ""));
+            LocalDate localDate = LocalDate.now().with(DayOfWeek.MONDAY).plusDays(i);
 
             // 테이블 행 가져오기
             Elements rows = wrapWeek.select("tbody tr");
@@ -137,13 +139,13 @@ public class DietUpdateService {
                 }
 
                 queryStringBuilder.append(String.format("""
-                    {
-                        "date": "%s",
-                        "cafeteriaId: %s,
-                        "cafeteriaCorner": "%s %s",
-                        "menus": "%s"
-                    },
-                    """, localDate, cafeteriaId, cafeteriaName, corner , menu));
+                        {
+                            "date": "%s",
+                            "cafeteriaId: %s,
+                            "cafeteriaCorner": "%s %s",
+                            "menus": "%s"
+                        },
+                        """, localDate, cafeteriaId, cafeteriaName, corner, menu));
             }
         }
 
