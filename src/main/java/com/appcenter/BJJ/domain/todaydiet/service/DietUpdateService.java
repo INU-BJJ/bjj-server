@@ -336,12 +336,13 @@ public class DietUpdateService {
      **/
     private void matchMenusToDiets(Queue<String> menus, List<DietDto> dietDtos) {
         Pattern pattern = Pattern.compile("""
-            \\(     # 여는 소괄호 찾기
-            [^)]*   # 닫는 소괄호 전까지 모든 문자
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            \\(     # 여는 소괄호 '(' 찾기
+            [^)]*   # 닫는 소괄호 ')' 전까지 모든 문자 (0개 이상)
             \\d+    # 적어도 하나 이상의 숫자 포함
-            [^)]*   # 다시 닫는 소괄호 전까지 모든 문자
-            \\)     # 닫는 소괄호 찾기
-            """, Pattern.COMMENTS); // 괄호 안 숫자 찾기 ([^)]*d+[^)]*)
+            [^)]*   # 다시 닫는 소괄호 ')' 전까지 모든 문자 (0개 이상)
+            \\)     # 닫는 소괄호 ')' 찾기
+            """);   // 괄호 안 숫자 찾기 ([^)]*d+[^)]*)
 
         while (!menus.isEmpty()) {
             String menu = menus.poll();
@@ -369,8 +370,8 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = dietDto.pollMenu();
-        String subMenu = dietDto.pollMenu();
+        String mainMenu = cleanMenuPrefix(dietDto.pollMenu());
+        String subMenu = cleanMenuPrefix(dietDto.pollMenu());
         String restMenu = String.join(", ", menus);
 
         // 메인 메뉴가 없는 경우 객체 생성 스킵
@@ -394,5 +395,18 @@ public class DietUpdateService {
                 .menuPairId(menuPairId)
                 .restMenu(restMenu)
                 .build();
+    }
+
+    /*
+     * 메뉴 앞에 수식어 제거 (ex. New), 뚝), 만우절))
+     **/
+    private String cleanMenuPrefix(String menu) {
+        // 메뉴에서 여는 괄호 없이 닫는 괄호가 나오면 해당 부분까지의 문자 제거
+        return menu.replaceAll("""
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            ^       # 문자열의 시작
+            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
+            \\)     # 닫는 괄호 ')'
+            """, "");
     }
 }
