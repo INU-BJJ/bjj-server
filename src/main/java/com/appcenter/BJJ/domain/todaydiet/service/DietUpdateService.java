@@ -236,7 +236,7 @@ public class DietUpdateService {
                             - 이외의 문자로 구분된 메뉴는 전체가 하나의 메뉴
                     - 분리 된 메뉴에 공백이 포함된 경우 공백을 제거하여 변환 (e.g., 입력: 뚝) 치즈순두부찌개, 출력: 뚝)치즈순두부찌개)
                     - 분리 된 메뉴에서 특수 문자는 제거하지 않음 (*, &, (, ) 등)
-                    - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 뚝)소고기버섯들깨탕)
+                    - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 소고기버섯들깨탕)
                     - "<천원의아침밥>", "운영없음"처럼 음식이 아닌 데이터는 메뉴에 포함하지 않음
                     - 예: 8,000원
                 - `prices`:
@@ -299,8 +299,15 @@ public class DietUpdateService {
     private List<DietDto> splitDietByCalories(DietDto dietDto) {
         Deque<String> menus = dietDto.getMenus();
 
-        // 첫 번째 메뉴 정리 ('<천원의아침밥>' 제거)
-        cleanFirstMenu(menus);
+        // 모든 메뉴 정제 ('천원의아침밥' 제거 → 특수문자 제거 → 수식어 제거)
+        List<String> cleanedMenus = menus.stream()
+                .map(this::cleanMenu)
+                .filter(menu -> !menu.isEmpty()) // 메뉴가 빈 문자열인 경우 제거
+                .toList();
+
+        // 정제된 메뉴를 새로운 Deque로 재구성
+        menus = new ArrayDeque<>(cleanedMenus);
+        dietDto.updateMenus(menus);
 
         // 칼로리, 가격, 구성원 가격 중 가장 긴 리스트의 크기를 구함
         int maxSize = Stream.of(
@@ -334,19 +341,32 @@ public class DietUpdateService {
         return dietDtos;
     }
 
+
     /*
-     * '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 해당 문자열을 제거하고,
-     * 메뉴가 비어있는 경우 해당 메뉴 삭제
+     * '천원의아침밥'이라는 문자열이 메뉴에 있는 경우 해당 문자열을 제거,
+     * 메뉴 앞에 붙은 수식어 제거 (ex. 'New)', '만우절)', '뚝)', '(뚝)')
+     * 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
      **/
-    private void cleanFirstMenu(Deque<String> menus) {
-        if (menus.isEmpty()) return;
+    private String cleanMenu(String menu) {
+        if (menu == null) return "";
 
-        String firstMenu = menus.pollFirst(); // 첫 번째 값 가져오기
-        firstMenu = firstMenu.replaceAll("\\s*<천원의아침밥>\\s*", "").trim(); // 앞뒤 공백 포함 '<천원의아침밥>' 문자열 제거
+        // '<천원의아침밥>' 제거 (앞뒤 꺽쇠 없어도 제거 가능)
+        menu = menu.replaceAll("<?천원의아침밥>?", "").trim();
 
-        if (!firstMenu.isEmpty()) {
-            menus.addFirst(firstMenu); // 수정된 값 다시 삽입
+        // 메뉴 앞에 붙은 수식어 제거 (ex. 'New)', '만우절)', '뚝)', '(뚝)')
+        menu = menu.replaceAll("""
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            ^       # 문자열의 시작
+            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
+            \\)     # 닫는 괄호 ')'
+            """, "").trim();
+
+        // 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
+        if (!menu.matches(".*[가-힣].*")) {
+            return "";
         }
+
+        return menu;
     }
 
     /*
@@ -388,8 +408,9 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
-        String subMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
+
+        String mainMenu = dietDto.pollFirstMenu();
+        String subMenu = dietDto.pollFirstMenu();
         String restMenu = String.join(", ", menus);
 
         // 메인 메뉴가 없는 경우 객체 생성 스킵
@@ -398,7 +419,6 @@ public class DietUpdateService {
 
         // 메뉴가 존재하는지 확인하고, 없으면 새로 생성 후 id 반환
         Long mainMenuId = menuService.getOrCreateMenu(mainMenu, cafeteriaId);
-
         Long subMenuId = subMenu.isEmpty()
                 ? null
                 : menuService.getOrCreateMenu(subMenu, cafeteriaId);
@@ -413,18 +433,5 @@ public class DietUpdateService {
                 .menuPairId(menuPairId)
                 .restMenu(restMenu)
                 .build();
-    }
-
-    /*
-     * 메뉴 앞에 수식어 제거 (ex. New), 뚝), 만우절))
-     **/
-    private String cleanMenuPrefix(String menu) {
-        // 메뉴에서 여는 괄호 없이 닫는 괄호가 나오면 해당 부분까지의 문자 제거
-        return menu.replaceAll("""
-            (?x)    # Verbose Mode (주석 허용) 활성화
-            ^       # 문자열의 시작
-            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
-            \\)     # 닫는 괄호 ')'
-            """, "");
     }
 }

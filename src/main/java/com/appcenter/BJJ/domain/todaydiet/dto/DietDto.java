@@ -56,4 +56,8 @@ public class DietDto {
     public String getCalorie(int index) {
         return calories.isEmpty() ? "" : calories.get(Math.min(index, calories.size() - 1));
     }
+
+    public void updateMenus(Deque<String> newMenus) {
+        this.menus = newMenus;
+    }
 }
