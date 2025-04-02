@@ -26,15 +26,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -104,10 +104,11 @@ public class DietUpdateService {
         }
 
         Elements wrapWeeks = wrapWeekBox.select(".wrap-week");
-        for (Element wrapWeek : wrapWeeks) {
+        for (int i = 0; i < wrapWeeks.size(); i++) {
+            Element wrapWeek = wrapWeeks.get(i);
+
             // 날짜 가져오기
-            String date = wrapWeek.select(".date").text();
-            LocalDate localDate = LocalDate.parse(date.replaceAll("\\(.*\\)", ""));
+            LocalDate localDate = LocalDate.now().with(DayOfWeek.MONDAY).plusDays(i);
 
             // 테이블 행 가져오기
             Elements rows = wrapWeek.select("tbody tr");
@@ -137,13 +138,13 @@ public class DietUpdateService {
                 }
 
                 queryStringBuilder.append(String.format("""
-                    {
-                        "date": "%s",
-                        "cafeteriaId: %s,
-                        "cafeteriaCorner": "%s %s",
-                        "menus": "%s"
-                    },
-                    """, localDate, cafeteriaId, cafeteriaName, corner , menu));
+                        {
+                            "date": "%s",
+                            "cafeteriaId: %s,
+                            "cafeteriaCorner": "%s %s",
+                            "menus": "%s"
+                        },
+                        """, localDate, cafeteriaId, cafeteriaName, corner, menu));
             }
         }
 
@@ -179,8 +180,8 @@ public class DietUpdateService {
                                     "cafeteriaCorner",
                                     "date",
                                     "menus",
-                                    "price",
-                                    "memberPrice",
+                                    "prices",
+                                    "memberPrices",
                                     "calories",
                                     "notification"
                                 ],
@@ -192,8 +193,14 @@ public class DietUpdateService {
                                         "type": "array",
                                         "items": { "type": "string" }
                                     },
-                                    "price": { "type": "string" },
-                                    "memberPrice": { "type": "string" },
+                                    "prices": {
+                                        "type": "array",
+                                        "items": { "type": "string" }
+                                    },
+                                    "memberPrices": {
+                                        "type": "array",
+                                        "items": { "type": "string" }
+                                    },
                                     "calories": {
                                         "type": "array",
                                         "items": { "type": "string" }
@@ -232,12 +239,14 @@ public class DietUpdateService {
                     - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 뚝)소고기버섯들깨탕)
                     - "<천원의아침밥>", "운영없음"처럼 음식이 아닌 데이터는 메뉴에 포함하지 않음
                     - 예: 8,000원
-                - `price`:
-                    - 가격 정보
+                - `prices`:
+                    - 가격 리스트
+                    - 각 가격을 분리하여 리스트로 저장
                     - "#,###원" 형식으로 변환
                     - 예: 8,000원
-                - `memberPrice`:
-                    - 할인된 구성원 가격 정보
+                - `memberPrices`:
+                    - 할인된 구성원 가격 리스트
+                    - 각 구성원 가격을 분리하여 리스트로 저장
                     - "#,###원" 형식으로 변환
                     - 예: 7,000원
                 - `calories`:
@@ -245,8 +254,8 @@ public class DietUpdateService {
                     - 각 칼로리를 분리하여 리스트로 저장
                     - "#,###kcal" 형식으로 변환
                     - 칼로리가 없는 경우:
-                        - 0kcal 반환
-                        - 메뉴가 or로 구분된 경우 [0kcal, 0kcal] 리스트로 반환
+                        - 가격 또는 구성원 가격의 수에 맞게 0kcal 반환
+                        - 메뉴가 or로 구분된 경우 or 개수에 맞게 [0kcal, 0kcal, ...] 형태의 리스트로 반환
                     - 예: 1,524kcal
                 - `notification`:
                     - 공지사항
@@ -284,34 +293,60 @@ public class DietUpdateService {
     }
 
     /*
-     * 칼로리가 여러 개인 경우 각각 하나의 식단으로 분리
+     * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리,
+     * 추가로 '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 삭제
      **/
     private List<DietDto> splitDietByCalories(DietDto dietDto) {
-        List<String> calories = dietDto.getCalories();
-        Queue<String> menus = dietDto.getMenus();
+        Deque<String> menus = dietDto.getMenus();
 
-        if (calories.size() >= 2) {
-            // 인덱스가 같은 메뉴와 칼로리를 매칭하여 저장
-            List<DietDto> dietDtos = calories.stream()
-                    .map(calorie -> DietDto.builder()
-                            .date(dietDto.getDate())
-                            .cafeteriaId(dietDto.getCafeteriaId())
-                            .cafeteriaCorner(dietDto.getCafeteriaCorner())
-                            .mainMenu(menus.poll())
-                            .price(dietDto.getPrice())
-                            .memberPrice(dietDto.getMemberPrice())
-                            .calorie(calorie)
-                            .notification(dietDto.getNotification())
-                            .build())
-                    .toList();
+        // 첫 번째 메뉴 정리 ('<천원의아침밥>' 제거)
+        cleanFirstMenu(menus);
 
-            // (선택n구성) 메뉴 매칭
-            matchMenusToDiets(menus, dietDtos);
+        // 칼로리, 가격, 구성원 가격 중 가장 긴 리스트의 크기를 구함
+        int maxSize = Stream.of(
+                dietDto.getCalories().size(),
+                dietDto.getPrices().size(),
+                dietDto.getMemberPrices().size()
+        ).max(Integer::compare).orElse(0);
 
-            return dietDtos;
+        // 칼로리와 가격, 구성원 가격 각각이 모두 하나인 경우 리스트로 감싸서 바로 반환
+        if (maxSize < 2) {
+            return List.of(dietDto);
         }
 
-        return List.of(dietDto);
+        // 인덱스가 같은 메뉴와 칼로리, 가격, 구성원 가격을 매칭하여 저장
+        List<DietDto> dietDtos = IntStream.range(0, maxSize)
+                .mapToObj(i -> DietDto.builder()
+                        .date(dietDto.getDate())
+                        .cafeteriaId(dietDto.getCafeteriaId())
+                        .cafeteriaCorner(dietDto.getCafeteriaCorner())
+                        .mainMenu(dietDto.pollFirstMenu())
+                        .price(dietDto.getPrice(i))
+                        .memberPrice(dietDto.getMemberPrice(i))
+                        .calorie(dietDto.getCalorie(i))
+                        .notification(dietDto.getNotification())
+                        .build())
+                .toList();
+
+        // (선택n구성) 메뉴 매칭
+        matchMenusToDiets(menus, dietDtos);
+
+        return dietDtos;
+    }
+
+    /*
+     * '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 해당 문자열을 제거하고,
+     * 메뉴가 비어있는 경우 해당 메뉴 삭제
+     **/
+    private void cleanFirstMenu(Deque<String> menus) {
+        if (menus.isEmpty()) return;
+
+        String firstMenu = menus.pollFirst(); // 첫 번째 값 가져오기
+        firstMenu = firstMenu.replaceAll("\\s*<천원의아침밥>\\s*", "").trim(); // 앞뒤 공백 포함 '<천원의아침밥>' 문자열 제거
+
+        if (!firstMenu.isEmpty()) {
+            menus.addFirst(firstMenu); // 수정된 값 다시 삽입
+        }
     }
 
     /*
@@ -319,12 +354,13 @@ public class DietUpdateService {
      **/
     private void matchMenusToDiets(Queue<String> menus, List<DietDto> dietDtos) {
         Pattern pattern = Pattern.compile("""
-            \\(     # 여는 소괄호 찾기
-            [^)]*   # 닫는 소괄호 전까지 모든 문자
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            \\(     # 여는 소괄호 '(' 찾기
+            [^)]*   # 닫는 소괄호 ')' 전까지 모든 문자 (0개 이상)
             \\d+    # 적어도 하나 이상의 숫자 포함
-            [^)]*   # 다시 닫는 소괄호 전까지 모든 문자
-            \\)     # 닫는 소괄호 찾기
-            """, Pattern.COMMENTS); // 괄호 안 숫자 찾기 ([^)]*d+[^)]*)
+            [^)]*   # 다시 닫는 소괄호 ')' 전까지 모든 문자 (0개 이상)
+            \\)     # 닫는 소괄호 ')' 찾기
+            """);   // 괄호 안 숫자 찾기 ([^)]*d+[^)]*)
 
         while (!menus.isEmpty()) {
             String menu = menus.poll();
@@ -352,9 +388,13 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = menus.poll();
-        String subMenu = menus.isEmpty() ? "": menus.poll();
+        String mainMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
+        String subMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
         String restMenu = String.join(", ", menus);
+
+        // 메인 메뉴가 없는 경우 객체 생성 스킵
+        if (mainMenu.isEmpty())
+            return null;
 
         // 메뉴가 존재하는지 확인하고, 없으면 새로 생성 후 id 반환
         Long mainMenuId = menuService.getOrCreateMenu(mainMenu, cafeteriaId);
@@ -367,11 +407,24 @@ public class DietUpdateService {
         Long menuPairId = menuPairService.getOrCreateMenuPair(mainMenuId, subMenuId);
 
         return TodayDiet.builder()
-                .price(dietDto.getPrice())
-                .kcal(dietDto.getCalorie())
+                .price(dietDto.getPrice(0))
+                .kcal(dietDto.getCalorie(0))
                 .date(dietDto.getDate())
                 .menuPairId(menuPairId)
                 .restMenu(restMenu)
                 .build();
+    }
+
+    /*
+     * 메뉴 앞에 수식어 제거 (ex. New), 뚝), 만우절))
+     **/
+    private String cleanMenuPrefix(String menu) {
+        // 메뉴에서 여는 괄호 없이 닫는 괄호가 나오면 해당 부분까지의 문자 제거
+        return menu.replaceAll("""
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            ^       # 문자열의 시작
+            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
+            \\)     # 닫는 괄호 ')'
+            """, "");
     }
 }
