@@ -235,7 +235,7 @@ public class DietUpdateService {
                                 - 공백이 포함된 특수문자
                             - 이외의 문자로 구분된 메뉴는 전체가 하나의 메뉴
                     - 분리 된 메뉴에 공백이 포함된 경우 공백을 제거하여 변환 (e.g., 입력: 뚝) 치즈순두부찌개, 출력: 뚝)치즈순두부찌개)
-                    - 분리 된 메뉴에서 특수 문자는 제거하지 않음 (*, &, (, ) 등)
+                    - 분리 된 메뉴에서 다음 특수 문자는 제거하지 않음 (*, &, (, ))
                     - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 소고기버섯들깨탕)
                     - "<천원의아침밥>", "운영없음"처럼 음식이 아닌 데이터는 메뉴에 포함하지 않음
                     - 예: 8,000원
@@ -299,11 +299,18 @@ public class DietUpdateService {
     private List<DietDto> splitDietByCalories(DietDto dietDto) {
         Deque<String> menus = dietDto.getMenus();
 
-        // 모든 메뉴 정제 ('천원의아침밥' 제거 → 특수문자 제거 → 수식어 제거)
+        // 모든 메뉴 정제 (슬래시 기준 분리 -> '천원의아침밥' 제거 → 수식어 제거 -> 특수문자 제거)
         List<String> cleanedMenus = menus.stream()
+                .flatMap(menu -> Arrays.stream(menu.split("/"))
+                        .map(String::trim)) // 슬래시로 분리 후 앞뒤 공백 제거
                 .map(this::cleanMenu)
-                .filter(menu -> !menu.isEmpty()) // 메뉴가 빈 문자열인 경우 제거
+                .filter(menu -> !menu.isEmpty()) // 빈 문자열 제거
                 .toList();
+
+        // "운영없음"이 포함된 경우 아예 이 식단 자체를 건너뛰기
+        if (cleanedMenus.contains("운영없음")) {
+            return Collections.emptyList();
+        }
 
         // 정제된 메뉴를 새로운 Deque로 재구성
         menus = new ArrayDeque<>(cleanedMenus);
@@ -345,6 +352,7 @@ public class DietUpdateService {
     /*
      * '천원의아침밥'이라는 문자열이 메뉴에 있는 경우 해당 문자열을 제거,
      * 메뉴 앞에 붙은 수식어 제거 (ex. 'New)', '만우절)', '뚝)', '(뚝)')
+     * *, &, (, )을 제외한 모든 특수문자 제거
      * 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
      **/
     private String cleanMenu(String menu) {
@@ -360,6 +368,9 @@ public class DietUpdateService {
             [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
             \\)     # 닫는 괄호 ')'
             """, "").trim();
+
+        // *, &, (, )을 제외한 모든 특수문자 제거
+        menu = menu.replaceAll("[^a-zA-Z0-9가-힣*&() ]", "");
 
         // 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
         if (!menu.matches(".*[가-힣].*")) {
