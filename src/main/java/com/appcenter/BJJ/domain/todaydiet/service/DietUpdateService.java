@@ -80,7 +80,7 @@ public class DietUpdateService {
 
         // 식단 데이터 가공 및 저장
         List<TodayDiet> todayDiets = dietDtos.stream()
-                .flatMap(dietDto -> splitDietByCalories(dietDto).stream())
+                .flatMap(dietDto -> cleanAndSplitDiets(dietDto).stream())
                 .map(this::buildTodayDietWithMenus)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -296,14 +296,14 @@ public class DietUpdateService {
      * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리,
      * 추가로 '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 삭제
      **/
-    private List<DietDto> splitDietByCalories(DietDto dietDto) {
+    private List<DietDto> cleanAndSplitDiets(DietDto dietDto) {
         Deque<String> menus = dietDto.getMenus();
 
         // 모든 메뉴 정제 (슬래시 기준 분리 -> '천원의아침밥' 제거 → 수식어 제거 -> 특수문자 제거)
         List<String> cleanedMenus = menus.stream()
                 .flatMap(menu -> Arrays.stream(menu.split("/"))
                         .map(String::trim)) // 슬래시로 분리 후 앞뒤 공백 제거
-                .map(this::cleanMenu)
+                .map(this::cleanMenuText)
                 .filter(menu -> !menu.isEmpty()) // 빈 문자열 제거
                 .toList();
 
@@ -355,7 +355,7 @@ public class DietUpdateService {
      * *, &, (, )을 제외한 모든 특수문자 제거
      * 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
      **/
-    private String cleanMenu(String menu) {
+    private String cleanMenuText(String menu) {
         if (menu == null) return "";
 
         // '<천원의아침밥>' 제거 (앞뒤 꺽쇠 없어도 제거 가능)
