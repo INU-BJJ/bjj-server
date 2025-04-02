@@ -425,8 +425,8 @@ public class DietUpdateService {
             \\)     # 닫는 괄호 ')'
             """, "").trim();
 
-        // *, &, (, )을 제외한 모든 특수문자 제거
-        menu = menu.replaceAll("[^a-zA-Z0-9가-힣*&() ]", "");
+            // *, &, (, )을 제외한 모든 특수문자 제거
+            menu = menu.replaceAll("[^a-zA-Z0-9가-힣*&()]", "");
 
         // 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
         if (!menu.matches(".*[가-힣].*")) {
