@@ -48,6 +48,7 @@ public class DietUpdateService {
     private final TodayDietService todayDietService;
     private final CafeteriaService cafeteriaService;
 
+    // TODO: 3회 재시도 이후 실패 시 Slack 알림 및 추가 재시도 등 필요
     @Async
     @Retryable(
         retryFor = {
@@ -58,6 +59,15 @@ public class DietUpdateService {
         maxAttempts = 3,
         backoff = @Backoff(delay = 300000) // 5분 뒤 재시도
     )
+    public void updateWeeklyDietWithRetry() throws IOException {
+        try {
+            updateWeeklyDiet();
+        } catch (Exception e) {
+            log.error("[로그] 식단 업데이트 중 오류 발생", e);
+            throw e; // 예외를 다시 던져야 Retryable이 동작
+        }
+    }
+
     public void updateWeeklyDiet() throws IOException {
         // 오늘 날짜의 식단 데이터가 이미 존재하면 추출 스킵
         if (todayDietService.checkThisWeekDietDataExist()) {
