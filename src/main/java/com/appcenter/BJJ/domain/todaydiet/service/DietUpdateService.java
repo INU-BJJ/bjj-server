@@ -48,6 +48,7 @@ public class DietUpdateService {
     private final TodayDietService todayDietService;
     private final CafeteriaService cafeteriaService;
 
+    // TODO: 3회 재시도 이후 실패 시 Slack 알림 및 추가 재시도 등 필요
     @Async
     @Retryable(
         retryFor = {
@@ -58,7 +59,16 @@ public class DietUpdateService {
         maxAttempts = 3,
         backoff = @Backoff(delay = 300000) // 5분 뒤 재시도
     )
-    public void fetchWeeklyDietInfo() throws IOException {
+    public void updateWeeklyDietWithRetry() throws IOException {
+        try {
+            updateWeeklyDiet();
+        } catch (Exception e) {
+            log.error("[로그] 식단 업데이트 중 오류 발생", e);
+            throw e; // 예외를 다시 던져야 Retryable이 동작
+        }
+    }
+
+    public void updateWeeklyDiet() throws IOException {
         // 오늘 날짜의 식단 데이터가 이미 존재하면 추출 스킵
         if (todayDietService.checkThisWeekDietDataExist()) {
             log.info("[로그] 식단 데이터 추출 스킵, 이미 이번 주의 식단 데이터가 존재합니다.");
@@ -67,20 +77,20 @@ public class DietUpdateService {
         log.info("[로그] 이 주의 식단 데이터 추출 시작");
 
         // 크롤링 후 Spring AI에 질의할 JSON 데이터로 변환
-        StringBuilder queryStringBuilder = new StringBuilder();
+        List<String> dietJsonList = new ArrayList<>();
         for (CafeteriaData cafeteriaData : CafeteriaData.values()) {
             log.info("[로그] {} 크롤링 시작", cafeteriaData.getName());
-            queryStringBuilder.append(executeCrawling(cafeteriaData.getName(), cafeteriaData.getUrl()));
+            dietJsonList.addAll(crawlWeeklyDietData(cafeteriaData.getName(), cafeteriaData.getUrl()));
         }
-        String queryString = queryStringBuilder.toString();
-        log.info("[로그] OpenAI에 질의할 JSON 데이터: \n{}", queryString);
+        String dietJsonData = dietJsonList.toString();
+        log.info("[로그] OpenAI에 질의할 JSON 데이터 개수: {}, 데이터: \n{}", dietJsonList.size(), dietJsonData);
 
         // OpenAI에 질의하여 식단 데이터 가져오기
-        List<DietDto> dietDtos = askQuery(queryString);
+        List<DietDto> dietDtos = convertDietDataWithAI(dietJsonData);
 
         // 식단 데이터 가공 및 저장
         List<TodayDiet> todayDiets = dietDtos.stream()
-                .flatMap(dietDto -> splitDietByCalories(dietDto).stream())
+                .flatMap(dietDto -> cleanAndSplitDiets(dietDto).stream())
                 .map(this::buildTodayDietWithMenus)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -91,82 +101,128 @@ public class DietUpdateService {
     /*
     * 인천대학교 식당메뉴 사이트로부터 크롤링 후 JSON 데이터로 반환
     **/
-    private String executeCrawling(String cafeteriaName, String cafeteriaUrl) throws IOException {
-        StringBuilder queryStringBuilder = new StringBuilder();
+    private List<String> crawlWeeklyDietData(String cafeteriaName, String cafeteriaUrl) throws IOException {
+        List<String> dietJsonList = new ArrayList<>();
 
-        Document document = Jsoup.connect(cafeteriaUrl).get();
+        Document document = Jsoup.connect(cafeteriaUrl)
+                .timeout(10_000) // 10초 타임아웃 설정
+                .get();
 
         // Class가 wrap-week-box인 div 찾기
         Element wrapWeekBox = document.getElementsByClass("wrap-week-box").first();
         if (wrapWeekBox == null) {
             log.info("class가 'wrap-week-box'인 Element를 찾을 수 없습니다.");
-            return "";
+            return Collections.emptyList();
         }
 
         Elements wrapWeeks = wrapWeekBox.select(".wrap-week");
         for (int i = 0; i < wrapWeeks.size(); i++) {
-            Element wrapWeek = wrapWeeks.get(i);
-
             // 날짜 가져오기
             LocalDate localDate = LocalDate.now().with(DayOfWeek.MONDAY).plusDays(i);
 
-            // 테이블 행 가져오기
-            Elements rows = wrapWeek.select("tbody tr");
+            dietJsonList.addAll(processDailyDiet(wrapWeeks.get(i), localDate, cafeteriaName));
+        }
 
-            for (Element row : rows) {
-                // 코너구분 (중식(백반), 중식(일품), 석식 등)
-                String corner = row.select("th").text();
+        return dietJsonList;
+    }
 
-                corner = formattingCorner(corner);
+    /*
+    * 주별 데이터를 처리하여 JSON 문자열 생성
+    **/
+    private List<String> processDailyDiet(Element wrapWeek, LocalDate localDate, String cafeteriaName) {
+        List<String> dietJsonList = new ArrayList<>();
 
-                // 라면 코너는 스킵
-                if ("라면".equals(corner)) {
-                    continue;
+        // 테이블 행 가져오기
+        Elements rows = wrapWeek.select("tbody tr");
+
+        for (Element row : rows) {
+            // 코너구분 (중식(백반), 중식(일품), 석식 등)
+            String corner = cleanCornerText(row.select("th").text());
+
+            // 라면 코너는 스킵
+            if ("라면".equals(corner)) {
+                continue;
+            }
+
+            // 해당하는 코너가 DB에 없는 경우 스킵
+            Long cafeteriaId = cafeteriaService.findByNameAndCorner(cafeteriaName, corner).orElse(null);
+            if (cafeteriaId == null) {
+                continue;
+            }
+
+            // 메뉴가 없거나 '오늘은 쉽니다'인 경우 스킵
+            String diet = row.select("td").text();
+            if (diet.isEmpty() || diet.equals("오늘은 쉽니다")) {
+                continue;
+            }
+
+            dietJsonList.addAll(appendDietJson(localDate, cafeteriaId, cafeteriaName, corner, diet));
+        }
+
+        return dietJsonList;
+    }
+
+    /*
+    * 메뉴 데이터를 JSON 형식으로 추가
+    **/
+    private List<String> appendDietJson(LocalDate localDate, Long cafeteriaId, String cafeteriaName, String corner, String diet) {
+        List<String> dietJsonList = new ArrayList<>();
+
+        // "-" 3개 이상을 기준으로 식단 분리
+        String[] dietBlocks = diet.split("-{3,}");
+
+        // JSON 포맷 문자열 정의
+        String jsonFormat = """
+            {
+                "date": "%s",
+                "cafeteriaId": %s,
+                "cafeteriaCorner": "%s %s",
+                "diet": "%s"
+            },
+            """;
+
+        // 첫 번째 식단 추가
+        dietJsonList.add(String.format(jsonFormat, localDate, cafeteriaId, cafeteriaName, corner, dietBlocks[0]));
+
+        // 두 번째 블록부터 "국밥"이 포함된 식단 추가
+        for (int j = 1; j < dietBlocks.length; j++) {
+            if (dietBlocks[j].contains("국밥")) {
+                // "*국밥*" 패턴을 제거
+                String cleanedMenu = dietBlocks[j].replaceAll("\\*국밥\\*", "").trim();
+                if (!cleanedMenu.isEmpty()) {
+                    dietJsonList.add(String.format(jsonFormat, localDate, cafeteriaId, cafeteriaName, corner, cleanedMenu));
                 }
-
-                // 해당하는 코너가 DB에 없는 경우 스킵
-                Optional<Long> optionalCafeteria = cafeteriaService.findByNameAndCorner(cafeteriaName, corner);
-                if (optionalCafeteria.isEmpty()) {
-                    continue;
-                }
-                Long cafeteriaId = optionalCafeteria.get();
-
-                // 메뉴
-                String menu = row.select("td").text();
-                if (menu.isEmpty() || menu.equals("오늘은 쉽니다")) {
-                    continue;
-                }
-
-                queryStringBuilder.append(String.format("""
-                        {
-                            "date": "%s",
-                            "cafeteriaId: %s,
-                            "cafeteriaCorner": "%s %s",
-                            "menus": "%s"
-                        },
-                        """, localDate, cafeteriaId, cafeteriaName, corner, menu));
+                break;  // 국밥 식단은 하나만 추가
             }
         }
 
-        return queryStringBuilder.toString();
+        return dietJsonList;
     }
 
     /*
     * 식당의 코너 이름에서 숫자(운영 시간) 데이터 및 공백 제거
     **/
-    private String formattingCorner(String corner) {
+    private String cleanCornerText(String corner) {
         // 괄호 안에 숫자가 있는 경우, 괄호 포함 삭제
-        String removedNumber = corner.replaceAll("\\s*\\([^)]*\\d+[^)]*\\)", "");
-
+        corner = corner.replaceAll("""
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            \\s*    # 앞에 올 수 있는 공백 (0개 이상)
+            \\(     # 여는 괄호 '('
+            [^)]*   # 닫는 괄호 ')'를 제외한 모든 문자 (0개 이상)
+            \\d+    # 최소 하나 이상의 숫자 (운영 시간 포함 여부 확인)
+            [^)]*   # 숫자 이후에도 닫는 괄호 ')'를 제외한 모든 문자 (0개 이상)
+            \\)     # 닫는 괄호 ')'
+            \\s*    # 괄호 뒤에 올 수 있는 공백 (0개 이상)
+            """, "");
         // 남은 문자열에서 공백만 제거
-        return removedNumber.replaceAll("\\s+", "");
+        return corner.replaceAll("\\s+", "");
     }
 
     /*
     * OpenAI에 크롤링 해온 식단 JSON 데이터를 파싱하도록 질의 후 DietDto 리스트로 반환
     **/
-    private List<DietDto> askQuery(String query) throws JsonProcessingException {
-        String jsonSchema = """
+    private List<DietDto> convertDietDataWithAI(String dietJsonData) throws JsonProcessingException {
+        String dietJsonSchema = """
                 {
                     "type": "object",
                     "required": ["diet"],
@@ -235,8 +291,8 @@ public class DietUpdateService {
                                 - 공백이 포함된 특수문자
                             - 이외의 문자로 구분된 메뉴는 전체가 하나의 메뉴
                     - 분리 된 메뉴에 공백이 포함된 경우 공백을 제거하여 변환 (e.g., 입력: 뚝) 치즈순두부찌개, 출력: 뚝)치즈순두부찌개)
-                    - 분리 된 메뉴에서 특수 문자는 제거하지 않음 (*, &, (, ) 등)
-                    - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 뚝)소고기버섯들깨탕)
+                    - 분리 된 메뉴에서 다음 특수 문자는 제거하지 않음 (*, &, (, ))
+                    - 분리 된 메뉴에 추가 설명이 들어간 경우 제거하지 않음 (e.g., 우동국물(선택2구성), 나스동(돼지고기가지덮밥), 소고기버섯들깨탕)
                     - "<천원의아침밥>", "운영없음"처럼 음식이 아닌 데이터는 메뉴에 포함하지 않음
                     - 예: 8,000원
                 - `prices`:
@@ -262,12 +318,12 @@ public class DietUpdateService {
                     - "오늘은 쉽니다"와 같은 공지사항이 있으면 해당 내용을 저장하고, 없으면 빈 문자열
                                         
                 결과는 JSON 스키마를 준수해아 하며, 모든 입력값에 대해 변환해야 함
-                """.formatted(query);
+                """.formatted(dietJsonData);
 
         Prompt prompt = new Prompt(
                 promptMessage,
                 OpenAiChatOptions.builder()
-                        .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema))
+                        .responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, dietJsonSchema))
                         .build()
         );
         ChatResponse response = chatModel.call(prompt);
@@ -296,11 +352,25 @@ public class DietUpdateService {
      * 칼로리 또는 가격, 구성원 가격이 여러 개인 경우 각각 하나의 식단으로 분리,
      * 추가로 '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 삭제
      **/
-    private List<DietDto> splitDietByCalories(DietDto dietDto) {
-        Deque<String> menus = dietDto.getMenus();
+    private List<DietDto> cleanAndSplitDiets(DietDto dietDto) {
+        Queue<String> menus = dietDto.getMenus();
 
-        // 첫 번째 메뉴 정리 ('<천원의아침밥>' 제거)
-        cleanFirstMenu(menus);
+        // 모든 메뉴 정제 (슬래시 기준 분리 -> '천원의아침밥' 제거 → 수식어 제거 -> 특수문자 제거)
+        List<String> cleanedMenus = menus.stream()
+                .flatMap(menu -> Arrays.stream(menu.split("/"))
+                        .map(String::trim)) // 슬래시로 분리 후 앞뒤 공백 제거
+                .map(this::cleanMenuText)
+                .filter(menu -> !menu.isEmpty()) // 빈 문자열 제거
+                .toList();
+
+        // "운영없음"이 포함된 경우 아예 이 식단 자체를 건너뛰기
+        if (cleanedMenus.contains("운영없음")) {
+            return Collections.emptyList();
+        }
+
+        // 정제된 메뉴를 새로운 Deque로 재구성
+        menus = new ArrayDeque<>(cleanedMenus);
+        dietDto.updateMenus(menus);
 
         // 칼로리, 가격, 구성원 가격 중 가장 긴 리스트의 크기를 구함
         int maxSize = Stream.of(
@@ -320,7 +390,7 @@ public class DietUpdateService {
                         .date(dietDto.getDate())
                         .cafeteriaId(dietDto.getCafeteriaId())
                         .cafeteriaCorner(dietDto.getCafeteriaCorner())
-                        .mainMenu(dietDto.pollFirstMenu())
+                        .mainMenu(dietDto.pollMenu())
                         .price(dietDto.getPrice(i))
                         .memberPrice(dietDto.getMemberPrice(i))
                         .calorie(dietDto.getCalorie(i))
@@ -334,19 +404,36 @@ public class DietUpdateService {
         return dietDtos;
     }
 
+
     /*
-     * '<천원의아침밥>'이라는 문자열이 첫 번째 메뉴에 있는 경우 해당 문자열을 제거하고,
-     * 메뉴가 비어있는 경우 해당 메뉴 삭제
+     * '천원의아침밥'이라는 문자열이 메뉴에 있는 경우 해당 문자열을 제거,
+     * 메뉴 앞에 붙은 수식어 제거 (ex. 'New)', '만우절)', '뚝)', '(뚝)')
+     * *, &, (, )을 제외한 모든 특수문자 제거
+     * 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
      **/
-    private void cleanFirstMenu(Deque<String> menus) {
-        if (menus.isEmpty()) return;
+    private String cleanMenuText(String menu) {
+        if (menu == null) return "";
 
-        String firstMenu = menus.pollFirst(); // 첫 번째 값 가져오기
-        firstMenu = firstMenu.replaceAll("\\s*<천원의아침밥>\\s*", "").trim(); // 앞뒤 공백 포함 '<천원의아침밥>' 문자열 제거
+        // '<천원의아침밥>' 제거 (앞뒤 꺽쇠 없어도 제거 가능)
+        menu = menu.replaceAll("<?천원의아침밥>?", "").trim();
 
-        if (!firstMenu.isEmpty()) {
-            menus.addFirst(firstMenu); // 수정된 값 다시 삽입
+        // 메뉴 앞에 붙은 수식어 제거 (ex. 'New)', '만우절)', '뚝)', '(뚝)')
+        menu = menu.replaceAll("""
+            (?x)    # Verbose Mode (주석 허용) 활성화
+            ^       # 문자열의 시작
+            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
+            \\)     # 닫는 괄호 ')'
+            """, "").trim();
+
+            // *, &, (, )을 제외한 모든 특수문자 제거
+            menu = menu.replaceAll("[^a-zA-Z0-9가-힣*&()]", "");
+
+        // 메뉴에 한글이 포함되어있는지 확인하고, 한글이 없다면 빈 문자열 반환
+        if (!menu.matches(".*[가-힣].*")) {
+            return "";
         }
+
+        return menu;
     }
 
     /*
@@ -388,8 +475,9 @@ public class DietUpdateService {
     private TodayDiet buildTodayDietWithMenus(DietDto dietDto) {
         Long cafeteriaId = dietDto.getCafeteriaId();
         Queue<String> menus = dietDto.getMenus();
-        String mainMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
-        String subMenu = cleanMenuPrefix(dietDto.pollFirstMenu());
+
+        String mainMenu = dietDto.pollMenu();
+        String subMenu = dietDto.pollMenu();
         String restMenu = String.join(", ", menus);
 
         // 메인 메뉴가 없는 경우 객체 생성 스킵
@@ -398,7 +486,6 @@ public class DietUpdateService {
 
         // 메뉴가 존재하는지 확인하고, 없으면 새로 생성 후 id 반환
         Long mainMenuId = menuService.getOrCreateMenu(mainMenu, cafeteriaId);
-
         Long subMenuId = subMenu.isEmpty()
                 ? null
                 : menuService.getOrCreateMenu(subMenu, cafeteriaId);
@@ -413,18 +500,5 @@ public class DietUpdateService {
                 .menuPairId(menuPairId)
                 .restMenu(restMenu)
                 .build();
-    }
-
-    /*
-     * 메뉴 앞에 수식어 제거 (ex. New), 뚝), 만우절))
-     **/
-    private String cleanMenuPrefix(String menu) {
-        // 메뉴에서 여는 괄호 없이 닫는 괄호가 나오면 해당 부분까지의 문자 제거
-        return menu.replaceAll("""
-            (?x)    # Verbose Mode (주석 허용) 활성화
-            ^       # 문자열의 시작
-            [^)]+   # 닫는 괄호 ')'를 제외한 모든 문자 (최소 1개 이상)
-            \\)     # 닫는 괄호 ')'
-            """, "");
     }
 }

@@ -3,10 +3,7 @@ package com.appcenter.BJJ.domain.todaydiet.dto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @ToString
@@ -15,7 +12,7 @@ public class DietDto {
     private LocalDate date;
     private Long cafeteriaId;
     private String cafeteriaCorner;
-    private Deque<String> menus;
+    private Queue<String> menus = new ArrayDeque<>();
     private List<String> prices;
     private List<String> memberPrices;
     private List<String> calories;
@@ -41,8 +38,8 @@ public class DietDto {
         this.notification = notification;
     }
 
-    public String pollFirstMenu() {
-        return menus.isEmpty() ? "" : menus.pollFirst();
+    public String pollMenu() {
+        return menus.isEmpty() ? "" : menus.poll();
     }
 
     public String getPrice(int index) {
@@ -55,5 +52,9 @@ public class DietDto {
 
     public String getCalorie(int index) {
         return calories.isEmpty() ? "" : calories.get(Math.min(index, calories.size() - 1));
+    }
+
+    public void updateMenus(Queue<String> newMenus) {
+        this.menus = newMenus;
     }
 }

@@ -13,6 +13,9 @@ import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -125,7 +128,8 @@ public class MenuRankingService {
         processMenuRankingCalculation(menuIdList);
     }
 
-    @PostConstruct  // bean 생성 후 실행
+    @Order(1) // 숫자가 낮을수록 먼저 실행
+    @EventListener(ApplicationReadyEvent.class) // Spring 애플리케이션이 완전히 실행된 후 실행 (@PostConstruct 이후)
     @Transactional
     @Scheduled(cron = "0 0 4 * * *") // 오전 4시마다 실행
     protected void updateDailyMenuRankings() {
