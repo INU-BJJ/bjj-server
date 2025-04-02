@@ -137,14 +137,33 @@ public class DietUpdateService {
                     continue;
                 }
 
-                queryStringBuilder.append(String.format("""
-                        {
-                            "date": "%s",
-                            "cafeteriaId: %s,
-                            "cafeteriaCorner": "%s %s",
-                            "menus": "%s"
-                        },
-                        """, localDate, cafeteriaId, cafeteriaName, corner, menu));
+                // "-" 3개 이상을 기준으로 식단 분리
+                String[] menuBlocks = menu.split("-{3,}");
+
+                // JSON 포맷 문자열 정의
+                String jsonFormat = """
+                    {
+                        "date": "%s",
+                        "cafeteriaId": %s,
+                        "cafeteriaCorner": "%s %s",
+                        "menus": "%s"
+                    },
+                    """;
+
+                // 첫 번째 식단 추가
+                queryStringBuilder.append(String.format(jsonFormat, localDate, cafeteriaId, cafeteriaName, corner, menuBlocks[0]));
+
+                // 두 번째 블록부터 "국밥"이 포함된 식단 추가
+                for (int j = 1; j < menuBlocks.length; j++) {
+                    if (menuBlocks[j].contains("국밥")) {
+                        // "*국밥*" 패턴을 제거
+                        String cleanedMenu = menuBlocks[j].replaceAll("\\*국밥\\*", "").trim();
+                        if (!cleanedMenu.isEmpty()) {
+                            queryStringBuilder.append(String.format(jsonFormat, localDate, cafeteriaId, cafeteriaName, corner, cleanedMenu));
+                        }
+                        break;  // 국밥 식단은 하나만 추가
+                    }
+                }
             }
         }
 
