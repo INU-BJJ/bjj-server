@@ -87,6 +87,8 @@ public class CafeteriaService {
     @PostConstruct
     @Transactional
     protected void insertCafeteriaInformation() {
+        log.info("[로그] 식당 정보 입력 시작");
+
         // CAFETERIA_TB가 비어있는 경우에만 메서드 실행
         if (!cafeteriaRepository.findAll().isEmpty())
             return;
