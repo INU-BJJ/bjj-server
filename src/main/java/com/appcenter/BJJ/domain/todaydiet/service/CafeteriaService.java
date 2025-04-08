@@ -76,12 +76,21 @@ public class CafeteriaService {
     }
 
     public Optional<Long> findByNameAndCorner(String name, String corner) {
-        Optional<Long> optionalCafeteriaId = cafeteriaRepository.findIdByNameAndCorner(name, corner);
-        if (optionalCafeteriaId.isEmpty()) {
-            log.info("[로그] {} {} 코너가 DB에 존재하지 않습니다.", name, corner);
+        // 우선 정확히 일치하는 name + corner 조합으로 조회
+        Optional<Long> cafeteriaId = cafeteriaRepository.findIdByNameAndCorner(name, corner);
+        if (cafeteriaId.isPresent()) {
+            return cafeteriaId;
         }
 
-        return optionalCafeteriaId;
+        // name이 일치하는 모든 식당 중, corner가 포함된 경우를 찾음
+        return cafeteriaRepository.findByName(name).stream()
+                .filter(cafeteria -> corner.contains(cafeteria.getCorner()))
+                .findFirst()
+                .map(Cafeteria::getId)
+                .or(() -> {
+                    log.info("[로그] {} {} 코너가 DB에 존재하지 않습니다.", name, corner);
+                    return Optional.empty();
+                });
     }
 
     @PostConstruct
