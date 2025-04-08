@@ -200,22 +200,32 @@ public class DietUpdateService {
     }
 
     /*
-    * 식당의 코너 이름에서 숫자(운영 시간) 데이터 및 공백 제거
+    * 식당의 코너 이름에서 운영 시간 데이터 및 공백 제거
     **/
     private String cleanCornerText(String corner) {
-        // 괄호 안에 숫자가 있는 경우, 괄호 포함 삭제
+        if (corner == null || corner.isBlank()) {
+            return "";
+        }
+
+        // 모든 공백 제거
+        corner = corner.replaceAll("\\s+", "");
+
+        // (00:00~????) 형식 삭제
+        corner = corner.replaceAll("\\(?\\d{2}:\\d{2}~.*\\)?", "");
+        // 시간대 정보와 괄호를 포함한 패턴 제거
         corner = corner.replaceAll("""
-            (?x)    # Verbose Mode (주석 허용) 활성화
-            \\s*    # 앞에 올 수 있는 공백 (0개 이상)
-            \\(     # 여는 괄호 '('
-            [^)]*   # 닫는 괄호 ')'를 제외한 모든 문자 (0개 이상)
-            \\d+    # 최소 하나 이상의 숫자 (운영 시간 포함 여부 확인)
-            [^)]*   # 숫자 이후에도 닫는 괄호 ')'를 제외한 모든 문자 (0개 이상)
-            \\)     # 닫는 괄호 ')'
-            \\s*    # 괄호 뒤에 올 수 있는 공백 (0개 이상)
+            (?x)                # Verbose mode 활성화
+            \\(?                # 여는 괄호 '('가 있을 수도 있고 없을 수도 있음
+            \\d{2}:\\d{2}       # 시간 시작 (예: 10:30)
+            ~                   # 틸드 구분자
+            .*                  # 그 이후 아무 문자열
+            \\)?                # 닫는 괄호 ')'가 있을 수도 있고 없을 수도 있음
             """, "");
-        // 남은 문자열에서 공백만 제거
-        return corner.replaceAll("\\s+", "");
+
+        // '평일', '주말' 키워드 제거
+        corner = corner.replaceAll("평일|주말", "");
+
+        return corner;
     }
 
     /*
