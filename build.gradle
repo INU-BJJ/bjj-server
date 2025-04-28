@@ -30,6 +30,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Fixture Monkey
+	testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.1.10")
 
 	// for crawling
 	implementation 'org.jsoup:jsoup:1.15.3'
