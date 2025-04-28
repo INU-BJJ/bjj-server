@@ -12,6 +12,7 @@ public enum ErrorCode {
     CANNOT_LIKE_OWN_REVIEW(HttpStatus.BAD_REQUEST, "400-2", "자신의 리뷰에는 좋아요를 누를 수 없습니다."),
     NOT_ENOUGH_POINTS(HttpStatus.BAD_REQUEST, "400-3", "포인트가 충분하지 않습니다."),
     INVALID_REVIEW_TIME(HttpStatus.BAD_REQUEST, "400-4", "해당 리뷰를 작성할 수 있는 시간이 아닙니다."),
+    INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "400-5", "파일 이름이 올바르지 않습니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-1", "인증 정보가 없습니다."),
