@@ -1,8 +1,8 @@
 package com.appcenter.BJJ.domain.review.repository;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.menu.domain.Cafeteria;
-import com.appcenter.BJJ.domain.menu.domain.CafeteriaData;
+import com.appcenter.BJJ.domain.todaydiet.domain.Cafeteria;
+import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
 import com.appcenter.BJJ.domain.menu.domain.Menu;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.review.domain.Review;
@@ -120,7 +120,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 isLiked,
                 review.get("createdDate"),
                 menuPair.get("id"),
+                mainMenu.get("id"),
                 mainMenu.get("menuName"),
+                subMenu.get("id"),
                 subMenu.get("menuName"),
                 review.get("memberId"),
                 memberSubquery,

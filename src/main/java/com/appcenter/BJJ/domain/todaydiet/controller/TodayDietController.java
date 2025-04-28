@@ -1,8 +1,8 @@
-package com.appcenter.BJJ.domain.menu.controller;
+package com.appcenter.BJJ.domain.todaydiet.controller;
 
-import com.appcenter.BJJ.domain.menu.dto.TodayDietRes;
-import com.appcenter.BJJ.domain.menu.dto.TodayMenuRes;
-import com.appcenter.BJJ.domain.menu.service.TodayDietService;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes;
+import com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes;
+import com.appcenter.BJJ.domain.todaydiet.service.TodayDietService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
