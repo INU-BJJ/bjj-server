@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.member.domain;
 
-import com.appcenter.BJJ.domain.member.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,17 +30,26 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MemberRole role;
 
+    @Enumerated(value = EnumType.STRING)
+    private MemberStatus memberStatus;
+
+    @Embedded
+    private MemberReportBan memberReportBan;
+
+    @Embedded
     private OAuth2Client oAuth2Client;
 
 
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
+    private Member(String nickname, String email, String provider, String providerId, MemberReportBan memberReportBan, OAuth2Client oAuth2Client) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
         this.role = MemberRole.GUEST;
+        this.memberStatus = MemberStatus.ACTIVE;
+        this.memberReportBan = memberReportBan;
         this.oAuth2Client = oAuth2Client;
     }
 
@@ -64,7 +74,11 @@ public class Member {
         this.oAuth2Client = oAuth2Client;
     }
 
-    // test용 메소드
+    public void updateMemberStatus(MemberStatus memberStatus) {
+        this.memberStatus = memberStatus;
+    }
+
+    //TODO test용이기에 이후에 없애기
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
