@@ -19,6 +19,7 @@ public enum ErrorCode {
 
     //403 Forbidden
     ERROR_FORBIDDEN(HttpStatus.FORBIDDEN, "403-1", "이 리소스에 접근할 권한이 없습니다."),
+    MEMBER_SUSPENDED_FOR_REVIEW(HttpStatus.FORBIDDEN, "403-2", "리뷰 작성이 제한된 사용자입니다."),
 
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "404-1", "해당 회원이 존재하지 않습니다."),
@@ -32,6 +33,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-2", "이미 등록된 닉네임입니다."),
     ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "409-3", "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
+    DUPLICATE_REPORT(HttpStatus.CONFLICT, "409-4", "이미 신고한 리뷰입니다."),
 
     //500 Internal Server Error
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다.");
