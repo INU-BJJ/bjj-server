@@ -16,7 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByNickname(String nickname);
 
-    @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.nickname = :nickname AND m.role = 'ROLE_USER'")
+    @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.nickname = :nickname AND m.role = 'USER'")
     boolean existsByNickname(String nickname);
 
     boolean existsByProviderId(String providerId);
