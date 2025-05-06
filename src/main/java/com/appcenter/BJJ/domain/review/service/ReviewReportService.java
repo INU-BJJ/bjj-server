@@ -46,7 +46,7 @@ public class ReviewReportService {
             member.updateMemberStatus(MemberStatus.SUSPENDED);
             member.suspend(now, now.plusDays(7));
 
-            reviewReportRepository.deleteReviewReportsById(reviewId);
+            reviewReportRepository.deleteReviewReportsByReviewId(reviewId);
             reviewService.delete(reviewId);
         }
     }

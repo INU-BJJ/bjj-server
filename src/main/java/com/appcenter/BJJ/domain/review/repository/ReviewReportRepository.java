@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface ReviewReportRepository extends JpaRepository<ReviewReport, Long> {
     Long countReviewReportByReviewId(Long reviewId);
 
-    void deleteReviewReportsById(Long id);
+    void deleteReviewReportsByReviewId(Long reviewId);
 
     boolean existsByIdAndReporterId(Long id, Long reporterId);
 }
