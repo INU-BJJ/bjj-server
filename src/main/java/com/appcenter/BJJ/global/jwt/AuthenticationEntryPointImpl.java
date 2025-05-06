@@ -1,7 +1,7 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.global.exception.ErrorCode;
-import com.appcenter.BJJ.global.exception.ErrorDTO;
+import com.appcenter.BJJ.global.exception.dto.ErrorDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
