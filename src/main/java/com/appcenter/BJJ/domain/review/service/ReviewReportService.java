@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.review.service;
 
 import com.appcenter.BJJ.domain.member.MemberRepository;
+import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.review.domain.ReviewReport;
 import com.appcenter.BJJ.domain.review.dto.ReviewReportReq;
@@ -11,6 +12,8 @@ import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,15 +36,18 @@ public class ReviewReportService {
             throw new CustomException(ErrorCode.DUPLICATE_REPORT);
         }
 
-        if (reviewReportRepository.countReviewReportById(reviewId) >= REPORT_COUNT) { // 일정 개수의 신고가 넘으면 작성자 정지
-            memberRepository.findById(reportedId).orElseThrow(
-                    () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-            ).updateMemberStatus(MemberStatus.SUSPENDED);
+        reviewReportRepository.save(ReviewReport.create(reporterId, reportedId, reviewId, reviewReportReq.getContent()));
+
+        if (reviewReportRepository.countReviewReportByReviewId(reviewId) >= REPORT_COUNT) { // 일정 개수의 신고가 넘으면 작성자 정지
+            Member member = memberRepository.findById(reportedId).orElseThrow(
+                    () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            LocalDateTime now = LocalDateTime.now();
+            member.updateMemberStatus(MemberStatus.SUSPENDED);
+            member.suspend(now, now.plusDays(7));
 
             reviewReportRepository.deleteReviewReportsById(reviewId);
             reviewService.delete(reviewId);
-        } else {
-            reviewReportRepository.save(ReviewReport.create(reporterId, reportedId, reviewId, reviewReportReq.getContent()));
         }
     }
 }

@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,14 +36,14 @@ public class Member {
     private MemberStatus memberStatus;
 
     @Embedded
-    private MemberReportBan memberReportBan;
+    private SuspensionPeriod suspensionPeriod;
 
     @Embedded
     private OAuth2Client oAuth2Client;
 
 
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, MemberReportBan memberReportBan, OAuth2Client oAuth2Client) {
+    private Member(String nickname, String email, String provider, String providerId, SuspensionPeriod suspensionPeriod, OAuth2Client oAuth2Client) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
@@ -49,7 +51,7 @@ public class Member {
         this.point = 0;
         this.role = MemberRole.GUEST;
         this.memberStatus = MemberStatus.ACTIVE;
-        this.memberReportBan = memberReportBan;
+        this.suspensionPeriod = suspensionPeriod;
         this.oAuth2Client = oAuth2Client;
     }
 
@@ -76,6 +78,10 @@ public class Member {
 
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
+    }
+
+    public void suspend(LocalDateTime startAt, LocalDateTime endAt) {
+        this.suspensionPeriod.suspend(startAt, endAt);
     }
 
     //TODO test용이기에 이후에 없애기
