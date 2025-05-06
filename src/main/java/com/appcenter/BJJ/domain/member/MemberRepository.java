@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,8 +16,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByNickname(String nickname);
 
-    @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.nickname = :nickname AND m.role = 'ROLE_USER'")
+    @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.nickname = :nickname AND m.role = 'USER'")
     boolean existsByNickname(String nickname);
 
     boolean existsByProviderId(String providerId);
+
+    boolean existsByIdAndMemberStatus(Long id, MemberStatus memberStatus);
 }

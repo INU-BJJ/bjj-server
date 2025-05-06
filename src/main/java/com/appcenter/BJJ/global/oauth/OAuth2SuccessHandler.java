@@ -1,6 +1,6 @@
 package com.appcenter.BJJ.global.oauth;
 
-import com.appcenter.BJJ.domain.member.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberRole;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
