@@ -1,6 +1,7 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,4 +20,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
 
     boolean existsByProviderId(String providerId);
+
+    boolean existsByIdAndMemberStatus(Long id, MemberStatus memberStatus);
 }
