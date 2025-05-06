@@ -1,7 +1,7 @@
 package com.appcenter.BJJ.global.oauth;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.member.domain.MemberReportBan;
+import com.appcenter.BJJ.domain.member.domain.SuspensionPeriod;
 import com.appcenter.BJJ.domain.member.domain.OAuth2Client;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
@@ -33,7 +33,7 @@ public class OAuth2UserServiceExt extends DefaultOAuth2UserService {
                         .providerId(oAuth2UserInfo.getProviderId())
                         .nickname(oAuth2UserInfo.getNickname())
                         .email(oAuth2UserInfo.getEmail())
-                        .memberReportBan(MemberReportBan.create())
+                        .suspensionPeriod(SuspensionPeriod.create())
                         .oAuth2Client(OAuth2Client.builder()
                                 .oauthToken(userRequest.getAccessToken().getTokenValue())
                                 .issuedAt(userRequest.getAccessToken().getIssuedAt())
