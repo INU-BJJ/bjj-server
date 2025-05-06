@@ -55,7 +55,7 @@ public class ReviewService {
         //정지 당한 회원의 리뷰 작성 제재
         if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
             Member member = memberRepository.findById(memberId).get();
-            throw new ReviewSuspensionException(member.getMemberReportBan().getStartAt(), member.getMemberReportBan().getEndAt());
+            throw new ReviewSuspensionException(member.getSuspensionPeriod().getStartAt(), member.getSuspensionPeriod().getEndAt());
         }
 
         MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
