@@ -24,7 +24,7 @@ public class ReviewLikeService {
     public boolean toggleReviewLike(long reviewId, long memberId) {
         log.info("[로그] toggleReviewLike(), reviewId : {}, memberId: {}", reviewId, memberId);
 
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findUndeletedReviewById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         // 자신의 리뷰에는 좋아요를 시도할 수 없음

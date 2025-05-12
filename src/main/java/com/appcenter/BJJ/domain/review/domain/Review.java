@@ -40,6 +40,8 @@ public class Review {
     @JoinColumn(name = "menu_pair_id")
     private MenuPair menuPair;
 
+    private Boolean isDeleted;
+
     @Builder
     private Review(String comment, Integer rating, Long memberId, MenuPair menuPair) {
         this.comment = comment;
@@ -48,6 +50,7 @@ public class Review {
         this.createdDate = LocalDate.now();
         this.memberId = memberId;
         this.menuPair = menuPair;
+        this.isDeleted = false;
     }
 
     public void incrementLikeCount() {
@@ -56,5 +59,9 @@ public class Review {
 
     public void decrementLikeCount() {
         likeCount--;
+    }
+
+    public void deleteReview() {
+        this.isDeleted = true;
     }
 }

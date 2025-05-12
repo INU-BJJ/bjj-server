@@ -3,6 +3,8 @@ package com.appcenter.BJJ.domain.menu.service;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,10 @@ public class MenuPairService {
         log.info("[로그] refreshReviewCountAndRating() 시작");
 
         int reviewCount = reviewRepository.countByMenuPair_Id(menuPairId);
-        Float reviewAverageRating = reviewRepository.findAverageRatingByMenuPairId(menuPairId);
+        Float reviewAverageRating = reviewRepository.calculateAverageRatingByMenuPairId(menuPairId);
 
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid menuPair ID"));
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));
         log.info("[로그] reviewCount : {}, reviewAverageRating : {}, menuPair.getId() : {}", reviewCount, reviewAverageRating, menuPair.getId());
 
         menuPair.updateReviewCount(reviewCount);
