@@ -43,7 +43,7 @@ public class Member {
 
 
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, SuspensionPeriod suspensionPeriod, OAuth2Client oAuth2Client) {
+    private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
@@ -51,7 +51,7 @@ public class Member {
         this.point = 0;
         this.role = MemberRole.GUEST;
         this.memberStatus = MemberStatus.ACTIVE;
-        this.suspensionPeriod = suspensionPeriod;
+        this.suspensionPeriod = SuspensionPeriod.init();
         this.oAuth2Client = oAuth2Client;
     }
 

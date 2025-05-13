@@ -1,7 +1,6 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.member.domain.SuspensionPeriod;
 import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
 import com.appcenter.BJJ.global.exception.CustomException;
@@ -108,7 +107,6 @@ public class MemberService {
                             .nickname(loginReq.getNickname())
                             .provider("bjj")
                             .providerId("0")
-                            .suspensionPeriod(SuspensionPeriod.create())
                             .build();
                 }
         );
