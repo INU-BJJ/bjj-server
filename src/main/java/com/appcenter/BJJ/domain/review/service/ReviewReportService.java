@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ReviewReportService {
     private final ReviewService reviewService;
-    private final ReviewRepository repository;
+    private final ReviewRepository reviewRepository;
     private final ReviewReportRepository reviewReportRepository;
     private final MemberRepository memberRepository;
     public static final int REPORT_COUNT = 5;
@@ -28,7 +28,7 @@ public class ReviewReportService {
     @Transactional
     public void reportReview(Long reporterId, Long reviewId, ReviewReportReq reviewReportReq) {
 
-        Long reportedId = repository.findById(reviewId).orElseThrow(
+        Long reportedId = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new CustomException(ErrorCode.REVIEW_NOT_FOUND)
         ).getMemberId();
 
