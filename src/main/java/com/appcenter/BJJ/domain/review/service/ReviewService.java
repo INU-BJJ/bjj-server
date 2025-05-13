@@ -2,6 +2,9 @@ package com.appcenter.BJJ.domain.review.service;
 
 import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
+import com.appcenter.BJJ.domain.member.MemberRepository;
+import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
@@ -11,6 +14,7 @@ import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
 import com.appcenter.BJJ.domain.review.repository.ReviewRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
+import com.appcenter.BJJ.global.exception.ReviewSuspensionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +39,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ImageRepository imageRepository;
     private final MenuPairRepository menuPairRepository;
+    private final MemberRepository memberRepository;
 
     @Value("${storage.images.review}")
     private String REVIEW_IMG_DIR;
@@ -45,6 +50,12 @@ public class ReviewService {
 
         if (memberId == null) {
             throw new IllegalArgumentException("해당하는 멤버가 존재하지 않습니다.");
+        }
+
+        //정지 당한 회원의 리뷰 작성 제재
+        if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
+            Member member = memberRepository.findById(memberId).get();
+            throw new ReviewSuspensionException(member.getSuspensionPeriod().getStartAt(), member.getSuspensionPeriod().getEndAt());
         }
 
         MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
