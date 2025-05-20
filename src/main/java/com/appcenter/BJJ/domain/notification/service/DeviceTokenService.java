@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,5 +51,12 @@ public class DeviceTokenService {
     public void deactivateTokens(Set<String> tokens) {
         List<DeviceToken> deviceTokens = deviceTokenRepository.findAllByTokenIn(new ArrayList<>(tokens));
         deviceTokens.forEach(DeviceToken::deactivate);
+    }
+
+    @Transactional
+    public void updateLastUsedAt(Set<String> tokenValues) {
+        List<DeviceToken> tokens = deviceTokenRepository.findAllByTokenIn(new ArrayList<>(tokenValues));
+        LocalDateTime now = LocalDateTime.now();
+        tokens.forEach(token -> token.updateLastUsedAt(now));
     }
 }

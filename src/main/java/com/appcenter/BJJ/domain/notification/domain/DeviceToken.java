@@ -7,7 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.threeten.bp.LocalDateTime;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -42,5 +43,9 @@ public class DeviceToken {
 
     public void deactivate() {
         this.isActive = false;
+    }
+
+    public void updateLastUsedAt(LocalDateTime dateTime) {
+        this.lastUsedAt = dateTime;
     }
 }

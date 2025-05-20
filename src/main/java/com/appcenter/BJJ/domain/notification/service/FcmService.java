@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -28,10 +29,12 @@ public class FcmService {
         log.info("[로그] FcmService.sendMessage(), 대상 메뉴 수 = {}", notificationInfos.size());
 
         List<CompletableFuture<List<String>>> futures = new ArrayList<>();
+        Set<String> allTokens = new HashSet<>();
 
         for (NotificationInfoDto info : notificationInfos) {
             List<String> tokens = info.getFcmTokens();
             if (tokens.isEmpty()) continue;
+            allTokens.addAll(tokens);
 
             String title = "[밥점줘] 오늘의 메뉴 알림 \uD83C\uDF71";
             String body = String.format("회원님이 좋아하는 '%s', 오늘 %s %s에서 제공돼요!",
@@ -45,14 +48,20 @@ public class FcmService {
         // 모든 비동기 작업 완료 후 실패 토큰 집계
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
-        Set<String> allInvalidTokens = futures.stream()
+        Set<String> invalidTokens = futures.stream()
                 .flatMap(future -> future.join().stream())
                 .collect(Collectors.toSet());
 
-        if (!allInvalidTokens.isEmpty()) {
-            log.info("[로그] 유효하지 않은 FCM 토큰 {}개 비활성화", allInvalidTokens.size());
-            deviceTokenService.deactivateTokens(allInvalidTokens);
+        if (!invalidTokens.isEmpty()) {
+            log.info("[로그] 유효하지 않은 FCM 토큰 {}개 비활성화", invalidTokens.size());
+            deviceTokenService.deactivateTokens(invalidTokens);
         }
+
+        Set<String> validTokens = allTokens.stream()
+                .filter(token -> !invalidTokens.contains(token))
+                .collect(Collectors.toSet());
+        deviceTokenService.updateLastUsedAt(validTokens);
+
     }
 
     private void sendToBatchedTokens(List<String> tokens, String title, String body, String menuName, List<CompletableFuture<List<String>>> futures) {
