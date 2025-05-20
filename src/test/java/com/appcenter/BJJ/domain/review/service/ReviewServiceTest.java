@@ -34,7 +34,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -123,14 +122,10 @@ class ReviewServiceTest {
     void create_InvalidReviewTime_ThrowsException() {
         // given
         String cafeteriaCorner = "조식";
-        LocalTime breakfastStart = LocalTime.of(8, 0);
         ReviewPost reviewPost = createReviewPost();
         when(menuPairRepository.findById(anyLong())).thenReturn(Optional.of(MenuPair.builder().build()));
         when(cafeteriaRepository.findCafeteriaCornerByMenuPairId(anyLong())).thenReturn(Optional.of(cafeteriaCorner));
-        when(reviewPolicy.isReviewableTime(
-                eq(cafeteriaCorner),
-                argThat(time -> time.isBefore(breakfastStart))
-        )).thenReturn(false);  // 조식이면서 8시 이전(리뷰 불가능 시간)일 때 false로 설정
+        when(reviewPolicy.isReviewableTime(anyString(), any(LocalTime.class))).thenReturn(false);  // 리뷰 불가능 시간일 때 false로 설정
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
