@@ -15,4 +15,13 @@ public interface CafeteriaRepository extends JpaRepository<Cafeteria, Long> {
     List<Cafeteria> findByName(String name);
 
     Optional<Cafeteria> findFirstByName(String name);
+
+    @Query("""
+        SELECT c.corner
+        FROM Cafeteria c
+        JOIN Menu m ON m.cafeteriaId = c.id
+        JOIN MenuPair mp ON mp.mainMenuId = m.id
+        WHERE mp.id = :menuPairId
+    """)
+    Optional<String> findCafeteriaCornerByMenuPairId(Long menuPairId);
 }
