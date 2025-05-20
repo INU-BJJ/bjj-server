@@ -67,7 +67,7 @@ public class MemberController {
 
     @Operation(summary = "알림 설정 토글", description = "알림을 켠 경우 true, 알림을 끈 경우 false 반환")
     @PatchMapping("/notification")
-    public ResponseEntity<?> toggleNotification(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Boolean> toggleNotification(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("[로그] PATCH /api/members/notification, memberNickname: {}", userDetails.getNickname());
 
         boolean isNotificationActive = memberService.toggleNotification(userDetails.getMember().getId());
