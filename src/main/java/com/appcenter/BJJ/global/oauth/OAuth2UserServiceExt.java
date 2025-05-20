@@ -1,8 +1,8 @@
 package com.appcenter.BJJ.global.oauth;
 
+import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.domain.OAuth2Client;
-import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

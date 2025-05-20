@@ -4,6 +4,7 @@ import com.appcenter.BJJ.domain.image.Image;
 import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
@@ -15,6 +16,7 @@ import com.appcenter.BJJ.domain.review.utils.ReviewPolicy;
 import com.appcenter.BJJ.domain.todaydiet.repository.CafeteriaRepository;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
+import com.appcenter.BJJ.global.exception.ReviewSuspensionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +39,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ImageRepository imageRepository;
-    private final MemberRepository memberRepository;
     private final ReviewRepository reviewRepository;
+    private final ImageRepository imageRepository;
     private final MenuPairRepository menuPairRepository;
+    private final MemberRepository memberRepository;
     private final CafeteriaRepository cafeteriaRepository;
     private final ReviewPolicy reviewPolicy;
 
@@ -50,6 +52,12 @@ public class ReviewService {
     @Transactional
     public long create(ReviewPost reviewPost, List<MultipartFile> files, Long memberId) {
         log.info("[로그] create(), REVIEW_IMG_DIR : {}", REVIEW_IMG_DIR);
+
+        //정지 당한 회원의 리뷰 작성 제재
+        if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
+            Member member = memberRepository.findById(memberId).get();
+            throw new ReviewSuspensionException(member.getSuspensionPeriod().getStartAt(), member.getSuspensionPeriod().getEndAt());
+        }
 
         MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));
