@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -25,7 +24,7 @@ public class NotificationScheduler {
         LocalDate today = LocalDate.now();
         log.info("[로그] {} 식단 메뉴 알림 스케줄러 시작", today);
 
-        Map<Long, List<NotificationInfoDto>> notificationTargets =
+        List<NotificationInfoDto> notificationTargets =
                 dietNotificationService.collectNotificationTargets(today);
 
         fcmService.sendMessage(notificationTargets);

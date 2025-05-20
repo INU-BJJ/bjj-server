@@ -11,5 +11,4 @@ import lombok.ToString;
 public class NotifiableMemberDto {
     private final Long menuId;
     private final Long memberId;
-    private final String memberNickname;
 }

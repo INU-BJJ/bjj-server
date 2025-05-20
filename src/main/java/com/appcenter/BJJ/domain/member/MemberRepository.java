@@ -25,8 +25,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("""
         SELECT new com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto(
                 ml.menuId,
-                m.id,
-                m.nickname
+                m.id
         )
         FROM Member m
         INNER JOIN MenuLike ml ON m.id = ml.memberId

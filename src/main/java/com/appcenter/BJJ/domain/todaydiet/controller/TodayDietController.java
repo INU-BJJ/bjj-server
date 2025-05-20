@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -66,7 +65,7 @@ public class TodayDietController {
     public ResponseEntity<Void> testDietNotification() {
         log.info("[로그] POST /api/device-tokens/test/notification");
 
-        Map<Long, List<NotificationInfoDto>> notificationTargets = dietNotificationService.collectNotificationTargets(LocalDate.now());
+        List<NotificationInfoDto> notificationTargets = dietNotificationService.collectNotificationTargets(LocalDate.now());
         fcmService.sendMessage(notificationTargets);
 
         return ResponseEntity.noContent().build();

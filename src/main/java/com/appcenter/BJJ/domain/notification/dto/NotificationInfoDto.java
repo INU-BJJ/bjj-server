@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 @ToString
 public class NotificationInfoDto {
-    private final String memberNickname;
     private final String menuName;
     private final String cafeteriaName;
     private final String cafeteriaCorner;
