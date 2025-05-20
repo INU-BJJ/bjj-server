@@ -1,0 +1,14 @@
+branchName: "#${issue.number}"
+copyIssueLabelsToPR: true
+copyIssueAssigneeToPR: true
+branches:
+  - label: 🚀chore
+    prefix: chore/
+  - label: ✨feat
+    prefix: feat/
+  - label: 🚑fix
+    prefix: fix/
+  - label: 🔨refactor
+    prefix: refactor/
+  - label: 🎨style
+    prefix: style/
