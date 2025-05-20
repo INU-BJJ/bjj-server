@@ -1,9 +1,11 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
+import com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -19,4 +21,17 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
 
     boolean existsByProviderId(String providerId);
+
+    @Query("""
+        SELECT new com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto(
+                ml.menuId,
+                m.id,
+                m.nickname
+        )
+        FROM Member m
+        INNER JOIN MenuLike ml ON m.id = ml.memberId
+        WHERE ml.menuId IN :menuIds
+            AND m.isNotificationEnabled = true
+    """)
+    List<NotifiableMemberDto> findNotifiableMembersByLikedMenus(List<Long> menuIds);
 }
