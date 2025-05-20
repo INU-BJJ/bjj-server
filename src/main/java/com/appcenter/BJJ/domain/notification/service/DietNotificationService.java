@@ -87,11 +87,11 @@ public class DietNotificationService {
     }
 
     private Map<Long, List<String>> mapMemberIdToTokens(Set<Long> memberIds) {
-        List<MemberDeviceTokenDto> memberDeviceTokenDtos = deviceTokenRepository.findTokensInMemberIds(memberIds.stream().toList());
+        List<MemberDeviceTokenDto> memberDeviceTokenDtos = deviceTokenRepository.findActiveTokensInMemberIds(memberIds.stream().toList());
         Map<Long, List<String>> result = memberDeviceTokenDtos.stream()
                 .collect(Collectors.groupingBy(MemberDeviceTokenDto::getMemberId,
                         Collectors.mapping(MemberDeviceTokenDto::getToken, Collectors.toList())));
-        log.debug("[로그] 회원별 기기 토큰 조회, 총 토큰 개수 = {}, 회원별 토큰 일부 = {}", memberDeviceTokenDtos.size(), result.entrySet().stream().limit(5).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        log.debug("[로그] 회원별 활성화 된 기기 토큰 조회, 총 토큰 개수 = {}, 회원별 토큰 일부 = {}", memberDeviceTokenDtos.size(), result.entrySet().stream().limit(5).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         return result;
     }
 

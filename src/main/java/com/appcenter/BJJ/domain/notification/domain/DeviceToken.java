@@ -29,11 +29,18 @@ public class DeviceToken {
 
     private LocalDateTime lastUsedAt;
 
+    private Boolean isActive;
+
     @Builder
     private DeviceToken(Member member, String token) {
         this.member = member;
         this.token = token;
         this.createdAt = LocalDateTime.now();
         this.lastUsedAt = LocalDateTime.now();
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
     }
 }

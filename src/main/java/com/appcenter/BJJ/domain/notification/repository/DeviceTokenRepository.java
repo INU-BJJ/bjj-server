@@ -5,6 +5,7 @@ import com.appcenter.BJJ.domain.notification.dto.MemberDeviceTokenDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,9 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
         )
         FROM DeviceToken dt
         WHERE dt.member.id IN :memberIds
+            AND dt.isActive = true
     """)
-    List<MemberDeviceTokenDto> findTokensInMemberIds(List<Long> memberIds);
+    List<MemberDeviceTokenDto> findActiveTokensInMemberIds(List<Long> memberIds);
+
+    List<DeviceToken> findAllByTokenIn(Collection<String> tokens);
 }
