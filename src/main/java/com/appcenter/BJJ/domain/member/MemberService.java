@@ -136,4 +136,15 @@ public class MemberService {
         member.increasePoint(point);
         return new PointRes(member.getNickname(), member.getPoint());
     }
+
+    @Transactional
+    public boolean toggleNotification(long memberId) {
+        log.info("[로그] toggleNotification(), memberId : {}", memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        member.toggleNotification();
+        return member.getIsNotificationEnabled();
+    }
 }
