@@ -74,10 +74,10 @@ public class ReviewService {
         boolean isAlreadyWritten;
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
             log.debug("[로그] 삭제되지 않은 조식/석식 리뷰 존재 여부 확인");
-            isAlreadyWritten = reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(cafeteriaCorner);
+            isAlreadyWritten = reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(memberId, cafeteriaCorner);
         } else {
             log.debug("[로그] 삭제되지 않은 중식 리뷰 존재 여부 확인");
-            isAlreadyWritten = reviewRepository.existsTodayUndeletedReviewExcludingBreakfastAndDinner();
+            isAlreadyWritten = reviewRepository.existsTodayUndeletedMyReviewExcludingBreakfastAndDinner(memberId);
         }
         if (isAlreadyWritten) {
             throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
@@ -87,10 +87,10 @@ public class ReviewService {
         boolean isAlreadyGiven;
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
             log.debug("[로그] 조식/석식 리뷰 존재 여부 확인 (포인트 지급 여부)");
-            isAlreadyGiven = reviewRepository.existsTodayReviewByCafeteriaCorner(cafeteriaCorner);
+            isAlreadyGiven = reviewRepository.existsTodayMyReviewByCafeteriaCorner(memberId, cafeteriaCorner);
         } else {
             log.debug("[로그] 중식 리뷰 존재 여부 확인 (포인트 지급 여부)");
-            isAlreadyGiven = reviewRepository.existsTodayReviewExcludingBreakfastAndDinner();
+            isAlreadyGiven = reviewRepository.existsTodayReviewExcludingBreakfastAndDinner(memberId);
         }
 
         // 리뷰를 작성한 적 없으면 포인트 지급

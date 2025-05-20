@@ -21,10 +21,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         JOIN Menu m ON mp.mainMenuId = m.id
         JOIN Cafeteria c ON m.cafeteriaId = c.id
         WHERE r.createdDate = CURRENT_DATE
+            AND r.memberId = :memberId
             AND r.isDeleted = false
             AND c.corner = :cafeteriaCorner
     """)
-    boolean existsTodayUndeletedReviewByCafeteriaCorner(String cafeteriaCorner);
+    boolean existsTodayUndeletedMyReviewByCafeteriaCorner(Long memberId, String cafeteriaCorner);
 
     @Query("""
         SELECT COUNT(r.id) > 0
@@ -33,11 +34,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         JOIN Menu m ON mp.mainMenuId = m.id
         JOIN Cafeteria c ON m.cafeteriaId = c.id
         WHERE r.createdDate = CURRENT_DATE
+            AND r.memberId = :memberId
             AND r.isDeleted = false
             AND c.corner != "조식"
             AND c.corner != "석식"
     """)
-    boolean existsTodayUndeletedReviewExcludingBreakfastAndDinner();
+    boolean existsTodayUndeletedMyReviewExcludingBreakfastAndDinner(Long memberId);
 
     @Query("""
         SELECT COUNT(r.id) > 0
@@ -46,9 +48,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         JOIN Menu m ON mp.mainMenuId = m.id
         JOIN Cafeteria c ON m.cafeteriaId = c.id
         WHERE r.createdDate = CURRENT_DATE
+            AND r.memberId = :memberId
             AND c.corner = :cafeteriaCorner
     """)
-    boolean existsTodayReviewByCafeteriaCorner(String cafeteriaCorner);
+    boolean existsTodayMyReviewByCafeteriaCorner(Long memberId, String cafeteriaCorner);
 
     @Query("""
         SELECT COUNT(r.id) > 0
@@ -57,10 +60,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         JOIN Menu m ON mp.mainMenuId = m.id
         JOIN Cafeteria c ON m.cafeteriaId = c.id
         WHERE r.createdDate = CURRENT_DATE
+            AND r.memberId = :memberId
             AND c.corner != "조식"
             AND c.corner != "석식"
     """)
-    boolean existsTodayReviewExcludingBreakfastAndDinner();
+    boolean existsTodayReviewExcludingBreakfastAndDinner(Long memberId);
 
     @Query("SELECT r FROM Review r WHERE r.id = :id AND r.isDeleted = false")
     Optional<Review> findUndeletedReviewById(Long id);

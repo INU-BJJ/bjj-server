@@ -149,14 +149,14 @@ class ReviewServiceTest {
 
         // 각 'cafeteriaCorner'에 맞는 메서드만 Mocking
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
-            when(reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(cafeteriaCorner)).thenReturn(true);
+            when(reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner)).thenReturn(true);
         } else {
-            when(reviewRepository.existsTodayUndeletedReviewExcludingBreakfastAndDinner()).thenReturn(true);
+            when(reviewRepository.existsTodayUndeletedMyReviewExcludingBreakfastAndDinner(MEMBER_ID)).thenReturn(true);
         }
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
-                () -> reviewService.create(reviewPost, null, null));
+                () -> reviewService.create(reviewPost, null, MEMBER_ID));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_ALREADY_EXISTS);
     }
 
@@ -172,11 +172,11 @@ class ReviewServiceTest {
 
         // 각 'cafeteriaCorner'에 맞는 메서드만 Mocking
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
-            when(reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(cafeteriaCorner)).thenReturn(false);
-            when(reviewRepository.existsTodayReviewByCafeteriaCorner(cafeteriaCorner)).thenReturn(true);
+            when(reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner)).thenReturn(false);
+            when(reviewRepository.existsTodayMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner)).thenReturn(true);
         } else {
-            when(reviewRepository.existsTodayUndeletedReviewExcludingBreakfastAndDinner()).thenReturn(false);
-            when(reviewRepository.existsTodayReviewExcludingBreakfastAndDinner()).thenReturn(true);
+            when(reviewRepository.existsTodayUndeletedMyReviewExcludingBreakfastAndDinner(MEMBER_ID)).thenReturn(false);
+            when(reviewRepository.existsTodayReviewExcludingBreakfastAndDinner(MEMBER_ID)).thenReturn(true);
         }
 
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
@@ -187,10 +187,10 @@ class ReviewServiceTest {
         // then
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
             // 조식/석식일 경우 'existsTodayReviewByCafeteriaCorner'가 호출되었는지 검증
-            verify(reviewRepository).existsTodayReviewByCafeteriaCorner(cafeteriaCorner);
+            verify(reviewRepository).existsTodayMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner);
         } else {
             // 중식일 경우 'existsTodayReviewExcludingBreakfastAndDinner'가 호출되었는지 검증
-            verify(reviewRepository).existsTodayReviewExcludingBreakfastAndDinner();
+            verify(reviewRepository).existsTodayReviewExcludingBreakfastAndDinner(MEMBER_ID);
         }
     }
 
@@ -205,11 +205,11 @@ class ReviewServiceTest {
 
         // 각 'cafeteriaCorner'에 맞는 메서드만 Mocking
         if ("조식".equals(cafeteriaCorner) || "석식".equals(cafeteriaCorner)) {
-            when(reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(cafeteriaCorner)).thenReturn(false);
-            when(reviewRepository.existsTodayReviewByCafeteriaCorner(cafeteriaCorner)).thenReturn(false);
+            when(reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner)).thenReturn(false);
+            when(reviewRepository.existsTodayMyReviewByCafeteriaCorner(MEMBER_ID, cafeteriaCorner)).thenReturn(false);
         } else {
-            when(reviewRepository.existsTodayUndeletedReviewExcludingBreakfastAndDinner()).thenReturn(false);
-            when(reviewRepository.existsTodayReviewExcludingBreakfastAndDinner()).thenReturn(false);
+            when(reviewRepository.existsTodayUndeletedMyReviewExcludingBreakfastAndDinner(MEMBER_ID)).thenReturn(false);
+            when(reviewRepository.existsTodayReviewExcludingBreakfastAndDinner(MEMBER_ID)).thenReturn(false);
         }
 
         when(memberRepository.findById(MEMBER_ID)).thenReturn(Optional.empty());
@@ -257,8 +257,8 @@ class ReviewServiceTest {
         when(menuPairRepository.findById(anyLong())).thenReturn(Optional.of(MenuPair.builder().build()));
         when(cafeteriaRepository.findCafeteriaCornerByMenuPairId(anyLong())).thenReturn(Optional.of(CAFETERIA_CORNER));
         when(reviewPolicy.isReviewableTime(anyString(), any(LocalTime.class))).thenReturn(true);
-        when(reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(anyString())).thenReturn(false);
-        when(reviewRepository.existsTodayReviewByCafeteriaCorner(anyString())).thenReturn(false);
+        when(reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(anyLong(), anyString())).thenReturn(false);
+        when(reviewRepository.existsTodayMyReviewByCafeteriaCorner(anyLong(), anyString())).thenReturn(false);
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(reviewRepository.save(any())).thenReturn(
                 createReview(reviewId, member, MenuPair.builder().build(), reviewPost)
@@ -283,8 +283,8 @@ class ReviewServiceTest {
         when(menuPairRepository.findById(anyLong())).thenReturn(Optional.of(MenuPair.builder().build()));
         when(cafeteriaRepository.findCafeteriaCornerByMenuPairId(anyLong())).thenReturn(Optional.of(CAFETERIA_CORNER));
         when(reviewPolicy.isReviewableTime(anyString(), any(LocalTime.class))).thenReturn(true);
-        when(reviewRepository.existsTodayUndeletedReviewByCafeteriaCorner(anyString())).thenReturn(false);
-        when(reviewRepository.existsTodayReviewByCafeteriaCorner(anyString())).thenReturn(false);
+        when(reviewRepository.existsTodayUndeletedMyReviewByCafeteriaCorner(anyLong(), anyString())).thenReturn(false);
+        when(reviewRepository.existsTodayMyReviewByCafeteriaCorner(anyLong(), anyString())).thenReturn(false);
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(reviewRepository.save(any(Review.class))).thenReturn(
                 createReview(reviewId, member, MenuPair.builder().build(), reviewPost)
