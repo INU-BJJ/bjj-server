@@ -28,15 +28,19 @@ public class ReviewReportService {
     @Transactional
     public void reportReview(Long reporterId, Long reviewId, ReviewReportReq reviewReportReq) {
 
-        Long reportedId = reviewRepository.findById(reviewId).orElseThrow(
+        Long reportedId = reviewRepository.findById(reviewId).orElseThrow( //리뷰 작성자
                 () -> new CustomException(ErrorCode.REVIEW_NOT_FOUND)
         ).getMemberId();
 
-        if (reviewReportRepository.existsByIdAndReporterId(reviewId, reporterId)) {
+        if (reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporterId)) {
             throw new CustomException(ErrorCode.DUPLICATE_REPORT);
         }
 
-        reviewReportRepository.save(ReviewReport.create(reporterId, reportedId, reviewId, reviewReportReq.getContent()));
+        reviewReportRepository.saveAll(reviewReportReq.getContent()
+                .stream()
+                .map(content ->
+                        ReviewReport.create(reporterId, reportedId, reviewId, content))
+                .toList());
 
         if (reviewReportRepository.countReviewReportByReviewId(reviewId) >= REPORT_COUNT) { // 일정 개수의 신고가 넘으면 작성자 정지
             Member member = memberRepository.findById(reportedId).orElseThrow(
