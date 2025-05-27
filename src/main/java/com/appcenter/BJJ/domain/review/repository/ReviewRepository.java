@@ -142,7 +142,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         FROM Review r
         JOIN r.menuPair mp
         JOIN Menu mm ON mp.mainMenuId = mm.id
-        JOIN Menu sm ON mp.subMenuId = sm.id
+        LEFT JOIN Menu sm ON mp.subMenuId = sm.id
         LEFT JOIN Member m ON r.memberId = m.id
         WHERE r.id = :reviewId AND r.isDeleted = false
     """)
