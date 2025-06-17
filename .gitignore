@@ -40,3 +40,6 @@ out/
 application.properties
 application-prod.properties
 application-dev.properties
+
+# Firebase Admin SDK key
+inu-bjj-project-firebase-adminsdk.json
