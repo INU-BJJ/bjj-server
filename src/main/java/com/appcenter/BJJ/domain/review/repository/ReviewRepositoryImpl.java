@@ -82,6 +82,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
             predicates.add(cb.greaterThan(cb.size(review.get("images")), 0));
         }
 
+        // 삭제되지 않은 리뷰인지 여부
+        predicates.add(cb.equal(review.get("isDeleted"), false));
+
         // 정렬 조건 설정
         List<Order> orderList = new ArrayList<>();
         if (sort == Sort.BEST_MATCH) {
@@ -190,6 +193,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
             memberSubquery.select(member.get("nickname"))
                     .where(cb.equal(member.get("id"), review.get("memberId")));
 
+            // 삭제되지 않은 리뷰인지 여부
+            predicates.add(cb.equal(review.get("isDeleted"), false));
+
             // 쿼리에서 선택할 내용 설정
             query.select(cb.construct(
                     MyReviewDetailRes.class,
@@ -253,6 +259,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         memberSubquery.select(member.get("nickname"))
                 .where(cb.equal(member.get("id"), review.get("memberId")));
 
+        // 삭제되지 않은 리뷰인지 여부
+        predicates.add(cb.equal(review.get("isDeleted"), false));
+
         // 쿼리에서 선택할 내용 설정
         query.select(cb.construct(
                 MyReviewDetailRes.class,
@@ -312,17 +321,24 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         Root<Review> subReview = subQuery1.from(Review.class);
         Join<Review, MenuPair> subMenuPair = subReview.join("menuPair");
         subQuery1.select(cb.max(subReview.get("likeCount")))
-                .where(cb.equal(subMenuPair.get("mainMenuId"), menuPair.get("mainMenuId")));
+                .where(
+                        cb.equal(subMenuPair.get("mainMenuId"), menuPair.get("mainMenuId")),
+                        cb.equal(review.get("isDeleted"), false)    // 삭제되지 않은 리뷰인지 여부
+                );
 
         // 서브쿼리 2: 최대 like_count와 같은 like_count 중에서 최대 review_id(가장 최근 리뷰)를 구하는 서브쿼리
         Subquery<Long> subQuery2 = query.subquery(Long.class);
         Root<Review> subReview2 = subQuery2.from(Review.class);
         Join<Review, MenuPair> subMenuPair2 = subReview2.join("menuPair");
         subQuery2.select(cb.max(subReview2.get("id")))
-                .where(cb.equal(subMenuPair2.get("mainMenuId"), menuPair.get("mainMenuId")),
-                        cb.equal(subReview2.get("likeCount"), subQuery1));
+                .where(
+                        cb.equal(subMenuPair2.get("mainMenuId"), menuPair.get("mainMenuId")),
+                        cb.equal(subReview2.get("likeCount"), subQuery1),
+                        cb.equal(review.get("isDeleted"), false)    // 삭제되지 않은 리뷰인지 여부
+                );
 
         // 조건문 추가
+        predicates.add(cb.equal(review.get("isDeleted"), false));   // 삭제되지 않은 리뷰인지 여부
         predicates.add(menuPair.get("mainMenuId").in(mainMenuIds));
         predicates.add(cb.equal(review.get("id"), subQuery2));  // review_id가 서브쿼리에서 구한 값과 일치하는 경우
 

@@ -18,7 +18,7 @@ public class ImageRepositoryImpl implements ImageRepositoryCustom{
 
     @Override
     public Image findFirstImageOfMostLikedReview(Long menuPairId) {
-        // 1. 가장 좋아요 수가 많은 리뷰 조회
+        // 1. 가장 좋아요 수가 많은 리뷰 조회 (단, 이미지를 가진 리뷰여야 하고, 삭제되지 않은 리뷰여야 함)
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Review> reviewQuery = cb.createQuery(Review.class);
         Root<Review> reviewRoot = reviewQuery.from(Review.class);
@@ -26,7 +26,8 @@ public class ImageRepositoryImpl implements ImageRepositoryCustom{
         reviewQuery.select(reviewRoot)
                 .where(cb.and(
                         cb.equal(reviewRoot.get("menuPair").get("id"), menuPairId),
-                        cb.gt(cb.size(reviewRoot.get("images")), 0)
+                        cb.gt(cb.size(reviewRoot.get("images")), 0),
+                        cb.equal(reviewRoot.get("isDeleted"), false)
                 ))
                 .orderBy(cb.desc(reviewRoot.get("likeCount")));
 

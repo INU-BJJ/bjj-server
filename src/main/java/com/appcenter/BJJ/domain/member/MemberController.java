@@ -87,18 +87,10 @@ public class MemberController {
     }
 
     //TODO test용이기에 이후에 지우기
-    @Operation(summary = "[test] 소셜로그인")
-    @PostMapping("/test/social-login")
-    public ResponseEntity<MemberRes> socialLogin(@Valid @RequestBody LoginReq loginReq) {
-        return ResponseEntity.ok(memberService.socialLogin(loginReq));
-    }
-
-    @Operation(summary = "[test] 로그인")
+    @Operation(summary = "[test] 회원가입 및 로그인")
     @PostMapping("/test/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginReq loginReq) {
-        Map<String, String> signupRes = new HashMap<>();
-        signupRes.put("token", memberService.login(loginReq));
-        return ResponseEntity.ok(signupRes);
+    public ResponseEntity<String> socialLogin(@Valid @RequestBody LoginReq loginReq) {
+        return ResponseEntity.ok(memberService.socialLogin(loginReq));
     }
 
     @Operation(summary = "[test] 회원 포인트 추가")

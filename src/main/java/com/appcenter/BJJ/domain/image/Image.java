@@ -1,6 +1,8 @@
 package com.appcenter.BJJ.domain.image;
 
 import com.appcenter.BJJ.domain.review.domain.Review;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,9 @@ public class Image {
 
         // 파일 확장자 추출
         String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            throw new CustomException(ErrorCode.INVALID_FILE_NAME);
+        }
         String fileExtension = Objects.requireNonNull(originalFilename).substring(originalFilename.lastIndexOf("."));
 
         // 고유한 파일 이름 생성 (UUID 사용)

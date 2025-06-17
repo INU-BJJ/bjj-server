@@ -2,13 +2,10 @@ package com.appcenter.BJJ.domain.review.controller;
 
 import com.appcenter.BJJ.domain.menu.service.MenuPairService;
 import com.appcenter.BJJ.domain.review.domain.Sort;
-import com.appcenter.BJJ.domain.review.dto.MyReviewsGroupedRes;
-import com.appcenter.BJJ.domain.review.dto.MyReviewsPagedRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
-import com.appcenter.BJJ.domain.review.dto.ReviewImagesPagedRes;
+import com.appcenter.BJJ.domain.review.dto.*;
 import com.appcenter.BJJ.domain.review.dto.ReviewReq.ReviewPost;
-import com.appcenter.BJJ.domain.review.dto.ReviewsPagedRes;
 import com.appcenter.BJJ.domain.review.service.ReviewLikeService;
+import com.appcenter.BJJ.domain.review.service.ReviewReportService;
 import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.global.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +36,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final MenuPairService menuPairService;
     private final ReviewLikeService reviewLikeService;
+    private final ReviewReportService reviewReportService;
 
     @Operation(summary = "리뷰 작성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -162,5 +160,12 @@ public class ReviewController {
         ReviewDetailRes reviewDetailRes = reviewService.findReviewWithDetail(reviewId, userDetails.getMember().getId());
 
         return ResponseEntity.ok(reviewDetailRes);
+    }
+
+    @Operation(summary = "리뷰 신고")
+    @PostMapping("{reviewId}/report")
+    public ResponseEntity<Boolean> reportReview(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long reviewId, @RequestBody ReviewReportReq reviewReportReq){
+        reviewReportService.reportReview(userDetails.getMember().getId(), reviewId, reviewReportReq);
+        return ResponseEntity.noContent().build();
     }
 }

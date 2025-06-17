@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.*;
+import com.appcenter.BJJ.domain.member.enums.MemberRole;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
@@ -94,34 +95,23 @@ public class MemberService {
 
     //TODO test용이기에 이후에 없애기
     @Transactional
-    public MemberRes socialLogin(LoginReq loginReq) {
+    public String socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
 
-        Member member = Member.builder()
-                .email(loginReq.getEmail())
-                .nickname(loginReq.getNickname())
-                .provider("bjj")
-                .providerId("0")
-                .build();
-        memberRepository.save(member);
-
-        member.updateTestProviderId(String.valueOf(member.getId()));
-        log.info("MemberService.login() - ROLE_GUEST 회원 생성 성공");
-
-        return MemberRes.builder()
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .provider(member.getProvider())
-                .build();
-    }
-
-    @Transactional
-    public String login(LoginReq loginReq) {
-        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseGet(
+                () -> {
+                    isNicknameAvailable(loginReq.getNickname());
+                    log.info("test: login nickname {}", loginReq.getNickname());
+                    return Member.builder()
+                            .email(loginReq.getEmail())
+                            .nickname(loginReq.getNickname())
+                            .provider("bjj")
+                            .providerId("0")
+                            .build();
+                }
         );
-        isNicknameAvailable(loginReq.getNickname());
-
+        memberRepository.save(member);
+        member.updateTestProviderId(String.valueOf(member.getId()));
         member.updateMemberInfo(loginReq.getNickname(), MemberRole.USER);
 
         return getToken(member.getProviderId(), JwtProvider.validAccessTime);

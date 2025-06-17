@@ -1,5 +1,6 @@
-package com.appcenter.BJJ.global.exception;
+package com.appcenter.BJJ.global.exception.dto;
 
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;

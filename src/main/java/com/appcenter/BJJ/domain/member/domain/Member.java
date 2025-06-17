@@ -1,11 +1,14 @@
 package com.appcenter.BJJ.domain.member.domain;
 
-import com.appcenter.BJJ.domain.member.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,6 +32,13 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MemberRole role;
 
+    @Enumerated(value = EnumType.STRING)
+    private MemberStatus memberStatus;
+
+    @Embedded
+    private SuspensionPeriod suspensionPeriod;
+
+    @Embedded
     private OAuth2Client oAuth2Client;
 
     private Boolean isNotificationEnabled;
@@ -42,6 +52,8 @@ public class Member {
         this.providerId = providerId;
         this.point = 0;
         this.role = MemberRole.GUEST;
+        this.memberStatus = MemberStatus.ACTIVE;
+        this.suspensionPeriod = SuspensionPeriod.init();
         this.oAuth2Client = oAuth2Client;
         this.isNotificationEnabled = true;
     }
@@ -72,6 +84,15 @@ public class Member {
     }
 
     // test용 메소드
+    public void updateMemberStatus(MemberStatus memberStatus) {
+        this.memberStatus = memberStatus;
+    }
+
+    public void suspend(LocalDateTime startAt, LocalDateTime endAt) {
+        this.suspensionPeriod.suspend(startAt, endAt);
+    }
+
+    //TODO test용이기에 이후에 없애기
     public void updateTestProviderId(String id) {
         this.providerId = id;
     }
