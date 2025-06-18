@@ -48,7 +48,6 @@ public class ItemController {
 
     @Operation(summary = "아이템 착용", description = "기본아이템의 경우, dto의 모든 필드 값 == null")
     @PatchMapping("/{itemId}")
-    //TODO 배경에 대한 착용도 추가하기
     public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType, @PathVariable Long itemId) {
         itemService.toggleIsWearing(userDetails.getMember().getId(), itemType, itemId);
     }
