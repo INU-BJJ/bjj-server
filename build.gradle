@@ -67,6 +67,9 @@ dependencies {
 
 	// Spring AI
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+
+	// convert excel
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 }
 
 dependencyManagement {
