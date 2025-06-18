@@ -77,7 +77,6 @@ public class ItemService {
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
-                .imageName(item.getImageName())
                 .validPeriod(inventory.getValidPeriod())
                 .isWearing(inventory.getIsWearing())
                 .isOwned(inventory.getIsOwned())

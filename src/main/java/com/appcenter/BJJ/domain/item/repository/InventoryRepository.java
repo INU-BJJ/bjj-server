@@ -25,9 +25,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             SELECT new com.appcenter.BJJ.domain.item.dto.MyItemRes(
             member.nickname,
             MAX(CASE WHEN item.itemType = 'CHARACTER' THEN item.id END),
-            MAX(CASE WHEN item.itemType = 'CHARACTER' THEN item.imageName END),
+            MAX(CASE WHEN item.itemType = 'CHARACTER' THEN item.itemName END),
             MAX(CASE WHEN item.itemType = 'BACKGROUND' THEN item.id END),
-            MAX(CASE WHEN item.itemType = 'BACKGROUND' THEN item.imageName END),
+            MAX(CASE WHEN item.itemType = 'BACKGROUND' THEN item.itemName END),
             member.point
             )
             FROM Inventory inven

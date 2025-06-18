@@ -5,8 +5,10 @@ import com.appcenter.BJJ.domain.item.dto.DetailItemRes;
 import com.appcenter.BJJ.domain.item.enums.ItemLevel;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             item.itemName,
             item.itemType,
             item.itemLevel,
-            item.imageName,
             inven.validPeriod,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false)
@@ -40,7 +41,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             item.itemName,
             item.itemType,
             item.itemLevel,
-            item.imageName,
             inven.validPeriod,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
@@ -51,4 +51,12 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             AND item.itemType = :itemType
             """)
     Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Long itemId, ItemType itemType);
+
+    @Query("SELECT COUNT(i) > 0 FROM Item i")
+    boolean existsAny();
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Item")
+    void deleteAllRows();
 }
