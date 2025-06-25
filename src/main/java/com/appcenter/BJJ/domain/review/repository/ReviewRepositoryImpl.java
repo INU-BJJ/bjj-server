@@ -91,7 +91,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 .from(review)
                 .join(review.menuPair(), menuPair)
                 .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
-                .join(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
                 .join(member).on(member.id.eq(review.memberId))
                 .where(whereBuilder);
 
@@ -161,7 +161,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                     .from(review)
                     .join(review.menuPair(), menuPair)
                     .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
-                    .join(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                    .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
                     .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
                     .join(member).on(review.memberId.eq(member.id))
                     .where(
@@ -204,7 +204,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 .from(review)
                 .join(review.menuPair(), menuPair)
                 .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
-                .join(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
                 .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
                 .join(member).on(review.memberId.eq(member.id))
                 .where(
