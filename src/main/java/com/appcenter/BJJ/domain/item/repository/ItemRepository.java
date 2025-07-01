@@ -52,11 +52,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             """)
     Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Long itemId, ItemType itemType);
 
-    @Query("SELECT COUNT(i) > 0 FROM Item i")
-    boolean existsAny();
+    @Query("SELECT COUNT(i) > 0 FROM Item i where i.itemType = :itemType")
+    boolean existsByItemType(ItemType itemType);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Item")
-    void deleteAllRows();
+    @Query("DELETE FROM Item i where i.itemType = :itemType")
+    void deleteByItemType(ItemType itemType);
 }
