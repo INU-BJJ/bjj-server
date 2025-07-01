@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -31,12 +32,14 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemManagementService {
     private final ItemRepository itemRepository;
 
     @Value("${storage.images.item}")
     private String ITEM_IMG_DIR;
 
+    @Transactional
     public List<ItemRes> uploadItems(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
 
         String itemType = Objects.requireNonNull(infoFile.getOriginalFilename()).split("\\.")[0];
@@ -68,7 +71,6 @@ public class ItemManagementService {
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry entry;
         String dirName = ITEM_IMG_DIR + itemType;
-        System.out.println("dirName: " + dirName);
 
         try { //디렉토리 내부 파일 삭제 + 디렉토리 삭제
             File dir = new File(dirName);
