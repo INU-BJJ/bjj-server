@@ -7,6 +7,7 @@ import com.appcenter.BJJ.domain.item.enums.ItemLevel;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemManagementService {
@@ -35,11 +38,13 @@ public class ItemManagementService {
     private String ITEM_IMG_DIR;
 
     public List<ItemRes> uploadItems(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
-        if (itemRepository.existsAny()) {
-            itemRepository.deleteAllRows();
-        }
 
         String itemType = Objects.requireNonNull(infoFile.getOriginalFilename()).split("\\.")[0];
+
+        ItemType type = ItemType.valueOf(itemType.toUpperCase());
+        if (itemRepository.existsByItemType(type)) { //아이템 DB 업데이트
+            itemRepository.deleteByItemType(type);
+        }
 
         unZip(zipImageFile, itemType);
 
@@ -62,21 +67,40 @@ public class ItemManagementService {
         InputStream inputStream = zipImageFile.getInputStream();
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry entry;
+        String dirName = ITEM_IMG_DIR + itemType;
+        System.out.println("dirName: " + dirName);
+
+        try { //디렉토리 내부 파일 삭제 + 디렉토리 삭제
+            File dir = new File(dirName);
+
+            while (dir.exists()) {
+                File[] files = dir.listFiles();
+
+                for (File file : files) {
+                    file.delete();
+                }
+                if (files.length == 0 && dir.isDirectory()) {
+                    dir.delete();
+                }
+            }
+        } catch (Exception e) {
+            log.error("[로그] 디렉토리 삭제 실패");
+        }
+
 
         while ((entry = zipInputStream.getNextEntry()) != null) {
             if (entry.isDirectory()) continue;
 
-            String imageFileName = entry.getName().split("/")[1];
-            File imageFile = new File(ITEM_IMG_DIR + itemType + "/" + imageFileName);
-            //TODO directory 전체를 지우고 다시 디렉토리를 생성해서 이미지를 저장할까
-
-            File dir = imageFile.getParentFile();
+            File dir = new File(dirName);
             if (!dir.exists() && !dir.mkdirs()) {
                 throw new IOException("디렉토리 생성 실패: " + dir.getAbsolutePath());
             }
 
+            String imageFileName = Paths.get(entry.getName()).getFileName().toString();
+            File imageFile = new File(dirName, imageFileName);
+
             //이미지 파일 write
-            try (FileOutputStream outputStream = new FileOutputStream(  imageFile)) {
+            try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
                 byte[] bytes = new byte[1024];
                 int length;
                 while ((length = zipInputStream.read(bytes)) >= 0) {
@@ -99,7 +123,7 @@ public class ItemManagementService {
             }
 
         } catch (IOException e) {
-            //
+            log.error("[로그] 아이템 정보 파일 파싱 에러 (EXCEL -> VO)");
         }
         return itemVO;
     }
