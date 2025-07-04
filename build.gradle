@@ -69,6 +69,9 @@ dependencies {
 	// Spring AI
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 
+	// Firebase Admin SDK
+	implementation 'com.google.firebase:firebase-admin:9.4.3'
+
 	// OpenFeign QueryDSL
 	implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}"
 	annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jpa"

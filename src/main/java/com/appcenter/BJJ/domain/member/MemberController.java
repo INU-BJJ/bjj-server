@@ -65,6 +65,15 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "알림 설정 토글", description = "알림을 켠 경우 true, 알림을 끈 경우 false 반환")
+    @PatchMapping("/notification")
+    public ResponseEntity<Boolean> toggleNotification(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] PATCH /api/members/notification, memberNickname: {}", userDetails.getNickname());
+
+        boolean isNotificationActive = memberService.toggleNotification(userDetails.getMember().getId());
+        return ResponseEntity.ok(isNotificationActive);
+    }
+
     @Operation(summary = "redirect용 (사용X)")
     @GetMapping("/sign-up")
     public ResponseEntity<?> resolveRedirectSign(@RequestParam String email, @RequestParam String token) {

@@ -58,7 +58,7 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
     List<TodayMenuRes> findTodayMainMenusByCafeteriaName(String cafeteriaName);
 
     @Query("""
-        SELECT mp.mainMenuId
+        SELECT DISTINCT mp.mainMenuId
         FROM TodayDiet td
         JOIN MenuPair mp ON td.menuPairId = mp.id
         WHERE td.date = :date
@@ -66,9 +66,18 @@ public interface TodayDietRepository extends JpaRepository<TodayDiet, Long> {
     List<Long> findMainMenuIdsByDate(LocalDate date);
 
     @Query("""
-        SELECT mp.mainMenuId
+        SELECT DISTINCT mp.mainMenuId
         FROM TodayDiet td
         JOIN MenuPair mp ON td.menuPairId = mp.id
     """)
     List<Long> findAllMainMenuIds();
+
+    @Query("""
+        SELECT DISTINCT mp.subMenuId
+        FROM TodayDiet td
+        JOIN MenuPair mp ON td.menuPairId = mp.id
+        WHERE td.date = :date
+            AND mp.subMenuId IS NOT NULL
+    """)
+    List<Long> findSubMenuIdsByDate(LocalDate date);
 }
