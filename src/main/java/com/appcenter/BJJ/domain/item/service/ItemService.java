@@ -58,11 +58,11 @@ public class ItemService {
         Item item = itemList.get(itemId - 1);
 
         //뽑은 아이템 저장
-        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemId(memberId, itemType, item.getId()).orElse(
+        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemIdx(memberId, itemType, item.getItemIdx()).orElse(
                 //새로 뽑은 것
                 Inventory.builder()
                         .memberId(memberId)
-                        .itemId(item.getId())
+                        .itemIdx(item.getItemIdx())
                         .isWearing(false)
                         .isOwned(true)
                         .validPeriod(LocalDateTime.now())
@@ -73,7 +73,7 @@ public class ItemService {
         inventoryRepository.save(inventory);
 
         return DetailItemRes.builder()
-                .itemId(item.getId())
+                .itemIdx(item.getItemIdx())
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
@@ -88,14 +88,14 @@ public class ItemService {
         return itemRepository.getAllDetailItemsByMemberIdAndItemType(memberId, itemType);
     }
 
-    public DetailItemRes getItem(Long memberId, Long itemId, ItemType itemType) {
-        return itemRepository.findDetailItemByIdAndMemberIdAndItemType(memberId, itemId, itemType).orElseThrow(
+    public DetailItemRes getItem(Long memberId, int itemIdx, ItemType itemType) {
+        return itemRepository.findDetailItemByIdAndMemberIdAndItemType(memberId, itemIdx, itemType).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
     }
 
     @Transactional
-    public void toggleIsWearing(Long memberId, ItemType itemType, Long itemId) {
+    public void toggleIsWearing(Long memberId, ItemType itemType, int itemIdx) {
         if (inventoryRepository.existsWearingItemByMemberIdAndItemType(memberId, itemType)) {
             Inventory currentInven = inventoryRepository.findWearingItemByMemberIdAndItemType(memberId, itemType).orElseThrow(
                     () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
@@ -105,9 +105,10 @@ public class ItemService {
             currentInven.toggleIsWearing();
         }
 
-        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemId(memberId, itemType, itemId).orElseThrow(
+        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemIdx(memberId, itemType, itemIdx).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
+        System.out.println("inventory: " + inventory.getItemIdx());
 
         //설정한 아이템 착용 활성화
         inventory.toggleIsWearing();

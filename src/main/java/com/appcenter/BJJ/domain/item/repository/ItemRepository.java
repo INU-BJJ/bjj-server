@@ -20,7 +20,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.id,
+            item.itemIdx,
             item.itemName,
             item.itemType,
             item.itemLevel,
@@ -29,7 +29,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isOwned, false)
             )
             From Item item
-            LEFT JOIN Inventory inven ON item.id = inven.itemId
+            LEFT JOIN Inventory inven ON item.itemIdx = inven.itemIdx
             AND inven.memberId = :memberId
             WHERE item.itemType = :itemType
             """)
@@ -37,7 +37,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.id,
+            item.itemIdx,
             item.itemName,
             item.itemType,
             item.itemLevel,
@@ -45,12 +45,12 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
             FROM Item item
-            LEFT JOIN Inventory inven ON inven.itemId = :itemId
+            LEFT JOIN Inventory inven ON inven.itemIdx = :itemIdx
             AND inven.memberId = :memberId
-            WHERE item.id = :itemId
+            WHERE item.itemIdx = :itemIdx
             AND item.itemType = :itemType
             """)
-    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Long itemId, ItemType itemType);
+    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, int itemIdx, ItemType itemType);
 
     @Query("SELECT COUNT(i) > 0 FROM Item i where i.itemType = :itemType")
     boolean existsByItemType(ItemType itemType);

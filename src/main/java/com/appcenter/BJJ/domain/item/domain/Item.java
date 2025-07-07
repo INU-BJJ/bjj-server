@@ -18,6 +18,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private int itemIdx;
+
     private String itemName;
 
     @Enumerated(EnumType.STRING)
@@ -27,7 +29,8 @@ public class Item {
     private ItemLevel itemLevel;
 
     @Builder
-    private Item(String itemName, ItemType itemType, ItemLevel itemLevel) {
+    private Item(int itemIdx, String itemName, ItemType itemType, ItemLevel itemLevel) {
+        this.itemIdx = itemIdx;
         this.itemName = itemName;
         this.itemType = itemType;
         this.itemLevel = itemLevel;
@@ -35,6 +38,7 @@ public class Item {
 
     public static Item create(ItemVO itemVO, ItemType itemType) {
         return Item.builder()
+                .itemIdx(itemVO.getItemIdx())
                 .itemName(itemVO.getItemName())
                 .itemType(itemType)
                 .itemLevel(itemVO.getItemLevel())

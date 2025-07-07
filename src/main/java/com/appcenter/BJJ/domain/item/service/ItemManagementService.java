@@ -43,7 +43,6 @@ public class ItemManagementService {
     public List<ItemRes> uploadItems(MultipartFile infoFile, MultipartFile zipImageFile) throws IOException {
 
         String itemType = Objects.requireNonNull(infoFile.getOriginalFilename()).split("\\.")[0];
-
         ItemType type = ItemType.valueOf(itemType.toUpperCase());
         if (itemRepository.existsByItemType(type)) { //아이템 DB 업데이트
             itemRepository.deleteByItemType(type);
@@ -57,7 +56,7 @@ public class ItemManagementService {
         itemRepository.saveAll(itemList);
 
         return itemList.stream().map(item -> ItemRes.builder()
-                .itemId(item.getId())
+                .itemIdx(item.getItemIdx())
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
@@ -121,7 +120,7 @@ public class ItemManagementService {
 
             for (int i = 1; i < rowCount; i++) {
                 Row row = sheet.getRow(i);
-                itemVO.add(new ItemVO(row.getCell(0).getStringCellValue(), ItemLevel.valueOf(row.getCell(1).getStringCellValue())));
+                itemVO.add(new ItemVO((int) row.getCell(0).getNumericCellValue(), row.getCell(1).getStringCellValue(), ItemLevel.valueOf(row.getCell(2).getStringCellValue())));
             }
 
         } catch (IOException e) {
