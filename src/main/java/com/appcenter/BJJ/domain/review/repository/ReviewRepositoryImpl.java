@@ -1,356 +1,267 @@
 package com.appcenter.BJJ.domain.review.repository;
 
-import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.todaydiet.domain.Cafeteria;
-import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
-import com.appcenter.BJJ.domain.menu.domain.Menu;
-import com.appcenter.BJJ.domain.menu.domain.MenuPair;
-import com.appcenter.BJJ.domain.review.domain.Review;
-import com.appcenter.BJJ.domain.review.domain.ReviewLike;
+import com.appcenter.BJJ.domain.menu.domain.QMenu;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
 import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
+import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.JPQLSubQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.appcenter.BJJ.domain.member.domain.QMember.member;
+import static com.appcenter.BJJ.domain.menu.domain.QMenuPair.menuPair;
+import static com.appcenter.BJJ.domain.review.domain.QReview.review;
+import static com.appcenter.BJJ.domain.review.domain.QReviewLike.reviewLike;
+import static com.appcenter.BJJ.domain.todaydiet.domain.QCafeteria.cafeteria;
 
 @Repository
+@RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final JPAQueryFactory jpaQueryFactory;
 
     @Override
     public Slice<ReviewDetailRes> findReviewsWithImagesAndMemberDetails(Long memberId, Long mainMenuId, Long subMenuId, Sort sort, Boolean isWithImages, Pageable pageable) {
+        QMenu mainMenu = new QMenu("mainMenu");
+        QMenu subMenu = new QMenu("subMenu");
 
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ReviewDetailRes> query = cb.createQuery(ReviewDetailRes.class);
-        Root<Review> review = query.from(Review.class);
+        // 서브쿼리: 해당 리뷰에 좋아요를 눌렀는지 여부 (Boolean)
+        BooleanExpression isLiked = JPAExpressions
+                .selectOne()
+                .from(reviewLike)
+                .where(reviewLike.reviewId.eq(review.id)
+                        .and(reviewLike.memberId.eq(memberId)))
+                .exists();
 
-        // 조건문 리스트
-        List<Predicate> predicates = new ArrayList<>();
+        // where 조건 빌드
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        whereBuilder.and(review.isDeleted.isFalse());
 
-        // MenuPair와 Image 조인
-        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
+        if (mainMenuId != null && subMenuId != null) {
+            BooleanBuilder menuCondition = new BooleanBuilder();
+            menuCondition.or(mainMenu.id.in(mainMenuId, subMenuId));
+            menuCondition.or(subMenu.id.in(mainMenuId, subMenuId));
+            whereBuilder.and(menuCondition);
+        } else if (mainMenuId != null) {
+            // subMenuId가 null인 경우
+            whereBuilder.and(mainMenu.id.eq(mainMenuId));
+        }
 
-        // Menu 조인
-        Root<Menu> mainMenu = query.from(Menu.class);
-        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
-        Root<Menu> subMenu = query.from(Menu.class);
-        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
-
-        // Menu 조건문
-        predicates.add(cb.or(
-                cb.equal(mainMenu.get("id"), mainMenuId),
-                cb.equal(mainMenu.get("id"), subMenuId),
-                cb.equal(subMenu.get("id"), mainMenuId),
-                cb.equal(subMenu.get("id"), subMenuId)
-        ));
-
-        // Member에 대한 서브쿼리
-        Subquery<String> memberSubquery = query.subquery(String.class);
-        Root<Member> member = memberSubquery.from(Member.class);
-        memberSubquery.select(member.get("nickname"))
-                .where(cb.equal(member.get("id"), review.get("memberId")));
-
-        // ReviewLike에 대한 서브쿼리
-        Subquery<Long> likeSubquery = query.subquery(Long.class);
-        Root<ReviewLike> reviewLike = likeSubquery.from(ReviewLike.class);
-        likeSubquery.select(reviewLike.get("id"))
-                .where(cb.and(
-                        cb.equal(reviewLike.get("reviewId"), review.get("id")),
-                        cb.equal(reviewLike.get("memberId"), memberId)
-                ));
-        Predicate isLiked = cb.exists(likeSubquery);
-
-        // 자신이 작성한 리뷰인지 여부
-        Expression<Object> isOwned = cb.selectCase()
-                .when(cb.equal(review.get("memberId"), memberId), true)
-                .otherwise(false);
-
-
-        // 포토 리뷰만 조건 추가
         if (Boolean.TRUE.equals(isWithImages)) {
-            predicates.add(cb.greaterThan(cb.size(review.get("images")), 0));
+            whereBuilder.and(review.images.size().gt(0));
         }
 
-        // 삭제되지 않은 리뷰인지 여부
-        predicates.add(cb.equal(review.get("isDeleted"), false));
+        // 기본 쿼리 생성
+        JPQLQuery<ReviewDetailRes> query = jpaQueryFactory
+                .select(Projections.constructor(
+                        ReviewDetailRes.class,
+                        review.id,
+                        review.comment,
+                        review.rating,
+                        review.likeCount,
+                        isLiked,
+                        review.createdDate,
+                        menuPair.id,
+                        menuPair.mainMenuId,
+                        mainMenu.menuName,
+                        menuPair.subMenuId,
+                        subMenu.menuName,
+                        review.memberId,
+                        member.nickname,
+                        review.memberId.eq(memberId)
+                ))
+                .from(review)
+                .join(review.menuPair(), menuPair)
+                .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .join(member).on(member.id.eq(review.memberId))
+                .where(whereBuilder);
 
-        // 정렬 조건 설정
-        List<Order> orderList = new ArrayList<>();
-        if (sort == Sort.BEST_MATCH) {
-            // BestMatch: mainMenu와 subMenu 둘 다 일치한 리뷰를 가장 먼저
-            Expression<Integer> bestMatchPriority = cb.<Integer>selectCase()
-                    .when(cb.and(
-                            cb.equal(menuPair.get("mainMenuId"), mainMenuId),
-                            cb.equal(menuPair.get("subMenuId"), subMenuId)
-                    ), 1)
-                    .when(cb.equal(menuPair.get("mainMenuId"), mainMenuId), 2)
-                    .when(cb.equal(menuPair.get("subMenuId"), subMenuId), 3)
-                    .otherwise(4); // 일치하지 않는 경우
+        // 정렬 조건 처리
+        if (sort == Sort.BEST_MATCH && mainMenuId != null) {
+            NumberExpression<Integer> bestMatchPriority;
 
-            orderList.add(cb.asc(bestMatchPriority)); // 우선순위가 낮을수록 먼저 정렬
-            orderList.add(cb.desc(review.get("id"))); // 리뷰 ID 기준 내림차순 정렬
+            if (subMenuId != null) {
+                bestMatchPriority = new CaseBuilder()
+                        .when(menuPair.mainMenuId.eq(mainMenuId).and(menuPair.subMenuId.eq(subMenuId))).then(1) // 메인 서브 모두 일치
+                        .when(menuPair.mainMenuId.eq(mainMenuId)).then(2)   // 메인만 일치
+                        .when(menuPair.mainMenuId.eq(subMenuId).and(menuPair.subMenuId.eq(mainMenuId))).then(3) // 메인 서브 교차 일치
+                        .otherwise(4);
+            } else {
+                bestMatchPriority = new CaseBuilder()
+                        .when(menuPair.mainMenuId.eq(mainMenuId)).then(1)
+                        .otherwise(2);
+            }
+
+            query.orderBy(bestMatchPriority.asc(), review.id.desc());
         } else if (sort == Sort.NEWEST_FIRST) {
-            // NewestFirst: reviewId 기준으로 최신순 정렬
-            orderList.add(cb.desc(review.get("id")));
+            query.orderBy(review.id.desc());
         } else if (sort == Sort.MOST_LIKED) {
-            // MostLiked: 좋아요 수(likeCount) 기준으로 정렬
-            orderList.add(cb.desc(review.get("likeCount")));
-            orderList.add(cb.desc(review.get("id"))); // 좋아요 수 동일 시 reviewId 기준으로 정렬
+            query.orderBy(review.likeCount.desc(), review.id.desc());
         }
-        query.orderBy(orderList);
 
-        // 쿼리에서 선택할 내용 설정
-        query.select(cb.construct(
-                ReviewDetailRes.class,
-                review.get("id"),
-                review.get("comment"),
-                review.get("rating"),
-                review.get("likeCount"),
-                isLiked,
-                review.get("createdDate"),
-                menuPair.get("id"),
-                mainMenu.get("id"),
-                mainMenu.get("menuName"),
-                subMenu.get("id"),
-                subMenu.get("menuName"),
-                review.get("memberId"),
-                memberSubquery,
-                isOwned
-        )).where(predicates.toArray(new Predicate[0]));
+        // 페이징 처리
+        List<ReviewDetailRes> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
 
-        TypedQuery<ReviewDetailRes> typedQuery = entityManager.createQuery(query);
-
-        // Slice 객체로 변환 후 반환
-        int pageNumber = pageable.getPageNumber();
-        int pageSize = pageable.getPageSize();
-
-        typedQuery.setFirstResult(pageNumber * pageSize);
-        typedQuery.setMaxResults(pageSize + 1);
-
-        List<ReviewDetailRes> resultList = typedQuery.getResultList();
-
-        // 다음 페이지 존재 여부 판단
-        boolean hasNext = resultList.size() > pageSize;
-
-        // 결과를 한 페이지 크기로 제한
+        boolean hasNext = results.size() > pageable.getPageSize();
         if (hasNext) {
-            resultList = resultList.subList(0, pageSize);
+            results = results.subList(0, pageable.getPageSize());
         }
 
-        // Slice 객체로 반환
-        return new SliceImpl<>(resultList, pageable, hasNext);
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
     @Override
     public Map<String, List<MyReviewDetailRes>> findMyReviewsWithImagesAndMemberDetailsAndCafeteria(Long memberId) {
+        QMenu mainMenu = new QMenu("mainMenu");
+        QMenu subMenu = new QMenu("subMenu");
 
+        // 카페테리아 이름 리스트
         List<String> cafeteriaNameList = Arrays.stream(CafeteriaData.values()).map(CafeteriaData::getName).toList();
 
         Map<String, List<MyReviewDetailRes>> myReviewDetailList = new LinkedHashMap<>();
 
         for (String cafeteriaName : cafeteriaNameList) {
+            // 메인 쿼리 작성
+            List<MyReviewDetailRes> results = jpaQueryFactory
+                    .select(Projections.constructor(
+                            MyReviewDetailRes.class,
+                            review.id,
+                            review.comment,
+                            review.rating,
+                            review.likeCount,
+                            review.createdDate,
+                            menuPair.id,
+                            mainMenu.menuName,
+                            subMenu.menuName,
+                            review.memberId,
+                            member.nickname
+                    ))
+                    .from(review)
+                    .join(review.menuPair(), menuPair)
+                    .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
+                    .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                    .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
+                    .join(member).on(review.memberId.eq(member.id))
+                    .where(
+                            review.isDeleted.isFalse(),
+                            review.memberId.eq(memberId),
+                            cafeteria.name.eq(cafeteriaName)
+                    )
+                    .orderBy(review.id.desc())
+                    .limit(3) // 각 카페테리아별 최대 3개
+                    .fetch();
 
-            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-            CriteriaQuery<MyReviewDetailRes> query = cb.createQuery(MyReviewDetailRes.class);
-            Root<Review> review = query.from(Review.class);
-
-            // 조건문 리스트
-            List<Predicate> predicates = new ArrayList<>();
-
-            // MenuPair와 Image 조인
-            Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
-
-            // Menu 조인
-            Root<Menu> mainMenu = query.from(Menu.class);
-            predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
-            Root<Menu> subMenu = query.from(Menu.class);
-            predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
-
-            // Cafeteria 조인
-            Root<Cafeteria> cafeteria = query.from(Cafeteria.class);
-            predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
-
-            // Cafeteria 조건문
-            predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
-
-            // Member 조건문
-            predicates.add(cb.equal(review.get("memberId"), memberId));
-
-            // Member에 대한 서브쿼리
-            Subquery<String> memberSubquery = query.subquery(String.class);
-            Root<Member> member = memberSubquery.from(Member.class);
-            memberSubquery.select(member.get("nickname"))
-                    .where(cb.equal(member.get("id"), review.get("memberId")));
-
-            // 삭제되지 않은 리뷰인지 여부
-            predicates.add(cb.equal(review.get("isDeleted"), false));
-
-            // 쿼리에서 선택할 내용 설정
-            query.select(cb.construct(
-                    MyReviewDetailRes.class,
-                    review.get("id"),
-                    review.get("comment"),
-                    review.get("rating"),
-                    review.get("likeCount"),
-                    review.get("createdDate"),
-                    menuPair.get("id"),
-                    mainMenu.get("menuName"),
-                    subMenu.get("menuName"),
-                    review.get("memberId"),
-                    memberSubquery
-            )).where(predicates.toArray(new Predicate[0]));
-
-            query.orderBy(cb.desc(review.get("id")));
-
-            List<MyReviewDetailRes> resultList = entityManager.createQuery(query)
-                    .setMaxResults(3)
-                    .getResultList();
-
-            if (!resultList.isEmpty()) {
-                myReviewDetailList.put(cafeteriaName, resultList);
+            if (!results.isEmpty()) {
+                myReviewDetailList.put(cafeteriaName, results);
             }
         }
+
         return myReviewDetailList;
     }
 
     @Override
     public Slice<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, Pageable pageable) {
+        QMenu mainMenu = new QMenu("mainMenu");
+        QMenu subMenu = new QMenu("subMenu");
 
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<MyReviewDetailRes> query = cb.createQuery(MyReviewDetailRes.class);
-        Root<Review> review = query.from(Review.class);
+        // 쿼리 생성
+        List<MyReviewDetailRes> results = jpaQueryFactory
+                .select(Projections.constructor(
+                        MyReviewDetailRes.class,
+                        review.id,
+                        review.comment,
+                        review.rating,
+                        review.likeCount,
+                        review.createdDate,
+                        menuPair.id,
+                        mainMenu.menuName,
+                        subMenu.menuName,
+                        review.memberId,
+                        member.nickname
+                ))
+                .from(review)
+                .join(review.menuPair(), menuPair)
+                .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
+                .join(member).on(review.memberId.eq(member.id))
+                .where(
+                        review.memberId.eq(memberId),
+                        cafeteria.name.eq(cafeteriaName),
+                        review.isDeleted.isFalse()
+                )
+                .orderBy(review.id.desc())
+                .offset(pageable.getOffset())   // offset 처리
+                .limit(pageable.getPageSize() + 1) // Slice 처리용 +1
+                .fetch();
 
-        // 조건문 리스트
-        List<Predicate> predicates = new ArrayList<>();
-
-        // MenuPair와 Image 조인
-        Join<Review, MenuPair> menuPair = review.join("menuPair", JoinType.INNER);
-
-        // Menu 조인
-        Root<Menu> mainMenu = query.from(Menu.class);
-        predicates.add(cb.equal(mainMenu.get("id"), menuPair.get("mainMenuId")));
-        Root<Menu> subMenu = query.from(Menu.class);
-        predicates.add(cb.equal(subMenu.get("id"), menuPair.get("subMenuId")));
-
-        // Cafeteria 조인
-        Root<Cafeteria> cafeteria = query.from(Cafeteria.class);
-        predicates.add(cb.equal(cafeteria.get("id"), mainMenu.get(("cafeteriaId"))));
-
-        // Cafeteria 조건문
-        predicates.add(cb.equal(cafeteria.get("name"), cafeteriaName));
-
-        // Member 조건문
-        predicates.add(cb.equal(review.get("memberId"), memberId));
-
-        // Member에 대한 서브쿼리
-        Subquery<String> memberSubquery = query.subquery(String.class);
-        Root<Member> member = memberSubquery.from(Member.class);
-        memberSubquery.select(member.get("nickname"))
-                .where(cb.equal(member.get("id"), review.get("memberId")));
-
-        // 삭제되지 않은 리뷰인지 여부
-        predicates.add(cb.equal(review.get("isDeleted"), false));
-
-        // 쿼리에서 선택할 내용 설정
-        query.select(cb.construct(
-                MyReviewDetailRes.class,
-                review.get("id"),
-                review.get("comment"),
-                review.get("rating"),
-                review.get("likeCount"),
-                review.get("createdDate"),
-                menuPair.get("id"),
-                mainMenu.get("menuName"),
-                subMenu.get("menuName"),
-                review.get("memberId"),
-                memberSubquery
-        )).where(predicates.toArray(new Predicate[0]));
-
-        query.orderBy(cb.desc(review.get("id")));
-
-
-        TypedQuery<MyReviewDetailRes> typedQuery = entityManager.createQuery(query);
-
-        // Slice 객체로 변환 후 반환
-        int pageNumber = pageable.getPageNumber();
-        int pageSize = pageable.getPageSize();
-
-        typedQuery.setFirstResult(pageNumber * pageSize);
-        typedQuery.setMaxResults(pageSize + 1);
-
-        List<MyReviewDetailRes> resultList = typedQuery.getResultList();
-
-        // 다음 페이지 존재 여부 판단
-        boolean hasNext = resultList.size() > pageSize;
-
-        // 결과를 한 페이지 크기로 제한
+        boolean hasNext = results.size() > pageable.getPageSize();
         if (hasNext) {
-            resultList = resultList.subList(0, pageSize);
+            results = results.subList(0, pageable.getPageSize());
         }
 
-        // Slice 객체로 반환
-        return new SliceImpl<>(resultList, pageable, hasNext);
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
     @Override
     public List<BestReviewDto> findMostLikedReviewIdsInMainMenuIds(List<Long> mainMenuIds) {
-        // EntityManager 생성
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BestReviewDto> query = cb.createQuery(BestReviewDto.class);
-
-        // 조건문 리스트
-        List<Predicate> predicates = new ArrayList<>();
-
-        // Root 정의
-        Root<Review> review = query.from(Review.class);
-        Join<Review, MenuPair> menuPair = review.join("menuPair");
-
-        // 서브쿼리 1: 최대 like_count를 구하는 서브쿼리
-        Subquery<Long> subQuery1 = query.subquery(Long.class);
-        Root<Review> subReview = subQuery1.from(Review.class);
-        Join<Review, MenuPair> subMenuPair = subReview.join("menuPair");
-        subQuery1.select(cb.max(subReview.get("likeCount")))
+        // 서브쿼리 1: mainMenuId 별 최대 likeCount 조회
+        JPQLSubQuery<Long> maxLikeCountSubquery = JPAExpressions
+                .select(review.likeCount.max())
+                .from(review)
+                .join(review.menuPair(), menuPair)
                 .where(
-                        cb.equal(subMenuPair.get("mainMenuId"), menuPair.get("mainMenuId")),
-                        cb.equal(review.get("isDeleted"), false)    // 삭제되지 않은 리뷰인지 여부
+                        menuPair.mainMenuId.eq(review.menuPair().mainMenuId),
+                        review.isDeleted.isFalse()
                 );
 
-        // 서브쿼리 2: 최대 like_count와 같은 like_count 중에서 최대 review_id(가장 최근 리뷰)를 구하는 서브쿼리
-        Subquery<Long> subQuery2 = query.subquery(Long.class);
-        Root<Review> subReview2 = subQuery2.from(Review.class);
-        Join<Review, MenuPair> subMenuPair2 = subReview2.join("menuPair");
-        subQuery2.select(cb.max(subReview2.get("id")))
+        // 서브쿼리 2: 최대 likeCount인 것 중에서 최대 reviewId 조회
+        JPQLSubQuery<Long> maxReviewIdSubquery = JPAExpressions
+                .select(review.id.max())
+                .from(review)
+                .join(review.menuPair(), menuPair)
                 .where(
-                        cb.equal(subMenuPair2.get("mainMenuId"), menuPair.get("mainMenuId")),
-                        cb.equal(subReview2.get("likeCount"), subQuery1),
-                        cb.equal(review.get("isDeleted"), false)    // 삭제되지 않은 리뷰인지 여부
+                        menuPair.mainMenuId.eq(review.menuPair().mainMenuId),
+                        review.likeCount.eq(maxLikeCountSubquery),
+                        review.isDeleted.isFalse()
                 );
 
-        // 조건문 추가
-        predicates.add(cb.equal(review.get("isDeleted"), false));   // 삭제되지 않은 리뷰인지 여부
-        predicates.add(menuPair.get("mainMenuId").in(mainMenuIds));
-        predicates.add(cb.equal(review.get("id"), subQuery2));  // review_id가 서브쿼리에서 구한 값과 일치하는 경우
-
-        // 메인 쿼리 정의
-        query.select(cb.construct(
-                BestReviewDto.class,
-                menuPair.get("mainMenuId"), // main_menu_id
-                review.get("id") // review_id
+        // 메인 쿼리
+        return jpaQueryFactory
+                .select(Projections.constructor(
+                        BestReviewDto.class,
+                        menuPair.mainMenuId,
+                        review.id
                 ))
-                .where(predicates.toArray(new Predicate[0]));
-
-        // 쿼리 실행
-        return entityManager.createQuery(query).getResultList();
+                .from(review)
+                .join(review.menuPair(), menuPair)
+                .where(
+                        review.isDeleted.isFalse(),
+                        menuPair.mainMenuId.in(mainMenuIds),
+                        review.id.eq(maxReviewIdSubquery)
+                )
+                .fetch();
     }
 }

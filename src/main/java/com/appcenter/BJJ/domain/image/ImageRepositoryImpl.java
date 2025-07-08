@@ -1,57 +1,44 @@
 package com.appcenter.BJJ.domain.image;
 
 import com.appcenter.BJJ.domain.review.domain.Review;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import static com.appcenter.BJJ.domain.image.QImage.image;
+import static com.appcenter.BJJ.domain.review.domain.QReview.review;
 
 @Repository
+@RequiredArgsConstructor
 public class ImageRepositoryImpl implements ImageRepositoryCustom{
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Image findFirstImageOfMostLikedReview(Long menuPairId) {
-        // 1. 가장 좋아요 수가 많은 리뷰 조회 (단, 이미지를 가진 리뷰여야 하고, 삭제되지 않은 리뷰여야 함)
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Review> reviewQuery = cb.createQuery(Review.class);
-        Root<Review> reviewRoot = reviewQuery.from(Review.class);
 
-        reviewQuery.select(reviewRoot)
-                .where(cb.and(
-                        cb.equal(reviewRoot.get("menuPair").get("id"), menuPairId),
-                        cb.gt(cb.size(reviewRoot.get("images")), 0),
-                        cb.equal(reviewRoot.get("isDeleted"), false)
-                ))
-                .orderBy(cb.desc(reviewRoot.get("likeCount")));
+        // 1. 가장 좋아요가 많은 리뷰 조회
+        Review mostLikedReview = queryFactory
+                .selectFrom(review)
+                .where(
+                        review.menuPair().id.eq(menuPairId),
+                        review.isDeleted.isFalse(),
+                        review.images.size().gt(0)
+                )
+                .orderBy(review.likeCount.desc())
+                .limit(1)
+                .fetchOne();
 
-        // 2. 조회된 리뷰의 ID를 사용해 이미지 조회
-        List<Review> reviews = entityManager.createQuery(reviewQuery)
-                .setMaxResults(1) // 최상위 1개의 리뷰만 가져옴
-                .getResultList();
-
-        if (reviews.isEmpty()) {
+        if (mostLikedReview == null) {
             return null;
         }
 
-        Long reviewId = reviews.get(0).getId();
-
-        // 3. 해당 리뷰에 연결된 이미지를 가져옴
-        CriteriaQuery<Image> imageQuery = cb.createQuery(Image.class);
-        Root<Image> imageRoot = imageQuery.from(Image.class);
-
-        imageQuery.select(imageRoot)
-                .where(cb.equal(imageRoot.get("review").get("id"), reviewId))
-                .orderBy(cb.asc(imageRoot.get("id")));
-
-        return entityManager.createQuery(imageQuery)
-                .setMaxResults(1) // 이미지도 최상위 1개만 가져옴
-                .getSingleResult(); // 결과가 없을 시 NoResultException
+        // 2. 해당 리뷰에 연결된 이미지 1개 조회
+        return queryFactory
+                .selectFrom(image)
+                .where(image.review().id.eq(mostLikedReview.getId()))
+                .orderBy(image.id.asc())
+                .limit(1)
+                .fetchOne();
     }
 }

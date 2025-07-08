@@ -130,6 +130,8 @@ public class ReviewService {
         MenuPair menuPair = menuPairRepository.findById(menuPairId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENU_PAIR_NOT_FOUND));
 
+        log.debug("[로그] menuPair.getMainMenuId() = {}, menuPair.getSubMenuId() = {}  ", menuPair.getMainMenuId(), menuPair.getSubMenuId());
+
         Slice<ReviewDetailRes> reviewDetailResSlice = reviewRepository
                 .findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), sort, isWithImages, PageRequest.of(pageNumber, pageSize));
         List<ReviewDetailRes> reviewDetailResList = reviewDetailResSlice.getContent();
