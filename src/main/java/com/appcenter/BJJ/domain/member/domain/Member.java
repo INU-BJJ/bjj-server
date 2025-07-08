@@ -41,6 +41,8 @@ public class Member {
     @Embedded
     private OAuth2Client oAuth2Client;
 
+    private Boolean isNotificationEnabled;
+
 
     @Builder
     private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
@@ -53,6 +55,7 @@ public class Member {
         this.memberStatus = MemberStatus.ACTIVE;
         this.suspensionPeriod = SuspensionPeriod.init();
         this.oAuth2Client = oAuth2Client;
+        this.isNotificationEnabled = true;
     }
 
     public void updateMemberInfo(String nickname, MemberRole role) {
@@ -76,6 +79,11 @@ public class Member {
         this.oAuth2Client = oAuth2Client;
     }
 
+    public void toggleNotification() {
+        this.isNotificationEnabled = !this.isNotificationEnabled;
+    }
+
+    // test용 메소드
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
     }

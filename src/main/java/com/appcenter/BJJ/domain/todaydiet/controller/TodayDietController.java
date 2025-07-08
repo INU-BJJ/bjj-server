@@ -1,5 +1,8 @@
 package com.appcenter.BJJ.domain.todaydiet.controller;
 
+import com.appcenter.BJJ.domain.notification.dto.NotificationInfoDto;
+import com.appcenter.BJJ.domain.notification.service.DietNotificationService;
+import com.appcenter.BJJ.domain.notification.service.FcmService;
 import com.appcenter.BJJ.domain.todaydiet.dto.TodayDietRes;
 import com.appcenter.BJJ.domain.todaydiet.dto.TodayMenuRes;
 import com.appcenter.BJJ.domain.todaydiet.service.TodayDietService;
@@ -11,9 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +29,8 @@ import java.util.List;
 public class TodayDietController {
 
     private final TodayDietService todayDietService;
+    private final DietNotificationService dietNotificationService;
+    private final FcmService fcmService;
 
     @Operation(summary = "특정 식당에서 오늘의 식단 목록 조회",
             description = """
@@ -51,5 +58,16 @@ public class TodayDietController {
         List<TodayMenuRes> todayMainMenuList = todayDietService.findMainMenusByCafeteria(cafeteriaName);
 
         return ResponseEntity.ok(todayMainMenuList);
+    }
+
+    @PostMapping("/test/notification")
+    @Operation(summary = "[test] 오늘 식단 메뉴에 좋아요를 누른 회원에게 알림 일괄 전송")
+    public ResponseEntity<Void> testDietNotification() {
+        log.info("[로그] POST /api/device-tokens/test/notification");
+
+        List<NotificationInfoDto> notificationTargets = dietNotificationService.collectNotificationTargets(LocalDate.now());
+        fcmService.sendMessage(notificationTargets);
+
+        return ResponseEntity.noContent().build();
     }
 }

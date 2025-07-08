@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor    // QueryDSL은 접근제어자로 Public 필요
 public class MyReviewDetailRes {
     @Schema(description = "리뷰 id", example = "1")
     private final Long reviewId;
