@@ -69,6 +69,9 @@ dependencies {
 	// Spring AI
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 
+	// convert excel
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
 	// Firebase Admin SDK
 	implementation 'com.google.firebase:firebase-admin:9.4.3'
 

@@ -28,7 +28,7 @@ public class ItemManagementController {
     @Operation(summary = "아이템 이미지 저장",
             description = "character / backgound 로 파일명 설정하고 이용")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<ItemRes>> uploadItems(@RequestPart MultipartFile infoFile, @RequestPart MultipartFile imageFile) throws IOException {
-        return new ResponseEntity<>(itemManagementService.uploadItems(infoFile, imageFile), HttpStatus.CREATED);
+    public ResponseEntity<List<ItemRes>> uploadItems(@RequestPart MultipartFile infoFile, @RequestPart MultipartFile zipImageFile) throws IOException {
+        return new ResponseEntity<>(itemManagementService.uploadItems(infoFile, zipImageFile), HttpStatus.CREATED);
     }
 }

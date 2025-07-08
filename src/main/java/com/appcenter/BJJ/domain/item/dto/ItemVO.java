@@ -1,13 +1,14 @@
 package com.appcenter.BJJ.domain.item.dto;
 
 import com.appcenter.BJJ.domain.item.enums.ItemLevel;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class ItemVO {
+
+    private final Integer itemIdx;
 
     private final String itemName;
 

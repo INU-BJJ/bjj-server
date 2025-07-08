@@ -5,8 +5,10 @@ import com.appcenter.BJJ.domain.item.dto.DetailItemRes;
 import com.appcenter.BJJ.domain.item.enums.ItemLevel;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,17 +20,16 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.id,
+            item.itemIdx,
             item.itemName,
             item.itemType,
             item.itemLevel,
-            item.imageName,
             inven.validPeriod,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false)
             )
             From Item item
-            LEFT JOIN Inventory inven ON item.id = inven.itemId
+            LEFT JOIN Inventory inven ON item.itemIdx = inven.itemIdx
             AND inven.memberId = :memberId
             WHERE item.itemType = :itemType
             """)
@@ -36,19 +37,26 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
-            item.id,
+            item.itemIdx,
             item.itemName,
             item.itemType,
             item.itemLevel,
-            item.imageName,
             inven.validPeriod,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
             FROM Item item
-            LEFT JOIN Inventory inven ON inven.itemId = :itemId
+            LEFT JOIN Inventory inven ON inven.itemIdx = :itemIdx
             AND inven.memberId = :memberId
-            WHERE item.id = :itemId
+            WHERE item.itemIdx = :itemIdx
             AND item.itemType = :itemType
             """)
-    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Long itemId, ItemType itemType);
+    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Integer itemIdx, ItemType itemType);
+
+    @Query("SELECT COUNT(i) > 0 FROM Item i where i.itemType = :itemType")
+    boolean existsByItemType(ItemType itemType);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Item i where i.itemType = :itemType")
+    void deleteByItemType(ItemType itemType);
 }

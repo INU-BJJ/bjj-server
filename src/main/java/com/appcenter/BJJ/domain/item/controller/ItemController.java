@@ -41,15 +41,14 @@ public class ItemController {
     }
 
     @Operation(summary = "개별 아이템 조회", description = "날짜 == 현재 : 안 뽑힌 아이템 / 날짜 != 현재 : 뽑힌 아이템")
-    @GetMapping("/{itemId}")
-    public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long itemId, @RequestParam ItemType itemType) {
-        return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemId, itemType));
+    @GetMapping("/{itemIdx}")
+    public ResponseEntity<DetailItemRes> getItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable int itemIdx, @RequestParam ItemType itemType) {
+        return ResponseEntity.ok(itemService.getItem(userDetails.getMember().getId(), itemIdx, itemType));
     }
 
     @Operation(summary = "아이템 착용", description = "기본아이템의 경우, dto의 모든 필드 값 == null")
-    @PatchMapping("/{itemId}")
-    //TODO 배경에 대한 착용도 추가하기
-    public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType, @PathVariable Long itemId) {
-        itemService.toggleIsWearing(userDetails.getMember().getId(), itemType, itemId);
+    @PatchMapping("/{itemIdx}")
+    public void updateIsWearing(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ItemType itemType, @PathVariable int itemIdx) {
+        itemService.toggleIsWearing(userDetails.getMember().getId(), itemType, itemIdx);
     }
 }

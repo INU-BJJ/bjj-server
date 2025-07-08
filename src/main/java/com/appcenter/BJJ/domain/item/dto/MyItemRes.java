@@ -9,11 +9,11 @@ public class MyItemRes {
 
     private final String nickname;
 
-    private final Long characterId;
+    private final Integer characterIdx; //Idx값의 null값을 허용
 
     private final String characterImageName;
 
-    private final Long backgroundId;
+    private final Integer backgroundIdx;
 
     private final String backgroundImageName;
 
