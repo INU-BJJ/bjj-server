@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ItemVO {
 
-    private final int itemIdx;
+    private final Integer itemIdx;
 
     private final String itemName;
 

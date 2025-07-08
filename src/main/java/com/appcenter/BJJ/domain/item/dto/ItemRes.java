@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemRes {
 
-    private final int itemIdx;
+    private final Integer itemIdx;
 
     private final String itemName;
 

@@ -19,7 +19,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
         AND inven.itemIdx = :itemIdx
         AND item.itemType = :itemType
         """)
-    Optional<Inventory> findByMemberIdAndItemTypeAndItemIdx(Long memberId, ItemType itemType, int itemIdx);
+    Optional<Inventory> findByMemberIdAndItemTypeAndItemIdx(Long memberId, ItemType itemType, Integer itemIdx);
 
     @Query("""
             SELECT new com.appcenter.BJJ.domain.item.dto.MyItemRes(

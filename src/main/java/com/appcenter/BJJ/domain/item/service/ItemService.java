@@ -88,14 +88,14 @@ public class ItemService {
         return itemRepository.getAllDetailItemsByMemberIdAndItemType(memberId, itemType);
     }
 
-    public DetailItemRes getItem(Long memberId, int itemIdx, ItemType itemType) {
+    public DetailItemRes getItem(Long memberId, Integer itemIdx, ItemType itemType) {
         return itemRepository.findDetailItemByIdAndMemberIdAndItemType(memberId, itemIdx, itemType).orElseThrow(
                 () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
         );
     }
 
     @Transactional
-    public void toggleIsWearing(Long memberId, ItemType itemType, int itemIdx) {
+    public void toggleIsWearing(Long memberId, ItemType itemType, Integer itemIdx) {
         if (inventoryRepository.existsWearingItemByMemberIdAndItemType(memberId, itemType)) {
             Inventory currentInven = inventoryRepository.findWearingItemByMemberIdAndItemType(memberId, itemType).orElseThrow(
                     () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)

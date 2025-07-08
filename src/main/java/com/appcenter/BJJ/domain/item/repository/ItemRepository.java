@@ -50,7 +50,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             WHERE item.itemIdx = :itemIdx
             AND item.itemType = :itemType
             """)
-    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, int itemIdx, ItemType itemType);
+    Optional<DetailItemRes> findDetailItemByIdAndMemberIdAndItemType(Long memberId, Integer itemIdx, ItemType itemType);
 
     @Query("SELECT COUNT(i) > 0 FROM Item i where i.itemType = :itemType")
     boolean existsByItemType(ItemType itemType);
