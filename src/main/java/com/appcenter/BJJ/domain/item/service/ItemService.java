@@ -63,6 +63,7 @@ public class ItemService {
                 Inventory.builder()
                         .memberId(memberId)
                         .itemIdx(item.getItemIdx())
+                        .itemType(itemType)
                         .isWearing(false)
                         .isOwned(true)
                         .validPeriod(LocalDateTime.now())

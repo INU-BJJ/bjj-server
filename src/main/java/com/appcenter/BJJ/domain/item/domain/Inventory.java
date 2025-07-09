@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.item.domain;
 
+import com.appcenter.BJJ.domain.item.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,6 +22,9 @@ public class Inventory {
 
     private int itemIdx;
 
+    @Enumerated(EnumType.STRING)
+    private ItemType itemType;
+
     private Boolean isWearing;
 
     private Boolean isOwned;
@@ -28,9 +32,10 @@ public class Inventory {
     private LocalDateTime validPeriod;
 
     @Builder
-    private Inventory(Long memberId, int itemIdx, boolean isWearing, boolean isOwned, LocalDateTime validPeriod) {
+    private Inventory(Long memberId, int itemIdx, ItemType itemType, boolean isWearing, boolean isOwned, LocalDateTime validPeriod) {
         this.memberId = memberId;
         this.itemIdx = itemIdx;
+        this.itemType = itemType;
         this.isOwned = isOwned;
         this.isWearing = isWearing;
         this.validPeriod = validPeriod;
