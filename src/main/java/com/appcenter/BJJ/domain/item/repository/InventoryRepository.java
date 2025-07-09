@@ -13,12 +13,11 @@ import java.util.Optional;
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     @Query("""
-        SELECT inven FROM Inventory inven
-        INNER JOIN Item item ON item.itemIdx = inven.itemIdx
-        WHERE inven.memberId = :memberId
-        AND inven.itemIdx = :itemIdx
-        AND item.itemType = :itemType
-        """)
+            SELECT inven FROM Inventory inven
+            WHERE inven.memberId = :memberId
+            AND inven.itemType = :itemType
+            AND inven.itemIdx = :itemIdx
+            """)
     Optional<Inventory> findByMemberIdAndItemTypeAndItemIdx(Long memberId, ItemType itemType, Integer itemIdx);
 
     @Query("""
