@@ -24,7 +24,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             item.itemName,
             item.itemType,
             item.itemLevel,
-            inven.validPeriod,
+            inven.expiresAt,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false)
             )
@@ -41,7 +41,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             item.itemName,
             item.itemType,
             item.itemLevel,
-            inven.validPeriod,
+            inven.expiresAt,
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
             FROM Item item

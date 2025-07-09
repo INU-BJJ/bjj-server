@@ -29,20 +29,21 @@ public class Inventory {
 
     private Boolean isOwned;
 
-    private LocalDateTime validPeriod;
+    private LocalDateTime expiresAt;
 
     @Builder
-    private Inventory(Long memberId, int itemIdx, ItemType itemType, boolean isWearing, boolean isOwned, LocalDateTime validPeriod) {
+    private Inventory(Long memberId, int itemIdx, ItemType itemType, boolean isWearing, boolean isOwned, LocalDateTime expiresAt) {
         this.memberId = memberId;
         this.itemIdx = itemIdx;
         this.itemType = itemType;
         this.isOwned = isOwned;
         this.isWearing = isWearing;
-        this.validPeriod = validPeriod;
+        this.expiresAt = expiresAt;
     }
 
     public void updateValidPeriodAndIsOwned(LocalDateTime validPeriod) {
-        this.validPeriod = validPeriod.plusDays(7);
+//        this.expiresAt = validPeriod.plusDays(7); TODO 프론트 테스트를 위해 잠시 15초로 변경
+        this.expiresAt = validPeriod.plusSeconds(20);
         this.isOwned = true;
     }
 
