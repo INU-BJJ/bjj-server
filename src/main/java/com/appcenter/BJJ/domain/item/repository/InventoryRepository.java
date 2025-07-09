@@ -4,8 +4,10 @@ import com.appcenter.BJJ.domain.item.domain.Inventory;
 import com.appcenter.BJJ.domain.item.dto.MyItemRes;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -56,4 +58,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             AND item.itemType = :itemType
             """)
     boolean existsWearingItemByMemberIdAndItemType(Long memberId, ItemType itemType);
+
+    @Modifying
+    @Transactional
+    void deleteByMemberIdAndItemIdxAndItemType(Long memberId, Integer itemIdx, ItemType itemType);
 }

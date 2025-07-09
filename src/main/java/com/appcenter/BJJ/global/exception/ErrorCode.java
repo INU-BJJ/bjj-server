@@ -31,6 +31,7 @@ public enum ErrorCode {
     REVIEW_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5", "해당 리뷰의 상세 정보를 불러올 수 없습니다."),
     CAFETERIA_NOT_FOUND(HttpStatus.NOT_FOUND, "404-6", "해당 식당이 존재하지 않습니다."),
     MENU_PAIR_NOT_FOUND(HttpStatus.NOT_FOUND, "404-7", "해당 메뉴쌍이 존재하지 않습니다."),
+    ITEM_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "아이템의 task가 존재하지 않습니다."),
 
 
     //409 Conflict
