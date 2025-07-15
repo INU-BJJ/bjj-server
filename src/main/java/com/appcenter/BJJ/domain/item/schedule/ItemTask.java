@@ -28,7 +28,7 @@ public class ItemTask {
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private ItemTask(Long memberId, Integer itemIdx, ItemType itemType, LocalDateTime expiresAt, TaskStatus taskStatus) {
         this.memberId = memberId;
         this.itemIdx = itemIdx;
@@ -47,7 +47,7 @@ public class ItemTask {
                 .build();
     }
 
-    public void updateTaskStatue(TaskStatus taskStatus){
+    public void updateTaskStatue(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 
