@@ -33,7 +33,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             )
             FROM Inventory inven
             INNER JOIN Member member ON inven.memberId = member.id
-            INNER JOIN Item item ON inven.itemIdx = item.itemIdx
+            INNER JOIN Item item ON inven.itemIdx = item.itemIdx AND item.itemType = inven.itemType
             WHERE inven.memberId = :memberId
             AND inven.isWearing = true
             GROUP BY member.id
@@ -42,20 +42,19 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     @Query("""
             SELECT inven FROM Inventory inven
-            LEFT JOIN Item item ON item.itemIdx = inven.itemIdx
             WHERE inven.memberId = :memberId
             AND inven.isWearing = true
-            AND item.itemType = :itemType
+            AND inven.isOwned = true
+            AND inven.itemType = :itemType
             """)
     Optional<Inventory> findWearingItemByMemberIdAndItemType(Long memberId, ItemType itemType);
 
     @Query("""
             SELECT COUNT(*) = 1
             FROM Inventory inven
-            LEFT JOIN Item item ON item.itemIdx = inven.itemIdx
             WHERE inven.memberId = :memberId
             AND inven.isWearing = true
-            AND item.itemType = :itemType
+            AND inven.itemType = :itemType
             """)
     boolean existsWearingItemByMemberIdAndItemType(Long memberId, ItemType itemType);
 

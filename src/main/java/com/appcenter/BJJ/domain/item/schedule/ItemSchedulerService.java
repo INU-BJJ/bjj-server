@@ -1,7 +1,10 @@
 package com.appcenter.BJJ.domain.item.schedule;
 
+import com.appcenter.BJJ.domain.item.domain.Inventory;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -51,6 +54,14 @@ public class ItemSchedulerService {
     private Runnable getTask(ItemTask itemTask) {
         return () -> {
             inventoryRepository.deleteByMemberIdAndItemIdxAndItemType(itemTask.getMemberId(), itemTask.getItemIdx(), itemTask.getItemType());
+            if(!inventoryRepository.existsWearingItemByMemberIdAndItemType(itemTask.getMemberId(), itemTask.getItemType())) {
+                //현재 wearing이 아예 없다면 => 기본 아이템으로 wearing
+                Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemIdx(itemTask.getMemberId(), itemTask.getItemType(), 0).orElseThrow(
+                        () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
+                );
+                inventory.toggleIsWearing();
+                inventoryRepository.save(inventory);
+            }
             itemTask.updateTaskStatue(TaskStatus.COMPLETE);
             itemTaskRepository.save(itemTask); //Runnable가 실행되면 영속성 컨텍스트가 사라짐 => itemTask는 detached 상태라 수동 저장해야 함
         };
