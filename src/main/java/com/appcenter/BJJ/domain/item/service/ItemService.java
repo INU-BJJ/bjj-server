@@ -3,11 +3,11 @@ package com.appcenter.BJJ.domain.item.service;
 import com.appcenter.BJJ.domain.item.domain.Inventory;
 import com.appcenter.BJJ.domain.item.domain.Item;
 import com.appcenter.BJJ.domain.item.dto.DetailItemRes;
-import com.appcenter.BJJ.domain.item.dto.MyItemRes;
 import com.appcenter.BJJ.domain.item.enums.ItemLevel;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
 import com.appcenter.BJJ.domain.item.repository.ItemRepository;
+import com.appcenter.BJJ.domain.item.schedule.ItemSchedulerService;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.global.exception.CustomException;
@@ -27,20 +27,8 @@ public class ItemService {
     private final InventoryRepository inventoryRepository;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
+    private final ItemSchedulerService itemSchedulerService;
     private static final int GACHA_RANGE = 10;
-
-    public MyItemRes getMyItem(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-        );
-        return inventoryRepository.findMyItemResByMemberId(memberId).orElseGet(
-                //아이템이 하나도 없으면 null값 return (기본 아이템 장착)
-                () -> MyItemRes.builder()
-                        .nickname(member.getNickname())
-                        .point(member.getPoint())
-                        .build()
-        );
-    }
 
     @Transactional
     public DetailItemRes gacha(Long memberId, ItemType itemType) {
@@ -66,11 +54,13 @@ public class ItemService {
                         .itemType(itemType)
                         .isWearing(false)
                         .isOwned(true)
-                        .validPeriod(LocalDateTime.now())
+                        .expiresAt(LocalDateTime.now())
                         .build()
         );
+        inventory.updateValidPeriodAndIsOwned(inventory.getExpiresAt());
 
-        inventory.updateValidPeriodAndIsOwned(inventory.getValidPeriod());
+        //task scheduling 추가
+        itemSchedulerService.addOrUpdateTask(inventory.getMemberId(), inventory.getItemIdx(), inventory.getItemType(), inventory.getExpiresAt());
         inventoryRepository.save(inventory);
 
         return DetailItemRes.builder()
@@ -78,11 +68,10 @@ public class ItemService {
                 .itemName(item.getItemName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
-                .validPeriod(inventory.getValidPeriod())
+                .expiresAt(inventory.getExpiresAt())
                 .isWearing(inventory.getIsWearing())
                 .isOwned(inventory.getIsOwned())
                 .build();
-
     }
 
     public List<DetailItemRes> getItems(Long memberId, ItemType itemType) {
@@ -95,26 +84,7 @@ public class ItemService {
         );
     }
 
-    @Transactional
-    public void toggleIsWearing(Long memberId, ItemType itemType, Integer itemIdx) {
-        if (inventoryRepository.existsWearingItemByMemberIdAndItemType(memberId, itemType)) {
-            Inventory currentInven = inventoryRepository.findWearingItemByMemberIdAndItemType(memberId, itemType).orElseThrow(
-                    () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
-            );
-
-            //현재 아이템 착용 비활성화
-            currentInven.toggleIsWearing();
-        }
-
-        Inventory inventory = inventoryRepository.findByMemberIdAndItemTypeAndItemIdx(memberId, itemType, itemIdx).orElseThrow(
-                () -> new CustomException(ErrorCode.ITEM_NOT_FOUND)
-        );
-        System.out.println("inventory: " + inventory.getItemIdx());
-
-        //설정한 아이템 착용 활성화
-        inventory.toggleIsWearing();
-    }
-
+    //////////
     private int getRequiredPointForGacha(int point, ItemType itemType) {
         if (itemType == ItemType.CHARACTER && point - 50 >= 0) {
             return 50;
@@ -125,8 +95,6 @@ public class ItemService {
         }
     }
 
-
-    //////////
     private Integer getRandomInt(int bound) {
         Random random = new Random();
         return random.nextInt(bound) + 1;

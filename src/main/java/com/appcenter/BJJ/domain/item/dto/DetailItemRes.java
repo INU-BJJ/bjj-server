@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class DetailItemRes extends ItemRes {
 
-    private LocalDateTime validPeriod;
+    private LocalDateTime expiresAt;
 
     private Boolean isWearing;
 
     private Boolean isOwned;
 
     public DetailItemRes(int itemIdx, String itemName, ItemType itemType, ItemLevel itemLevel,
-                         LocalDateTime validPeriod, boolean isWearing, boolean isOwned) {
+                         LocalDateTime expiresAt, boolean isWearing, boolean isOwned) {
         super(itemIdx, itemName, itemType, itemLevel);
-        this.validPeriod = validPeriod;
+        this.expiresAt = expiresAt;
         this.isWearing = isWearing;
         this.isOwned = isOwned;
     }
