@@ -1,5 +1,8 @@
 package com.appcenter.BJJ.domain.member;
 
+import com.appcenter.BJJ.domain.item.domain.Inventory;
+import com.appcenter.BJJ.domain.item.enums.ItemType;
+import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
@@ -24,10 +27,10 @@ public class MemberService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final OAuth2Unlink oAuth2Unlink;
+    private final InventoryRepository inventoryRepository;
 
     @Transactional
     public String signUp(SignupReq signupReq) {
-        log.info("MemberService.signup() - 진입");
         isNicknameAvailable(signupReq.getNickname());
 
         Member member = memberRepository.findByEmailAndProvider(signupReq.getEmail(), signupReq.getProvider()).orElseThrow(
@@ -35,6 +38,10 @@ public class MemberService {
         );
         member.updateMemberInfo(signupReq.getNickname(), MemberRole.USER);
         log.info("MemberService.signup() - ROLE_USER로 변경 완료 및 회원가입 성공");
+
+        //기본 아이템 새성
+        inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.CHARACTER));
+        inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.BACKGROUND));
 
         String accessToken = getToken(member.getProviderId(), JwtProvider.validAccessTime);
         log.info("MemberService.signup() - 토큰 발급 성공");
@@ -45,7 +52,6 @@ public class MemberService {
         Member member = memberRepository.findById(id).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        log.info("MemberService.getMember() - 회원 정보 조회 성공");
 
         return MemberRes.builder()
                 .nickname(member.getNickname())
@@ -113,6 +119,15 @@ public class MemberService {
         memberRepository.save(member);
         member.updateTestProviderId(String.valueOf(member.getId()));
         member.updateMemberInfo(loginReq.getNickname(), MemberRole.USER);
+
+
+        //기본 아이템 새성
+        inventoryRepository.findByMemberIdAndItemTypeAndItemIdx(member.getId(), ItemType.CHARACTER, 0).orElseGet(
+                () -> {
+                    inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.BACKGROUND));
+                    return inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.CHARACTER));
+                });
+
 
         return getToken(member.getProviderId(), JwtProvider.validAccessTime);
     }

@@ -29,7 +29,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isOwned, false)
             )
             From Item item
-            LEFT JOIN Inventory inven ON item.itemIdx = inven.itemIdx
+            LEFT JOIN Inventory inven ON item.itemIdx = inven.itemIdx AND inven.itemType = :itemType
             AND inven.memberId = :memberId
             WHERE item.itemType = :itemType
             """)
@@ -45,7 +45,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             coalesce(inven.isWearing, false),
             coalesce(inven.isOwned, false))
             FROM Item item
-            LEFT JOIN Inventory inven ON inven.itemIdx = :itemIdx
+            LEFT JOIN Inventory inven ON inven.itemIdx = :itemIdx AND inven.itemType = :itemType
             AND inven.memberId = :memberId
             WHERE item.itemIdx = :itemIdx
             AND item.itemType = :itemType

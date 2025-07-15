@@ -20,7 +20,7 @@ public class Inventory {
 
     private Long memberId;
 
-    private int itemIdx;
+    private Integer itemIdx;
 
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
@@ -39,6 +39,17 @@ public class Inventory {
         this.isOwned = isOwned;
         this.isWearing = isWearing;
         this.expiresAt = expiresAt;
+    }
+
+    public static Inventory createDefault(Long memberId, ItemType itemType){
+        return Inventory.builder()
+                .memberId(memberId)
+                .itemIdx(0)
+                .itemType(itemType)
+                .isOwned(true)
+                .isWearing(true)
+                .expiresAt(LocalDateTime.of(9999, 12, 31, 23, 59, 59))
+                .build();
     }
 
     public void updateValidPeriodAndIsOwned(LocalDateTime validPeriod) {

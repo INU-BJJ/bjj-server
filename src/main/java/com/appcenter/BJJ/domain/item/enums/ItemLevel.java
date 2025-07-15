@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum ItemLevel {
-    COMMON, NORMAL, RARE
+    DEFAULT, COMMON, NORMAL, RARE
 }
