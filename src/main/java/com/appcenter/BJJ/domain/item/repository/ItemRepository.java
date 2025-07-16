@@ -22,6 +22,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
             item.itemIdx,
             item.itemName,
+            item.imageName,
             item.itemType,
             item.itemLevel,
             inven.expiresAt,
@@ -39,6 +40,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             SELECT new com.appcenter.BJJ.domain.item.dto.DetailItemRes(
             item.itemIdx,
             item.itemName,
+            item.imageName,
             item.itemType,
             item.itemLevel,
             inven.expiresAt,
