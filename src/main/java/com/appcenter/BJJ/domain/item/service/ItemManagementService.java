@@ -58,6 +58,7 @@ public class ItemManagementService {
         return itemList.stream().map(item -> ItemRes.builder()
                 .itemIdx(item.getItemIdx())
                 .itemName(item.getItemName())
+                .imageName(item.getImageName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
                 .build()).collect(Collectors.toList());
@@ -120,7 +121,7 @@ public class ItemManagementService {
 
             for (int i = 1; i < rowCount; i++) {
                 Row row = sheet.getRow(i);
-                itemVO.add(new ItemVO((int) row.getCell(0).getNumericCellValue(), row.getCell(1).getStringCellValue(), ItemLevel.valueOf(row.getCell(2).getStringCellValue())));
+                itemVO.add(new ItemVO((int) row.getCell(0).getNumericCellValue(), row.getCell(1).getStringCellValue(), row.getCell(2).getStringCellValue(), ItemLevel.valueOf(row.getCell(3).getStringCellValue())));
             }
 
         } catch (IOException e) {

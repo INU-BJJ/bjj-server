@@ -16,6 +16,8 @@ public class ItemRes {
 
     private final String itemName;
 
+    private final String imageName;
+
     private final ItemType itemType;
 
     private final ItemLevel itemLevel;

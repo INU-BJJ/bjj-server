@@ -22,6 +22,8 @@ public class Item {
 
     private String itemName;
 
+    private String imageName;
+
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
 
@@ -29,9 +31,10 @@ public class Item {
     private ItemLevel itemLevel;
 
     @Builder
-    private Item(Integer itemIdx, String itemName, ItemType itemType, ItemLevel itemLevel) {
+    private Item(Integer itemIdx, String itemName, String imageName, ItemType itemType, ItemLevel itemLevel) {
         this.itemIdx = itemIdx;
         this.itemName = itemName;
+        this.imageName = imageName;
         this.itemType = itemType;
         this.itemLevel = itemLevel;
     }
@@ -40,6 +43,7 @@ public class Item {
         return Item.builder()
                 .itemIdx(itemVO.getItemIdx())
                 .itemName(itemVO.getItemName())
+                .imageName(itemVO.getImageName())
                 .itemType(itemType)
                 .itemLevel(itemVO.getItemLevel())
                 .build();

@@ -12,5 +12,7 @@ public class ItemVO {
 
     private final String itemName;
 
+    private final String imageName;
+
     private final ItemLevel itemLevel;
 }

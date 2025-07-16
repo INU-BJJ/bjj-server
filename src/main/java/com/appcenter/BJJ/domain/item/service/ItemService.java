@@ -66,6 +66,7 @@ public class ItemService {
         return DetailItemRes.builder()
                 .itemIdx(item.getItemIdx())
                 .itemName(item.getItemName())
+                .imageName(item.getImageName())
                 .itemType(item.getItemType())
                 .itemLevel(item.getItemLevel())
                 .expiresAt(inventory.getExpiresAt())
