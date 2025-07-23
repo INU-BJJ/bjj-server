@@ -4,9 +4,11 @@ import com.appcenter.BJJ.global.jwt.*;
 import com.appcenter.BJJ.global.oauth.OAuth2SuccessHandler;
 import com.appcenter.BJJ.global.oauth.OAuth2UserServiceExt;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +20,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -45,7 +51,24 @@ public class SecurityConfig {
                         // [notice] test 관련된 거 나중에 없애기
                         .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
-                        .requestMatchers("images/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/actuator/**")
+                            .access((auth, ctx) -> {
+                                String ip = ctx.getRequest().getRemoteAddr();
+                                InetAddress inetAddress;
+                                try {
+                                    inetAddress = InetAddress.getByName(ip);
+                                } catch (UnknownHostException e) {
+                                    log.warn("[로그] 유효하지 않은 IP 주소: {}", ip, e);
+                                    return new AuthorizationDecision(false);
+                                }
+
+                                boolean isLocal = inetAddress.isLoopbackAddress() || inetAddress.isAnyLocalAddress();
+                                return new AuthorizationDecision(
+                                        isLocal ||              // 개발 localhost
+                                        ip.equals("172.30.0.5") // 운영 Prometheus
+                                );
+                            })
                         .anyRequest().authenticated())
 
                 .sessionManagement(session -> session
