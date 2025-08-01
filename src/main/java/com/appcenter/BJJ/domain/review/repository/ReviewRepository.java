@@ -9,6 +9,7 @@ import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -147,4 +148,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         WHERE r.id = :reviewId AND r.isDeleted = false
     """)
     Optional<ReviewDetailRes> findReviewWithMenuAndMemberDetails(Long reviewId, Long memberId);
+
+    @Query("""
+        SELECT r.id
+        FROM Review r
+        LEFT JOIN ReviewLike rl ON rl.reviewId = r.id
+        WHERE r.isDeleted = false
+            AND r.createdDate >= :fromDate
+        GROUP BY r.id
+        HAVING COUNT(rl) >= 1
+        ORDER BY COUNT(rl) DESC, r.createdDate DESC, r.id DESC
+    """)
+    List<Long> findBestReviewIds(LocalDate fromDate, Pageable pageable);
 }

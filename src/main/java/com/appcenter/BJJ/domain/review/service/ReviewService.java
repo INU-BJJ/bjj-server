@@ -27,7 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -260,5 +263,22 @@ public class ReviewService {
         reviewDetailRes.setImageNames(imageNames);
 
         return reviewDetailRes;
+    }
+
+    public Optional<ReviewDetailRes> findBestReview(long memberId) {
+        log.info("[로그] findBestReview(), memberId : {}", memberId);
+
+        LocalDate today = LocalDate.now();
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // 좋아요를 가장 많이 받은 리뷰 조회 (단, 이번 주에 작성된 최소 1개 이상의 좋아요를 받은 리뷰)
+        List<Long> bestReviewIds = reviewRepository.findBestReviewIds(monday, PageRequest.of(0, 1));
+        if (bestReviewIds.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Long bestReviewId = bestReviewIds.get(0);
+        ReviewDetailRes reviewDetailRes = reviewRepository.findBestReviewDetail(bestReviewId, memberId);
+        return Optional.of(reviewDetailRes);
     }
 }

@@ -16,4 +16,5 @@ public interface ReviewRepositoryCustom {
     Map<String, List<MyReviewDetailRes>> findMyReviewsWithImagesAndMemberDetailsAndCafeteria(Long memberId);
     Slice<MyReviewDetailRes> findMyReviewsWithImagesAndMemberDetailsByCafeteria(Long memberId, String cafeteriaName, Pageable pageable);
     List<BestReviewDto> findMostLikedReviewIdsInMainMenuIds(List<Long> mainMenuIds);
+    ReviewDetailRes findBestReviewDetail(Long reviewId, Long memberId);
 }
