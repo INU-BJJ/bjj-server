@@ -3,7 +3,7 @@
 
     <!-- 현재 활성 프로필 가져오기 -->
     <springProperty scope="context" name="spring.profile" source="spring.profiles.active" />
-    <property name="LOGBACK_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="LOGBACK_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"/>
 
     <!-- 개발 환경 설정 -->
     <springProfile name="dev">

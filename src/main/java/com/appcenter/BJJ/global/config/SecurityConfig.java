@@ -25,8 +25,8 @@ import java.net.UnknownHostException;
 
 @Slf4j
 @Configuration
-@RequiredArgsConstructor
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -36,6 +36,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
+    private final TraceIdFilter traceIdFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,6 +74,7 @@ public class SecurityConfig {
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(traceIdFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtValidateFilter(), JwtFilter.class)
                 .exceptionHandling(handling -> handling
