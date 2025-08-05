@@ -298,10 +298,10 @@ public class DietUpdateService {
 
         String promptMessage = """
                 다음 JSON 데이터를 주어진 JSON 스키마에 맞게 변환
-                        
+                
                 데이터:
                 %s
-                                
+                
                 변환 기준:
                 각 식단에서 데이터를 다음과 같이 변환해야 함
                 - `menus`:
@@ -340,7 +340,7 @@ public class DietUpdateService {
                 - `notification`:
                     - 공지사항
                     - "오늘은 쉽니다"와 같은 공지사항이 있으면 해당 내용을 저장하고, 없으면 빈 문자열
-                                        
+                
                 결과는 JSON 스키마를 준수해아 하며, 모든 입력값에 대해 변환해야 함
                 """.formatted(dietJsonData);
 
