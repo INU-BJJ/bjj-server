@@ -23,6 +23,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,6 @@ public class DietUpdateService {
     private final TodayDietService todayDietService;
     private final CafeteriaService cafeteriaService;
 
-    // TODO: 3회 재시도 이후 실패 시 Slack 알림 및 추가 재시도 등 필요
     @Async
     @Retryable(
         retryFor = {
@@ -69,6 +69,16 @@ public class DietUpdateService {
             log.error("[로그] 식단 업데이트 중 오류 발생", e);
             throw e; // 예외를 다시 던져야 Retryable이 동작
         }
+    }
+
+    @Recover
+    public void recoverAfterRetry(Exception e) {
+        log.error("[로그] 식단 업데이트 3회 재시도 실패", e);
+
+        // TODO: Slack 알림 등 알림 시스템 연동 필요
+        // slackNotifier.send("[ERROR] 식단 업데이트 3회 재시도 실패: " + e.getMessage());
+
+        // TODO: 추가 재시도 또는 수동 재시도 필요
     }
 
     public void updateWeeklyDiet() throws IOException {
