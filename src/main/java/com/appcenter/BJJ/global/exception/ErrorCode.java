@@ -33,7 +33,6 @@ public enum ErrorCode {
     MENU_PAIR_NOT_FOUND(HttpStatus.NOT_FOUND, "404-7", "해당 메뉴쌍이 존재하지 않습니다."),
     ITEM_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "아이템의 task가 존재하지 않습니다."),
 
-
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-2", "이미 등록된 닉네임입니다."),
@@ -42,8 +41,10 @@ public enum ErrorCode {
     REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-5", "이미 동일 시간 대에 작성된 리뷰가 있습니다."),
 
     //500 Internal Server Error
-    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다.");
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다."),
 
+    //503 Service Unavailable
+    CRAWLING_DATA_NOT_READY(HttpStatus.SERVICE_UNAVAILABLE, "503-1", "크롤링 대상 사이트의 데이터가 아직 준비되지 않았습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

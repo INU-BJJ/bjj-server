@@ -6,6 +6,8 @@ import com.appcenter.BJJ.domain.menu.service.MenuService;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
 import com.appcenter.BJJ.domain.todaydiet.dto.DietDto;
 import com.appcenter.BJJ.domain.todaydiet.dto.DietResponseDto;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -55,6 +57,7 @@ public class DietUpdateService {
                 IOException.class,              // Jsoup에서 발생하는 IO 예외
                 JsonProcessingException.class,  // ObjectMapper에서 발생하는 예외 (OpenAI 응답이 잘못 되었을 가능성)
                 TimeoutException.class,         // OpenAI에서 발생하는 타임아웃 예외
+                CustomException.class           // 크롤링 혹은 식단 업데이트 로직에서 발생하는 예외
         },
         maxAttempts = 3,
         backoff = @Backoff(delay = 300000) // 5분 뒤 재시도
@@ -111,8 +114,9 @@ public class DietUpdateService {
         // Class가 wrap-week-box인 div 찾기
         Element wrapWeekBox = document.getElementsByClass("wrap-week-box").first();
         if (wrapWeekBox == null) {
-            log.info("class가 'wrap-week-box'인 Element를 찾을 수 없습니다.");
-            return Collections.emptyList();
+            // 크롤링 사이트에서 아직 메뉴 등록 전일 경우 혹은 사이트 페이지 형식이 변경 된 경우
+            log.info("[로그] class가 'wrap-week-box'인 Element를 찾을 수 없습니다.");
+            throw new CustomException(ErrorCode.CRAWLING_DATA_NOT_READY);
         }
 
         Elements wrapWeeks = wrapWeekBox.select(".wrap-week");
