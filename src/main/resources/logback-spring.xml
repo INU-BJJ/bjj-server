@@ -120,6 +120,16 @@
     <springProfile name="prod">
         <property name="LOG_PATH" value="/logs" />
 
+        <!-- INFO 이상 콘솔 출력 -->
+        <appender name="PROD_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${LOGBACK_PATTERN}</pattern>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+
         <!-- DEBUG만 저장 (트러블슈팅용) -->
         <appender name="PROD_DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/debug.log</file>
@@ -196,6 +206,7 @@
         <!-- 패키지별 로그 레벨 설정 -->
         <!-- sql: DEBUG 레벨 -->
         <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE"/>
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
@@ -204,6 +215,7 @@
 
         <!-- security: DEBUG 레벨 -->
         <logger name="org.springframework.security" level="DEBUG" additivity="false">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE" />
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
@@ -212,6 +224,7 @@
 
         <!-- BJJ: DEBUG 레벨 -->
         <logger name="com.appcenter.BJJ" level="DEBUG" additivity="false">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE" />
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
@@ -221,6 +234,7 @@
         <!-- AnonymousAuthenticationFilter: INFO 레벨 -->
         <logger name="org.springframework.security.web.authentication.AnonymousAuthenticationFilter"
                 level="INFO" additivity="false">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE" />
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
@@ -230,6 +244,7 @@
         <!-- AnonymousAuthenticationFilter: INFO 레벨 -->
         <logger name="org.springframework.security.web.FilterChainProxy"
                 level="INFO" additivity="false">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE" />
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
@@ -238,6 +253,7 @@
 
         <!-- 루트: INFO 레벨 -->
         <root level="INFO">
+            <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_DEBUG_FILE" />
             <appender-ref ref="PROD_INFO_FILE" />
             <appender-ref ref="PROD_WARN_FILE" />
