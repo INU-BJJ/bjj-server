@@ -7,6 +7,7 @@ import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
+import com.appcenter.BJJ.domain.review.domain.Period;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.*;
@@ -265,14 +266,14 @@ public class ReviewService {
         return reviewDetailRes;
     }
 
-    public Optional<ReviewDetailRes> findBestReview(long memberId) {
-        log.info("[로그] findBestReview(), memberId : {}", memberId);
+    public Optional<ReviewDetailRes> findBestReviewByPeriod(long memberId, Period period) {
+        log.info("[로그] findBestReview(), memberId : {}, period : {}", memberId, period);
 
         LocalDate today = LocalDate.now();
-        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate fromDate = period.getFromDate(today);
 
         // 좋아요를 가장 많이 받은 리뷰 조회 (단, 이번 주에 작성된 최소 1개 이상의 좋아요를 받은 리뷰)
-        List<Long> bestReviewIds = reviewRepository.findBestReviewIds(monday, PageRequest.of(0, 1));
+        List<Long> bestReviewIds = reviewRepository.findBestReviewIds(fromDate, PageRequest.of(0, 1));
         if (bestReviewIds.isEmpty()) {
             return Optional.empty();
         }
