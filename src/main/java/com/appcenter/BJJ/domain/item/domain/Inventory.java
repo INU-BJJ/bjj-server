@@ -52,9 +52,9 @@ public class Inventory {
                 .build();
     }
 
+    //아이템 뽑았을 때
     public void updateValidPeriodAndIsOwned(LocalDateTime validPeriod) {
-//        this.expiresAt = validPeriod.plusDays(7); TODO 프론트 테스트를 위해 잠시 15초로 변경
-        this.expiresAt = validPeriod.plusSeconds(20);
+        this.expiresAt = validPeriod.plusDays(7);
         this.isOwned = true;
     }
 
