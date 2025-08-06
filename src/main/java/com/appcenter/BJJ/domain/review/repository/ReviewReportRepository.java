@@ -17,8 +17,6 @@ public interface ReviewReportRepository extends JpaRepository<ReviewReport, Long
             """)
     Long countReviewReportByReviewId(Long reviewId);
 
-    void deleteReviewReportsByReviewId(Long reviewId);
-
     @Query("""
             SELECT r FROM ReviewReport r
             WHERE r.reviewId = :reviewId
