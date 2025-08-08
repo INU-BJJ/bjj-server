@@ -168,4 +168,20 @@ public class ReviewController {
         reviewReportService.reportReview(userDetails.getMember().getId(), reviewId, reviewReportReq);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "베스트 리뷰 조회",
+            description = """
+                    - 이번 주에 가장 좋아요를 많이 받은 리뷰 조회
+                    - 동일한 좋아요 수를 받은 리뷰가 있을 경우 최신 리뷰로
+                    - 최소 좋아요 개수 1개
+                    - 조건을 충족하는 리뷰가 없는 경우 '204 No Content' 반환
+                    """)
+    @GetMapping("/best")
+    public ResponseEntity<?> getBestReview(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("[로그] GET /api/reviews/best, memberNickname: {}", userDetails.getNickname());
+
+        return reviewService.findBestReview(userDetails.getMember().getId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
 }

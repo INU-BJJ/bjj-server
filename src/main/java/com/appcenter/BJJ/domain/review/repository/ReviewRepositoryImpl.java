@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appcenter.BJJ.domain.image.QImage.image;
 import static com.appcenter.BJJ.domain.member.domain.QMember.member;
 import static com.appcenter.BJJ.domain.menu.domain.QMenuPair.menuPair;
 import static com.appcenter.BJJ.domain.review.domain.QReview.review;
@@ -264,4 +265,61 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 )
                 .fetch();
     }
+
+    @Override
+    public ReviewDetailRes findBestReviewDetail(Long reviewId, Long memberId) {
+        QMenu mainMenu = new QMenu("mainMenu");
+        QMenu subMenu = new QMenu("subMenu");
+
+        // 서브쿼리: 해당 리뷰에 좋아요를 눌렀는지 여부 (Boolean)
+        BooleanExpression isLiked = JPAExpressions
+                .selectOne()
+                .from(reviewLike)
+                .where(reviewLike.reviewId.eq(review.id)
+                        .and(reviewLike.memberId.eq(memberId)))
+                .exists();
+
+        ReviewDetailRes result = jpaQueryFactory
+                .select(Projections.constructor(ReviewDetailRes.class,
+                        review.id,
+                        review.comment,
+                        review.rating,
+                        review.likeCount,
+                        isLiked,
+                        review.createdDate,
+                        menuPair.id,
+                        mainMenu.id,
+                        mainMenu.menuName,
+                        subMenu.id,
+                        subMenu.menuName,
+                        review.memberId,
+                        member.nickname,
+                        review.memberId.eq(memberId)
+                ))
+                .from(review)
+                .join(review.menuPair(), menuPair)
+                .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .join(member).on(member.id.eq(review.memberId))
+                .where(
+                        review.isDeleted.isFalse(),
+                        review.id.eq(reviewId)
+                )
+                .fetchOne();
+
+        if (result == null) {
+            return null;
+        }
+
+        // 이미지 파일명 조회 (필요하면 별도 쿼리)
+        List<String> imageNames = jpaQueryFactory
+                .select(image.name)
+                .from(image)
+                .where(image.review().id.eq(reviewId))
+                .fetch();
+
+        result.setImageNames(imageNames);
+        return result;
+    }
+
 }
