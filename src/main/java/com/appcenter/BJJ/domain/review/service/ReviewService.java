@@ -59,7 +59,7 @@ public class ReviewService {
         //정지 당한 회원의 리뷰 작성 제재
         if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
             MemberTask memberTask = memberTaskRepository.findPendingByMemberId(memberId).orElseThrow(
-                    () -> new CustomException(ErrorCode.Member_TASK_NOT_FOUND)
+                    () -> new CustomException(ErrorCode.MEMBER_TASK_NOT_FOUND)
             );
             throw new ReviewSuspensionException(memberTask.getStartAt(), memberTask.getEndAt());
         }
