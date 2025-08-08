@@ -28,6 +28,8 @@ public class ReviewReport {
 
     private LocalDateTime createAt;
 
+    private Boolean isDeleted;
+
     @Builder
     private ReviewReport(Long reporterId, Long reviewId, Long reportedId, String content, LocalDateTime createAt) {
         this.reporterId = reporterId;
@@ -35,6 +37,7 @@ public class ReviewReport {
         this.reportedId = reportedId;
         this.content = content;
         this.createAt = createAt;
+        this.isDeleted = false;
     }
 
     public static ReviewReport create(Long reporterId, Long reportedId, Long reviewId, String content) {
@@ -45,5 +48,9 @@ public class ReviewReport {
                 .content(content)
                 .createAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

@@ -5,6 +5,8 @@ import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.schedule.MemberTask;
+import com.appcenter.BJJ.domain.member.schedule.MemberTaskRepository;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
 import com.appcenter.BJJ.domain.review.domain.Review;
@@ -45,6 +47,7 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final CafeteriaRepository cafeteriaRepository;
     private final ReviewPolicy reviewPolicy;
+    private final MemberTaskRepository memberTaskRepository;
 
     @Value("${storage.images.review}")
     private String REVIEW_IMG_DIR;
@@ -55,8 +58,10 @@ public class ReviewService {
 
         //정지 당한 회원의 리뷰 작성 제재
         if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
-            Member member = memberRepository.findById(memberId).get();
-            throw new ReviewSuspensionException(member.getSuspensionPeriod().getStartAt(), member.getSuspensionPeriod().getEndAt());
+            MemberTask memberTask = memberTaskRepository.findPendingByMemberId(memberId).orElseThrow(
+                    () -> new CustomException(ErrorCode.Member_TASK_NOT_FOUND)
+            );
+            throw new ReviewSuspensionException(memberTask.getStartAt(), memberTask.getEndAt());
         }
 
         MenuPair menuPair = menuPairRepository.findById(reviewPost.getMenuPairId())
