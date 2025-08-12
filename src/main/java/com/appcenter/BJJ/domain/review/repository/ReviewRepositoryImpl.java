@@ -3,6 +3,7 @@ package com.appcenter.BJJ.domain.review.repository;
 import com.appcenter.BJJ.domain.menu.domain.QMenu;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
+import com.appcenter.BJJ.domain.review.dto.BestReviewRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
@@ -267,7 +268,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
     }
 
     @Override
-    public ReviewDetailRes findBestReviewDetail(Long reviewId, Long memberId) {
+    public BestReviewRes findBestReview(Long reviewId, Long memberId) {
         QMenu mainMenu = new QMenu("mainMenu");
         QMenu subMenu = new QMenu("subMenu");
 
@@ -279,8 +280,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                         .and(reviewLike.memberId.eq(memberId)))
                 .exists();
 
-        ReviewDetailRes result = jpaQueryFactory
-                .select(Projections.constructor(ReviewDetailRes.class,
+        BestReviewRes result = jpaQueryFactory
+                .select(Projections.constructor(BestReviewRes.class,
                         review.id,
                         review.comment,
                         review.rating,
@@ -292,6 +293,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                         mainMenu.menuName,
                         subMenu.id,
                         subMenu.menuName,
+                        cafeteria.name,
+                        cafeteria.corner,
                         review.memberId,
                         member.nickname,
                         review.memberId.eq(memberId)
@@ -300,6 +303,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 .join(review.menuPair(), menuPair)
                 .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
                 .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
                 .join(member).on(member.id.eq(review.memberId))
                 .where(
                         review.isDeleted.isFalse(),

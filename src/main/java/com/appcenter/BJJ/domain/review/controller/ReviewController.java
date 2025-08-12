@@ -180,7 +180,7 @@ public class ReviewController {
                 - 조건을 충족하는 리뷰가 없는 경우 '204 No Content' 반환
                 """)
     @GetMapping("/best")
-    public ResponseEntity<?> getBestReview(
+    public ResponseEntity<BestReviewRes> getBestReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Parameter(description = "조회 기간 (DAY | WEEK | MONTH | SEMESTER)", example = "WEEK")
             @RequestParam(defaultValue = "WEEK") Period period

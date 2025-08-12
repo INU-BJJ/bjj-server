@@ -28,10 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -266,7 +264,7 @@ public class ReviewService {
         return reviewDetailRes;
     }
 
-    public Optional<ReviewDetailRes> findBestReviewByPeriod(long memberId, Period period) {
+    public Optional<BestReviewRes> findBestReviewByPeriod(long memberId, Period period) {
         log.info("[로그] findBestReview(), memberId : {}, period : {}", memberId, period);
 
         LocalDate today = LocalDate.now();
@@ -279,7 +277,7 @@ public class ReviewService {
         }
 
         Long bestReviewId = bestReviewIds.get(0);
-        ReviewDetailRes reviewDetailRes = reviewRepository.findBestReviewDetail(bestReviewId, memberId);
-        return Optional.of(reviewDetailRes);
+        BestReviewRes bestReviewRes = reviewRepository.findBestReview(bestReviewId, memberId);
+        return Optional.of(bestReviewRes);
     }
 }
