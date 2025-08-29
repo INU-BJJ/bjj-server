@@ -12,5 +12,7 @@ public interface MemberTaskRepository extends JpaRepository<MemberTask, Long> {
     @Query("SELECT m FROM MemberTask m WHERE m.memberTaskStatus = 'PENDING'")
     Optional<MemberTask> findPendingByMemberId(Long memberId);
 
+
+    @Query("SELECT COUNT(m) FROM MemberTask m WHERE m.memberId = :memberId AND m.memberTaskStatus = 'COMPLETE'")
     Long countByMemberId(Long memberId);
 }

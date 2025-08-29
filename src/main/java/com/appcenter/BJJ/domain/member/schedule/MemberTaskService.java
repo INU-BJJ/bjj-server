@@ -25,7 +25,7 @@ public class MemberTaskService {
     private final MemberTaskRepository memberTaskRepository;
     private final MemberRepository memberRepository;
 
-    public static final int BAN_COUNT = 3;
+    public static final ZoneId ZONE_ID = ZoneId.of("Asia/Seoul");
 
     @EventListener(ApplicationReadyEvent.class)
     public void initTask() {
@@ -33,7 +33,7 @@ public class MemberTaskService {
         for (MemberTask memberTask : memberTasks) {
             Runnable task = getTask(memberTask);
             if (memberTask.getEndAt().isAfter(LocalDateTime.now())) {
-                taskScheduler.schedule(task, Instant.from(memberTask.getEndAt()));
+                taskScheduler.schedule(task, memberTask.getEndAt().atZone(ZONE_ID).toInstant());
             } else {
                 taskScheduler.schedule(task, Instant.now());
             }
@@ -48,8 +48,7 @@ public class MemberTaskService {
         memberTask.updateEndAt(endAt);
 
         Runnable task = getTask(memberTask);
-        ZoneId zoneId = ZoneId.of("Asia/Seoul");
-        taskScheduler.schedule(task, memberTask.getEndAt().atZone(zoneId).toInstant());
+        taskScheduler.schedule(task, memberTask.getEndAt().atZone(ZONE_ID).toInstant());
         memberTaskRepository.save(memberTask);
     }
 
