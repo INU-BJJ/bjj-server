@@ -48,4 +48,25 @@ public class BestReviewRes {
     private String memberImageName;
     @Schema(description = "리뷰를 조회하는 유저가 리뷰를 작성한 유저인지 여부", example = "true")
     private final boolean isOwned;
+
+    public BestReviewRes() {
+        this.reviewId = null;
+        this.comment = null;
+        this.rating = null;
+        this.imageNames = null;
+        this.likeCount = null;
+        this.isLiked = false;
+        this.createdDate = null;
+        this.menuPairId = null;
+        this.mainMenuId = null;
+        this.mainMenuName = null;
+        this.subMenuId = null;
+        this.subMenuName = null;
+        this.cafeteriaName = null;
+        this.cafeteriaCorner = null;
+        this.memberId = null;
+        this.memberNickname = null;
+        this.memberImageName = null;
+        this.isOwned = false;
+    }
 }
