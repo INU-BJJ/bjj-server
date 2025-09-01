@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum MemberStatus {
-    ACTIVE, SUSPENDED, BAN;
+    ACTIVE, SUSPENDED, BAN
 }
