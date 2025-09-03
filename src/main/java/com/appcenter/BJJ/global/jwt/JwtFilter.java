@@ -52,6 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         .code(errorCode.getCode())
                         .msg(Collections.singletonList(errorCode.getMessage()))
                         .build()));
+                return;
             }
         }
         filterChain.doFilter(request, response);
