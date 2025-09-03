@@ -9,6 +9,7 @@ import com.appcenter.BJJ.domain.member.schedule.MemberTask;
 import com.appcenter.BJJ.domain.member.schedule.MemberTaskRepository;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
 import com.appcenter.BJJ.domain.menu.repository.MenuPairRepository;
+import com.appcenter.BJJ.domain.review.domain.Period;
 import com.appcenter.BJJ.domain.review.domain.Review;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.*;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -265,5 +267,22 @@ public class ReviewService {
         reviewDetailRes.setImageNames(imageNames);
 
         return reviewDetailRes;
+    }
+
+    public Optional<BestReviewRes> findBestReviewByPeriod(long memberId, Period period) {
+        log.info("[로그] findBestReview(), memberId : {}, period : {}", memberId, period);
+
+        LocalDate today = LocalDate.now();
+        LocalDate fromDate = period.getFromDate(today);
+
+        // 좋아요를 가장 많이 받은 리뷰 조회 (단, 이번 주에 작성된 최소 1개 이상의 좋아요를 받은 리뷰)
+        List<Long> bestReviewIds = reviewRepository.findBestReviewIds(fromDate, PageRequest.of(0, 1));
+        if (bestReviewIds.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Long bestReviewId = bestReviewIds.get(0);
+        BestReviewRes bestReviewRes = reviewRepository.findBestReview(bestReviewId, memberId);
+        return Optional.of(bestReviewRes);
     }
 }

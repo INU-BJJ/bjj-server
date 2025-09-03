@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 최고 리뷰어</title>
+    <link rel="stylesheet" href="/css/best-review.css">
+</head>
+<body>
+<div class="page-container">
+    <div class="page-caption">
+        <img src="/images/banners/best-review/caption.svg"/>
+    </div>
+
+    <div class="reviewer-profile">
+        <div class="portrait">
+            <img th:if="${review.memberImageName != null}"
+                 th:src="@{/images/{img}(img=${review.memberImageName})}"
+                 class="reviewer-image"/>
+            <img th:if="${review.memberImageName == null}"
+                 src="/images/banners/best-review/icon.svg"
+                 class="reviewer-image"/>
+            <img src="/images/banners/best-review/frame.svg" class="frame"/>
+        </div>
+        <span class="reviewer-nickname" th:text="${review.memberNickname != null ? review.memberNickname : '최고의리뷰어'}"></span>
+    </div>
+
+    <div class="review-card">
+        <div class="review-likes">
+            <img src="/images/banners/best-review/like.svg" class="like-icon"/>
+            <span th:if="${review.likeCount != null}" th:text="${review.likeCount}"></span>
+        </div>
+
+        <p class="review-text" th:text="${review.comment != null ? review.comment : '지금 당장 리뷰를 작성하고 ‘최고의 리뷰어’가 되어보세요!!'}"></p>
+
+        <div class="review-images" th:if="${review.imageNames != null and !#lists.isEmpty(review.imageNames)}">
+            <img th:each="img : ${review.imageNames}"
+                 th:src="@{/images/review/{img}(img=${img})}"
+                 th:attr="onclick=|openPopup('${img}')|" />
+        </div>
+
+        <div class="review-menu-names">
+            <span th:if="${review.mainMenuName != null}" th:text="${review.mainMenuName}"></span>
+            <span th:if="${review.subMenuName != null}" th:text="${review.subMenuName}"></span>
+        </div>
+    </div>
+
+    <div class="menu-info-card">
+        <p class="menu-info-title">메뉴 정보</p>
+        <p class="menu-info-content" th:if="${review.cafeteriaName != null && review.cafeteriaCorner != null}">
+            <span class="menu-info-cafeteria" th:text="${review.cafeteriaName}"></span>
+            <span>의 </span>
+            <span class="menu-info-menu" th:text="${review.mainMenuName}"></span>
+        </p>
+    </div>
+
+</div>
+
+<div id="popup" class="popup" onclick="closePopup()">
+    <div class="popup-content" onclick="event.stopPropagation()">
+        <img class="popup-img" id="popup-img" />
+        <div class="popup-indicator" id="popup-indicator">1 / 1</div>
+        <button class="popup-prev" onclick="prevImage(event)">
+            <img src="/images/banners/best-review/prev.svg" alt="&#60;" />
+        </button>
+        <button class="popup-next" onclick="nextImage(event)">
+            <img src="/images/banners/best-review/next.svg" alt="&#62;" />
+        </button>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var reviewImages = [[${review.imageNames}]] || [];
+    console.log("reviewImages: ", reviewImages);
+    /*]]>*/
+
+    let popupImages = [];
+    let currentIndex = 0;
+
+    function openPopup(src) {
+        // 이미지 클릭 시 배열 전체를 경로 포함 형태로 변환
+        popupImages = reviewImages.map(img => '/images/review/' + img);
+        currentIndex = reviewImages.indexOf(src); // 이름 기준으로 현재 인덱스 찾기
+        updatePopup();
+        document.getElementById("popup").style.display = "flex";
+    }
+
+    function updatePopup() {
+        document.getElementById("popup-img").src = popupImages[currentIndex];
+        document.getElementById("popup-indicator").innerText = `${currentIndex + 1} / ${popupImages.length}`;
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    function prevImage(event) {
+        event.stopPropagation();
+        if (currentIndex > 0) {
+            currentIndex--;
+            updatePopup();
+        }
+    }
+
+    function nextImage(event) {
+        event.stopPropagation();
+        if (currentIndex < popupImages.length - 1) {
+            currentIndex++;
+            updatePopup();
+        }
+    }
+</script>
+</body>
+</html>
