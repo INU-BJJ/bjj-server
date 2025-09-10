@@ -25,13 +25,15 @@ public class ItemSchedulerService {
     private final ItemTaskRepository itemTaskRepository;
     private final InventoryRepository inventoryRepository;
 
+    public static final ZoneId ZONE_ID = ZoneId.of("Asia/Seoul");
+
     @EventListener(ApplicationReadyEvent.class)
     public void initTask() { //Scheduler의 task는 메모리에 있어서 서버 재실행시 모두 날라감 => 재실행시 init해주기 (db조회를 통해)
         List<ItemTask> itemTasks = itemTaskRepository.findAllByTaskStatus(TaskStatus.PENDING);
         for (ItemTask itemTask : itemTasks) {
             Runnable task = getTask(itemTask);
             if (itemTask.getExpiresAt().isAfter(LocalDateTime.now())) {
-                taskScheduler.schedule(task, Instant.from(itemTask.getExpiresAt()));
+                taskScheduler.schedule(task, itemTask.getExpiresAt().atZone(ZONE_ID).toInstant());
             } else {
                 taskScheduler.schedule(task, Instant.now()); //현재보다 전 => 지금 바로 스케줄러 시작
             }
@@ -46,8 +48,7 @@ public class ItemSchedulerService {
         itemTask.updateTaskStatue(TaskStatus.PENDING);
 
         Runnable task = getTask(itemTask);
-        ZoneId zoneId = ZoneId.of("Asia/Seoul");
-        taskScheduler.schedule(task, itemTask.getExpiresAt().atZone(zoneId).toInstant());
+        taskScheduler.schedule(task, itemTask.getExpiresAt().atZone(ZONE_ID).toInstant());
         itemTaskRepository.save(itemTask);
     }
 
