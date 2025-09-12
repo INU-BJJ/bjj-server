@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -50,10 +49,23 @@ public class BannerManagementController {
         return ResponseEntity.ok(bannerManagementService.getBanners());
     }
 
-    @PutMapping("/{bannerId}")
+    @Operation(summary = "배너 수정",
+            description = """       
+                    - 지정한 bannerId의 배너 정보를 수정
+                    - 수정 가능 항목 (미기입 항목은 수정 X):
+                      • imageName: 배너 이미지 파일명
+                      • pageUri: 배너 클릭 시 이동할 URI
+                      • sortOrder: 배너 노출 순서
+                    - sortOrder 규칙:
+                      • 0부터 시작하는 연속된 정수로 관리
+                      • null 값은 비노출 상태를 의미
+                      • 순서 변경 시 다른 배너들의 sortOrder도 자동 조정됨
+                    """)
+    @PutMapping(value = "/{bannerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Banner> updateBanner(
             @PathVariable Long bannerId,
-            @RequestBody BannerPut bannerPut) {
-        return ResponseEntity.ok(bannerManagementService.updateBanner(bannerId, bannerPut));
+            @RequestPart BannerPut bannerPut,
+            @RequestPart(required = false) MultipartFile imageFile) {
+        return ResponseEntity.ok(bannerManagementService.updateBanner(bannerId, bannerPut, imageFile));
     }
 }

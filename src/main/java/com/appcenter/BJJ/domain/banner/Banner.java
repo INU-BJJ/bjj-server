@@ -32,6 +32,10 @@ public class Banner {
         this.sortOrder = sortOrder;
     }
 
+    public void updateImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
     public void updatePageUri(String pageUri) {
         this.pageUri = pageUri;
     }

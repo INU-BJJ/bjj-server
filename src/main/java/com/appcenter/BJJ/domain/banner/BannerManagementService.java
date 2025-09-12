@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -44,7 +46,7 @@ public class BannerManagementService {
     }
 
     @Transactional
-    public Banner updateBanner(Long bannerId, BannerReq.BannerPut bannerPut) {
+    public Banner updateBanner(Long bannerId, BannerReq.BannerPut bannerPut, MultipartFile imageFile) {
         Banner banner = bannerRepository.findById(bannerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BANNER_NOT_FOUND));
 
@@ -57,6 +59,26 @@ public class BannerManagementService {
 
         if (!Objects.equals(newOrder, oldOrder)) {
             banner.updateSortOrder(newOrder);
+        }
+
+        if (imageFile != null) {
+            String newImageName = uploadImage(imageFile);
+            String oldImageName = banner.getImageName();
+
+            banner.updateImageName(newImageName);
+
+            // 트랜잭션 커밋 후 실행
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    if (oldImageName != null) {
+                        File file = new File(BANNER_IMG_DIR, oldImageName);
+                        if (!file.delete()) {
+                            log.warn("[로그] 기존 배너 이미지 삭제 실패: {}", oldImageName);
+                        }
+                    }
+                }
+            });
         }
 
         return banner;
