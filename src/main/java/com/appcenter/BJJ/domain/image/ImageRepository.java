@@ -11,24 +11,22 @@ public interface ImageRepository extends JpaRepository<Image, Long>, ImageReposi
     List<Image> findByReviewIdList(List<Long> reviewIdList);
 
     @Query(value = """
-        WITH numberedImage AS (
-             SELECT
-                 mp.main_menu_id as menuId,
-                 i.name as imageName,
-                 ROW_NUMBER() OVER (
-                     PARTITION BY mp.main_menu_id
-                     ORDER BY r.like_count DESC, r.id DESC, i.id
-                 ) AS row_num
-             FROM review_tb r
-             LEFT JOIN image_tb i ON r.id = i.review_id
-             JOIN menu_pair_tb mp ON r.menu_pair_id = mp.id
-             WHERE mp.main_menu_id IN :mainMenuIds AND r.is_deleted = false
-        )
-        SELECT
-            menuId,
-            imageName
-        FROM numberedImage
-        WHERE row_num = 1
+        SELECT m.menuId,
+               (
+                 SELECT i2.name
+                 FROM review_tb r2
+                 JOIN menu_pair_tb mp2 ON mp2.id = r2.menu_pair_id
+                 JOIN image_tb i2      ON i2.review_id = r2.id
+                 WHERE mp2.main_menu_id = m.menuId
+                   AND r2.is_deleted = false
+                 ORDER BY r2.like_count DESC, r2.created_date DESC, i2.id ASC  -- 베스트 리뷰의 첫 이미지
+                 LIMIT 1
+               ) AS imageName
+        FROM (
+          SELECT DISTINCT main_menu_id AS menuId
+          FROM menu_pair_tb
+          WHERE main_menu_id IN :mainMenuIds
+        ) m;
     """, nativeQuery = true)
     List<ImageDto> findFirstImagesOfMostLikedReviewInMainMenuIds(List<Long> mainMenuIds);
 
