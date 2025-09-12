@@ -17,7 +17,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${storage.images.cafeteria}")
     private String CAFETERIA_IMG_DIR;
 
-    @Value("${storage.images.banner")
+    @Value("${storage.images.banner}")
     private String BANNER_IMG_DIR;
 
     @Override
