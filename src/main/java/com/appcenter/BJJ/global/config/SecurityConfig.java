@@ -3,6 +3,7 @@ package com.appcenter.BJJ.global.config;
 import com.appcenter.BJJ.global.jwt.*;
 import com.appcenter.BJJ.global.oauth.OAuth2SuccessHandler;
 import com.appcenter.BJJ.global.oauth.OAuth2UserServiceExt;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -37,10 +38,11 @@ public class SecurityConfig {
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
     private final TraceIdFilter traceIdFilter;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // [notice] hasRole로 api에 대한 권한 설정하기 //
+        //Todo hasRole로 api에 대한 권한 설정하기
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 //h2 접근을 위해
@@ -49,33 +51,33 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
                 .authorizeHttpRequests(authorize -> authorize
-                        // [notice] test 관련된 거 나중에 없애기
+                        //Todo test 관련된 거 나중에 없애기
                         .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/actuator/**")
-                            .access((auth, ctx) -> {
-                                String ip = ctx.getRequest().getRemoteAddr();
-                                InetAddress inetAddress;
-                                try {
-                                    inetAddress = InetAddress.getByName(ip);
-                                } catch (UnknownHostException e) {
-                                    log.warn("[로그] 유효하지 않은 IP 주소: {}", ip, e);
-                                    return new AuthorizationDecision(false);
-                                }
+                        .access((auth, ctx) -> {
+                            String ip = ctx.getRequest().getRemoteAddr();
+                            InetAddress inetAddress;
+                            try {
+                                inetAddress = InetAddress.getByName(ip);
+                            } catch (UnknownHostException e) {
+                                log.warn("[로그] 유효하지 않은 IP 주소: {}", ip, e);
+                                return new AuthorizationDecision(false);
+                            }
 
-                                boolean isLocal = inetAddress.isLoopbackAddress() || inetAddress.isAnyLocalAddress();
-                                return new AuthorizationDecision(
-                                        isLocal ||              // 개발 localhost
-                                        ip.equals("172.30.0.5") // 운영 Prometheus
-                                );
-                            })
+                            boolean isLocal = inetAddress.isLoopbackAddress() || inetAddress.isAnyLocalAddress();
+                            return new AuthorizationDecision(
+                                    isLocal ||              // 개발 localhost
+                                            ip.equals("172.30.0.5") // 운영 Prometheus
+                            );
+                        })
                         .anyRequest().authenticated())
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(traceIdFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtProvider, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtValidateFilter(), JwtFilter.class)
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(authenticationEntryPointImpl)

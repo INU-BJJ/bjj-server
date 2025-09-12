@@ -23,6 +23,7 @@ public enum ErrorCode {
     //403 Forbidden
     ERROR_FORBIDDEN(HttpStatus.FORBIDDEN, "403-1", "이 리소스에 접근할 권한이 없습니다."),
     MEMBER_SUSPENDED_FOR_REVIEW(HttpStatus.FORBIDDEN, "403-2", "리뷰 작성이 제한된 사용자입니다."),
+    MEMBER_BANNED(HttpStatus.FORBIDDEN, "403-3", "해당 회원은 밴 처리되었습니다."),
 
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "404-1", "해당 회원이 존재하지 않습니다."),

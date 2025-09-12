@@ -1,7 +1,8 @@
 package com.appcenter.BJJ.global.jwt;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
