@@ -18,4 +18,6 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     List<Banner> findBySortOrderGreaterThanEqual(Integer sortOrder);
 
     List<Banner> findBySortOrderBetween(Integer start, Integer end);
+
+    List<Banner> findAllBySortOrderIsNotNullOrderBySortOrder();
 }

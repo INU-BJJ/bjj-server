@@ -17,6 +17,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${storage.images.cafeteria}")
     private String CAFETERIA_IMG_DIR;
 
+    @Value("${storage.images.banner")
+    private String BANNER_IMG_DIR;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/review/**")
@@ -25,5 +28,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:///" + ITEM_IMG_DIR);
         registry.addResourceHandler("/images/cafeteria/**")
                 .addResourceLocations("file:///" + CAFETERIA_IMG_DIR);
+        registry.addResourceHandler("/images/banner/**")
+                .addResourceLocations("file:///" + BANNER_IMG_DIR);
     }
 }
