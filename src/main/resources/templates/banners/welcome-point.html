@@ -47,7 +47,7 @@
     claimButton.addEventListener('click', () => {
         const token = localStorage.getItem('accessToken'); // 로그인 시 저장한 JWT
 
-        fetch('/view/events/welcome-point/check', {
+        fetch('/api/events/welcome-point/check', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

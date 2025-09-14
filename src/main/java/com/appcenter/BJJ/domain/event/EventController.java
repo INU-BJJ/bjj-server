@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/view/events")
+@RequestMapping("/api/events")
 @RequiredArgsConstructor
-@Tag(name = "Event View", description = "이벤트 뷰 API")
-public class EventViewController {
+@Tag(name = "Event", description = "이벤트 API")
+public class EventController {
     private final EventService eventService;
 
     @Operation(summary = "웰컴포인트 이벤트 참여 여부 체크",
@@ -28,7 +28,7 @@ public class EventViewController {
     }
 
     @Operation(summary = "웰컴포인트 이벤트 뷰 조회")
-    @GetMapping("/welcome-point")
+    @GetMapping("/welcome-point/view")
     public String welcomePointView() {
         return "banners/welcome-point";
     }
