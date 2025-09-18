@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,10 +20,10 @@ import java.util.Map;
 public class EventController {
     private final EventService eventService;
 
-    @Operation(summary = "웰컴포인트 이벤트 참여 여부 체크",
+    @Operation(summary = "웰컴포인트 이벤트 참여",
             description = "- 웰컴포인트 이벤트 뷰에서 사용하는 API\n- true : 이벤트 참여 완료, false : 이벤트 참여 불가 (이미 참여한 상태)")
     @ResponseBody
-    @GetMapping("/welcome-point/check")
+    @PostMapping("/welcome-point")
     public Map<String, Boolean> welcomePoint(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return Map.of("isParticipated", eventService.welcomePoint(userDetails.getMember().getId()));
     }
