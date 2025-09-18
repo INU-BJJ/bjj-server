@@ -1,6 +1,8 @@
 package com.appcenter.BJJ.domain.event;
 
 import com.appcenter.BJJ.domain.member.MemberService;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +18,10 @@ public class EventService {
 
     @Transactional
     public boolean welcomePoint(Long memberId) {
-        boolean isParticipated = eventRepository.existsByMemberIdAndEventType(memberId, WELCOME_EVENT);
-        if (isParticipated) return false; // 이미 참여 완료
+        long participatedCount = eventRepository.countAllByMemberIdAndEventType(memberId, WELCOME_EVENT);
+        if (participatedCount >= 1) {
+            throw new CustomException(ErrorCode.EVENT_ALREADY_PARTICIPATED);
+        }
 
         memberService.updatePoint(memberId, WELCOME_EVENT.getRewardValue());
         eventRepository.save(Event.create(memberId, WELCOME_EVENT));

@@ -21,7 +21,12 @@ public class EventController {
     private final EventService eventService;
 
     @Operation(summary = "웰컴포인트 이벤트 참여",
-            description = "- 웰컴포인트 이벤트 뷰에서 사용하는 API\n- true : 이벤트 참여 완료, false : 이벤트 참여 불가 (이미 참여한 상태)")
+            description = """
+                    - 웰컴포인트 이벤트 뷰에서 사용하는 API
+                    - 성공 시: 이벤트 참여 완료 여부(true) 반환
+                    - 실패 시: 이미 참여한 경우 409 CONFLICT 예외 발생
+                    """
+    )
     @ResponseBody
     @PostMapping("/welcome-point")
     public Map<String, Boolean> welcomePoint(@AuthenticationPrincipal UserDetailsImpl userDetails) {

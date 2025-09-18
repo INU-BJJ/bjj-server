@@ -43,6 +43,7 @@ public enum ErrorCode {
     ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "409-3", "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
     DUPLICATE_REPORT(HttpStatus.CONFLICT, "409-4", "이미 신고한 리뷰입니다."),
     REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-5", "이미 동일 시간 대에 작성된 리뷰가 있습니다."),
+    EVENT_ALREADY_PARTICIPATED(HttpStatus.CONFLICT, "409-6", "이미 해당 이벤트에 참여하셨습니다."),
 
     //500 Internal Server Error
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500-1", "알 수 없는 문제가 발생했습니다.");
