@@ -102,7 +102,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         )
         FROM Review r
         RIGHT JOIN r.menuPair mp
-        WHERE mp.mainMenuId IN :mainMenuIds AND r.isDeleted = false
+        WHERE mp.mainMenuId IN :mainMenuIds AND (r.isDeleted = false OR r IS NULL)
         GROUP BY mp.mainMenuId
     """)
     List<MenuRatingStatsDto> calculateRatingStatsByMainMenuIds(List<Long> mainMenuIds);
