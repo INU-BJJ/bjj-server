@@ -23,8 +23,9 @@ public class EventController {
     @Operation(summary = "웰컴포인트 이벤트 참여",
             description = """
                     - 웰컴포인트 이벤트 뷰에서 사용하는 API
-                    - 성공 시: 이벤트 참여 완료 여부(true) 반환
-                    - 실패 시: 이미 참여한 경우 409 CONFLICT 예외 발생
+                    - 아직 이벤트를 참여하지 않는 경우 : 포인트 지급 후 true 반환
+                    - 이미 이벤트에 1회 참여한 경우 : 포인트 지급 없이 false 반환
+                    - 이벤트 참여 기록이 0과 1 이외의 횟수일 경우 : 서버 내부 오류로 간주해 예외 발생 (500 Internal Server Error)
                     """
     )
     @ResponseBody
