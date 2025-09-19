@@ -35,6 +35,7 @@ public enum ErrorCode {
     MENU_PAIR_NOT_FOUND(HttpStatus.NOT_FOUND, "404-7", "해당 메뉴쌍이 존재하지 않습니다."),
     ITEM_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "아이템의 task가 존재하지 않습니다."),
     MEMBER_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-9", "회원의 task가 존재하지 않습니다."),
+    BANNER_NOT_FOUND(HttpStatus.NOT_FOUND, "404-10", "해당 배너가 존재하지 않습니다."),
 
 
     //409 Conflict
