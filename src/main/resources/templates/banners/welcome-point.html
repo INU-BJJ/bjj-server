@@ -44,12 +44,12 @@
     const alertImage = document.getElementById('alertImage');
 
     claimButton.addEventListener('click', () => {
-        const token = localStorage.getItem('accessToken'); // 로그인 시 저장한 JWT
+        const token = /*[[${accessToken}]]*/ ''; // 로그인 시 저장한 JWT
 
         fetch('/api/events/welcome-point', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `${token}`,
                 'Content-Type': 'application/json'
             }
         })
