@@ -6,10 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -36,7 +34,11 @@ public class EventController {
 
     @Operation(summary = "웰컴포인트 이벤트 뷰 조회")
     @GetMapping("/welcome-point/view")
-    public String welcomePointView() {
+    public String welcomePointView(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            Model model) {
+
+        model.addAttribute("accessToken", authorization);
         return "banners/welcome-point";
     }
 }
