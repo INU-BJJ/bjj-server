@@ -9,25 +9,27 @@
 <body>
 <div class="page-container">
     <div class="page-caption">
-        <img src="/images/banners/best-review/caption.svg"/>
+        <img src="/images/banners/best-review/caption.svg" alt="오늘의 최고 리뷰어 캡션 이미지"/>
     </div>
 
     <div class="reviewer-profile">
         <div class="portrait">
             <img th:if="${review.memberImageName != null}"
                  th:src="@{/images/{img}(img=${review.memberImageName})}"
-                 class="reviewer-image"/>
+                 class="reviewer-image"
+                 alt="리뷰어 프로필 이미지"/>
             <img th:if="${review.memberImageName == null}"
                  src="/images/banners/best-review/icon.svg"
-                 class="reviewer-image"/>
-            <img src="/images/banners/best-review/frame.svg" class="frame"/>
+                 class="reviewer-image"
+                 alt="기본 리뷰어 아이콘"/>
+            <img src="/images/banners/best-review/frame.svg" class="frame" alt="리뷰어 프로필 프레임"/>
         </div>
         <span class="reviewer-nickname" th:text="${review.memberNickname != null ? review.memberNickname : '최고의리뷰어'}"></span>
     </div>
 
     <div class="review-card">
         <div class="review-likes">
-            <img src="/images/banners/best-review/like.svg" class="like-icon"/>
+            <img src="/images/banners/best-review/like.svg" class="like-icon" alt="좋아요 아이콘"/>
             <span th:if="${review.likeCount != null}" th:text="${review.likeCount}"></span>
         </div>
 
@@ -36,7 +38,8 @@
         <div class="review-images" th:if="${review.imageNames != null and !#lists.isEmpty(review.imageNames)}">
             <img th:each="img : ${review.imageNames}"
                  th:src="@{/images/review/{img}(img=${img})}"
-                 th:attr="onclick=|openPopup('${img}')|" />
+                 th:attr="onclick=|openPopup('${img}')|"
+                 th:alt="'리뷰 이미지 ' + ${img}"/>
         </div>
 
         <div class="review-menu-names">
@@ -58,13 +61,13 @@
 
 <div id="popup" class="popup" onclick="closePopup()">
     <div class="popup-content" onclick="event.stopPropagation()">
-        <img class="popup-img" id="popup-img" />
+        <img class="popup-img" id="popup-img" alt="팝업 리뷰 이미지"/>
         <div class="popup-indicator" id="popup-indicator">1 / 1</div>
         <button class="popup-prev" onclick="prevImage(event)">
-            <img src="/images/banners/best-review/prev.svg" alt="&#60;" />
+            <img src="/images/banners/best-review/prev.svg" alt="이전 이미지" />
         </button>
         <button class="popup-next" onclick="nextImage(event)">
-            <img src="/images/banners/best-review/next.svg" alt="&#62;" />
+            <img src="/images/banners/best-review/next.svg" alt="다음 이미지"/>
         </button>
     </div>
 </div>
