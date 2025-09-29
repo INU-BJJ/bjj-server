@@ -23,7 +23,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         // 처리하지 않은 권한 관련 오류들은 모두 이 곳으로 흘러와서 처리됨
-        log.warn("AccessDeniedHandlerImpl.handle() : 해당 회원에게 권한이 없음");
+        log.warn("[로그] 해당 회원에게 권한이 없음", accessDeniedException);
         ErrorCode errorCode = ErrorCode.ERROR_FORBIDDEN;
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

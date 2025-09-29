@@ -24,7 +24,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         // 처리하지 않은 인증 관련 오류들은 모두 이 곳으로 흘러와서 처리됨
-        log.warn("AuthenticationEntryPointImpl.commence() : 회원이 인증되지 않음");
+        log.warn("[로그] 회원이 인증되지 않음", authException);
         ErrorCode errorCode = ErrorCode.ERROR_UNAUTHORIZED;
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
