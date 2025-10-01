@@ -6,6 +6,7 @@ import com.appcenter.BJJ.global.oauth.OAuth2UserServiceExt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -94,8 +95,9 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer ignoringCustomizer() {
         // spring security 무시
-        return (web) -> web.ignoring().requestMatchers("/favicon.ico")
-                .requestMatchers("/swagger-ui/**", "/v3/**", "/h2-console/**");
+        return (web) -> web.ignoring().requestMatchers("/favicon.ico", "/firebase-messaging-sw.js")
+                .requestMatchers("/swagger-ui/**", "/v3/**", "/h2-console/**")
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean
