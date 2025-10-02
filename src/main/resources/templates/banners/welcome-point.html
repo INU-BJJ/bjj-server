@@ -60,7 +60,7 @@
                 return res.json();
             })
             .then(data => {
-                console.log("서버 응답:", data);
+                console.log("서버 응답:", JSON.stringify(data));
 
                 if (data.isParticipated) {
                     alertImage.src = '/images/banners/welcome-point/success_alert.jpeg';
