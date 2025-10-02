@@ -63,16 +63,16 @@
                 console.log("서버 응답:", JSON.stringify(data));
 
                 if (data.isParticipated) {
-                    alertImage.src = '/images/banners/welcome-point/success_alert.jpeg';
+                    alertImage.src = 'https://bjj.inuappcenter.kr/images/banners/welcome-point/success_alert.jpeg';
                 } else {
-                    alertImage.src = '/images/banners/welcome-point/fail_alert.svg';
+                    alertImage.src = 'https://bjj.inuappcenter.kr/images/banners/welcome-point/fail_alert.svg';
                 }
 
                 modal.classList.add('active');
             })
             .catch(err => {
                 console.error('에러:', err);
-                alertImage.src = '/images/banners/welcome-point/fail_alert.svg';
+                alertImage.src = 'https://bjj.inuappcenter.kr/images/banners/welcome-point/fail_alert.svg';
                 modal.classList.add('active');
             });
     });
