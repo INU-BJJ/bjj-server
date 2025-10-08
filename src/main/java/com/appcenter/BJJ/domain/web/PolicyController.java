@@ -13,12 +13,12 @@ public class PolicyController {
     @Operation(summary = "서비스 이용약관 조회")
     @GetMapping("/terms")
     public String terms() {
-        return "banners/terms";
+        return "policy/terms";
     }
 
     @Operation(summary = "개인정보 처리방침 조회")
     @GetMapping("/privacy")
     public String privacy() {
-        return "banners/privacy";
+        return "policy/privacy";
     }
 }
