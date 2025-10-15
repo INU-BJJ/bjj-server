@@ -29,7 +29,4 @@ public interface ImageRepository extends JpaRepository<Image, Long>, ImageReposi
         ) m;
     """, nativeQuery = true)
     List<ImageDto> findFirstImagesOfMostLikedReviewInMainMenuIds(List<Long> mainMenuIds);
-
-    @Query("SELECT i FROM Image i JOIN FETCH i.review r WHERE i.review.id = :reviewId")
-    List<Image> findByReviewId(Long reviewId);
 }

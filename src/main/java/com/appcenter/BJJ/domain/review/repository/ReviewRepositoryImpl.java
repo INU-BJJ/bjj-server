@@ -22,12 +22,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.appcenter.BJJ.domain.image.QImage.image;
 import static com.appcenter.BJJ.domain.member.domain.QMember.member;
 import static com.appcenter.BJJ.domain.menu.domain.QMenuPair.menuPair;
 import static com.appcenter.BJJ.domain.review.domain.QReview.review;
@@ -268,7 +264,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
     }
 
     @Override
-    public BestReviewRes findBestReview(Long reviewId, Long memberId) {
+    public Optional<BestReviewRes> findBestReview(Long reviewId, Long memberId) {
         QMenu mainMenu = new QMenu("mainMenu");
         QMenu subMenu = new QMenu("subMenu");
 
@@ -311,19 +307,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 )
                 .fetchOne();
 
-        if (result == null) {
-            return null;
-        }
-
-        // 이미지 파일명 조회 (필요하면 별도 쿼리)
-        List<String> imageNames = jpaQueryFactory
-                .select(image.name)
-                .from(image)
-                .where(image.review().id.eq(reviewId))
-                .fetch();
-
-        result.setImageNames(imageNames);
-        return result;
+        return Optional.ofNullable(result);
     }
 
 }

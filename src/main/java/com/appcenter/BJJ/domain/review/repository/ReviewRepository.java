@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.review.repository;
 
 import com.appcenter.BJJ.domain.menu.dto.MenuRatingStatsDto;
 import com.appcenter.BJJ.domain.review.domain.Review;
+import com.appcenter.BJJ.domain.review.dto.MemberCharacterImageDto;
 import com.appcenter.BJJ.domain.review.dto.ReviewImageDetailRes;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -160,4 +161,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         ORDER BY COUNT(rl) DESC, r.createdDate DESC, r.id DESC
     """)
     List<Long> findBestReviewIds(LocalDate fromDate, Pageable pageable);
+
+    @Query("""
+        SELECT new com.appcenter.BJJ.domain.review.dto.MemberCharacterImageDto(
+            iv.memberId,
+            it.imageName
+        )
+        FROM Inventory iv
+        JOIN Item it ON it.itemIdx = iv.itemIdx AND it.itemType = iv.itemType AND it.itemType = 'CHARACTER'
+        WHERE iv.memberId IN :memberIds AND iv.isWearing = true
+    """)
+    List<MemberCharacterImageDto> findMemberCharacterImages(List<Long> memberIds);
 }

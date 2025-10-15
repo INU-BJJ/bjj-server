@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -139,49 +140,26 @@ public class ReviewService {
 
         log.debug("[로그] menuPair.getMainMenuId() = {}, menuPair.getSubMenuId() = {}  ", menuPair.getMainMenuId(), menuPair.getSubMenuId());
 
+        // 리뷰 상세 목록 조회
         Slice<ReviewDetailRes> reviewDetailResSlice = reviewRepository
                 .findReviewsWithImagesAndMemberDetails(memberId, menuPair.getMainMenuId(), menuPair.getSubMenuId(), sort, isWithImages, PageRequest.of(pageNumber, pageSize));
+
         List<ReviewDetailRes> reviewDetailResList = reviewDetailResSlice.getContent();
-        boolean isLast = reviewDetailResSlice.isLast();
-
-        List<Long> reviewIdList = reviewDetailResList.stream().map(ReviewDetailRes::getReviewId).toList();
-
-        List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
-        Map<Long, List<Image>> imageListMap = images
-                .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
-
-        reviewDetailResList.forEach(reviewDetailRes -> {
-            List<String> imageNameList = imageListMap
-                    .getOrDefault(reviewDetailRes.getReviewId(), List.of())
-                    .stream().map(Image::getName).toList();
-            reviewDetailRes.setImageNames(imageNameList);
-        });
+        attachImagesAndMemberIcons(reviewDetailResList);
 
         return ReviewsPagedRes.builder()
                 .reviewDetailList(reviewDetailResList)
-                .isLastPage(isLast)
+                .isLastPage(reviewDetailResSlice.isLast())
                 .build();
     }
 
     public MyReviewsGroupedRes findMyReviews(Long memberId) {
         log.info("[로그] findMyReviews(), memberId : {}", memberId);
 
+        // 식당별 내 리뷰 상세 목록 조회
         Map<String, List<MyReviewDetailRes>> myReviewDetailResListMap = reviewRepository.findMyReviewsWithImagesAndMemberDetailsAndCafeteria(memberId);
 
-        myReviewDetailResListMap.values().forEach(myReviewDetailResList -> {
-            List<Long> reviewIdList = myReviewDetailResList.stream().map(MyReviewDetailRes::getReviewId).toList();
-
-            List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
-            Map<Long, List<Image>> imageListMap = images
-                    .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
-
-            myReviewDetailResList.forEach(myReviewDetailRes -> {
-                List<String> imageNameList = imageListMap
-                        .getOrDefault(myReviewDetailRes.getReviewId(), List.of())
-                        .stream().map(Image::getName).toList();
-                myReviewDetailRes.setImageNames(imageNameList);
-            });
-        });
+        myReviewDetailResListMap.values().forEach(this::attachImagesAndMemberIcons);
 
         return MyReviewsGroupedRes.builder()
                 .myReviewDetailList(myReviewDetailResListMap)
@@ -194,24 +172,11 @@ public class ReviewService {
         Slice<MyReviewDetailRes> myReviewDetailResSlice = reviewRepository
                 .findMyReviewsWithImagesAndMemberDetailsByCafeteria(memberId, cafeteriaName, PageRequest.of(pageNumber, pageSize));
         List<MyReviewDetailRes> myReviewDetailResList = myReviewDetailResSlice.getContent();
-        boolean isLast = myReviewDetailResSlice.isLast();
-
-        List<Long> reviewIdList = myReviewDetailResList.stream().map(MyReviewDetailRes::getReviewId).toList();
-
-        List<Image> images = imageRepository.findByReviewIdList(reviewIdList);
-        Map<Long, List<Image>> imageListMap = images
-                .stream().collect(Collectors.groupingBy(image -> image.getReview().getId()));
-
-        myReviewDetailResList.forEach(reviewDetailRes -> {
-            List<String> imageNameList = imageListMap
-                    .getOrDefault(reviewDetailRes.getReviewId(), List.of())
-                    .stream().map(Image::getName).toList();
-            reviewDetailRes.setImageNames(imageNameList);
-        });
+        attachImagesAndMemberIcons(myReviewDetailResList);
 
         return MyReviewsPagedRes.builder()
                 .myReviewDetailList(myReviewDetailResList)
-                .isLastPage(isLast)
+                .isLastPage(myReviewDetailResSlice.isLast())
                 .build();
     }
 
@@ -263,9 +228,7 @@ public class ReviewService {
         ReviewDetailRes reviewDetailRes = reviewRepository.findReviewWithMenuAndMemberDetails(reviewId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_DETAIL_NOT_FOUND));
 
-        List<String> imageNames = imageRepository.findByReviewId(reviewId).stream().map(Image::getName).toList();
-        reviewDetailRes.setImageNames(imageNames);
-
+        attachImagesAndMemberIcons(Collections.singletonList(reviewDetailRes));
         return reviewDetailRes;
     }
 
@@ -276,13 +239,46 @@ public class ReviewService {
         LocalDate fromDate = period.getFromDate(today);
 
         // 좋아요를 가장 많이 받은 리뷰 조회 (단, 이번 주에 작성된 최소 1개 이상의 좋아요를 받은 리뷰)
-        List<Long> bestReviewIds = reviewRepository.findBestReviewIds(fromDate, PageRequest.of(0, 1));
-        if (bestReviewIds.isEmpty()) {
-            return Optional.empty();
-        }
+        return reviewRepository.findBestReviewIds(fromDate, PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .flatMap(bestReviewId -> reviewRepository.findBestReview(bestReviewId, memberId))
+                .map(bestReviewRes -> {
+                    attachImagesAndMemberIcons(Collections.singletonList(bestReviewRes));
+                    return bestReviewRes;
+                });
+    }
 
-        Long bestReviewId = bestReviewIds.get(0);
-        BestReviewRes bestReviewRes = reviewRepository.findBestReview(bestReviewId, memberId);
-        return Optional.of(bestReviewRes);
+    private void attachImagesAndMemberIcons(List<? extends ReviewBaseDto> reviewList) {
+        if (reviewList.isEmpty()) return;
+
+        // 모든 reviewId와 memberId 추출
+        List<Long> reviewIdList = reviewList.stream()
+                .map(ReviewBaseDto::getReviewId)
+                .distinct()
+                .toList();
+        List<Long> memberIdList = reviewList.stream()
+                .map(ReviewBaseDto::getMemberId)
+                .distinct()
+                .toList();
+
+        // 리뷰 이미지 조회
+        Map<Long, List<String>> reviewImageMap = imageRepository.findByReviewIdList(reviewIdList)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        image -> image.getReview().getId(),
+                        Collectors.mapping(Image::getName, Collectors.toList())
+                ));
+
+        // 리뷰어 아이콘 이미지 조회
+        Map<Long, String> memberImageMap = reviewRepository.findMemberCharacterImages(memberIdList)
+                .stream()
+                .collect(Collectors.toMap(MemberCharacterImageDto::getMemberId, MemberCharacterImageDto::getImageName));
+
+        // DTO에 세팅
+        reviewList.forEach(review -> {
+            review.withImageNames(reviewImageMap.getOrDefault(review.getReviewId(), List.of()));
+            review.withMemberImageName(memberImageMap.getOrDefault(review.getMemberId(), null));
+        });
     }
 }
