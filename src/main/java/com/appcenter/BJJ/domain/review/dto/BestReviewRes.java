@@ -3,14 +3,13 @@ package com.appcenter.BJJ.domain.review.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 @RequiredArgsConstructor    // QueryDSL은 접근제어자로 Public 필요
-public class BestReviewRes {
+public class BestReviewRes extends ReviewBaseDto {
     @Schema(description = "리뷰 id", example = "1")
     private final Long reviewId;
     @Schema(description = "리뷰 내용", example = "맛이 참으로 좋읍니다.")
@@ -18,7 +17,6 @@ public class BestReviewRes {
     @Schema(description = "리뷰 별점", example = "5")
     private final Integer rating;
     @Schema(description = "리뷰 사진 파일 이름", example = "[\"aa356b24-0169-4c0c-8bf4-836ed3c6b31d.png\", \"72d2efb7-a5d6-439e-93ca-3dd578fa4f67.png\"]")
-    @Setter
     private List<String> imageNames;
     @Schema(description = "리뷰 좋아요 개수", example = "123")
     private final Long likeCount;
@@ -68,5 +66,21 @@ public class BestReviewRes {
         this.memberNickname = null;
         this.memberImageName = null;
         this.isOwned = false;
+    }
+
+    /**
+     * imageNames 초기화용 메서드
+     */
+    public BestReviewRes withImageNames(List<String> imageNames) {
+        this.imageNames = imageNames;
+        return this;
+    }
+
+    /**
+     * memberImageName 초기화용 메서드
+     */
+    public BestReviewRes withMemberImageName(String memberImageName) {
+        this.memberImageName = memberImageName;
+        return this;
     }
 }
