@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
                         .requestMatchers("/oauth2/authorization/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/fonts/**", "/images/**").permitAll()
+                        .requestMatchers("/policy/**").permitAll()
                         .requestMatchers("/actuator/**")
                         .access((auth, ctx) -> {
                             String ip = ctx.getRequest().getRemoteAddr();
