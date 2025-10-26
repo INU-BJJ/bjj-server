@@ -15,7 +15,7 @@
     <div class="reviewer-profile">
         <div class="portrait">
             <img th:if="${review.memberImageName != null}"
-                 th:src="@{/images/{img}(img=${review.memberImageName})}"
+                 th:src="@{/images/item/character/icon_{img}.svg(img=${review.memberImageName})}"
                  class="reviewer-image"
                  alt="리뷰어 프로필 이미지"/>
             <img th:if="${review.memberImageName == null}"
