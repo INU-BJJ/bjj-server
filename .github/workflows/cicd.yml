@@ -52,7 +52,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           key: ${{ secrets.SERVER_KEY }}
-          script_stop: true
           script: |
             export STORAGE_IMAGES=${{ secrets.STORAGE_IMAGES }}
             sh bjj/deploy-bjj.sh
