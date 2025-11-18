@@ -79,9 +79,9 @@ html, body {
 }
 
 .page-comments-title {
-    font-size: 4.5vw;       /* 15px */
-    line-height: 6.17vw;     /* 20px */
-    letter-spacing: 0.04vw;  /* 0.131px */
+    font-size: 4.5vw; /* 15px */
+    line-height: 6.17vw; /* 20px */
+    letter-spacing: 0.04vw; /* 0.131px */
     font-style: normal;
     font-weight: 600;
     color: #000;
@@ -89,30 +89,30 @@ html, body {
 
 .page-comments ul {
     list-style: none;
-    margin-top: 2.47vw;      /* 8px */
-    margin-left: 0.31vw;     /* 1px */
-    width: 87.96vw;          /* 285px */
+    margin-top: 2.47vw; /* 8px */
+    margin-left: 0.31vw; /* 1px */
+    width: 87.96vw; /* 285px */
     padding-left: 0;
 }
 
 .page-comments li {
-    position: relative;      /* ::before 기준 */
-    padding-left: 6vw;       /* 점과 글자 간격 확보 */
-    font-size: 3.9vw;       /* 13px */
-    line-height: 5.56vw;     /* 18px */
-    letter-spacing: 0.04vw;  /* 0.131px */
+    position: relative; /* ::before 기준 */
+    padding-left: 6vw; /* 점과 글자 간격 확보 */
+    font-size: 3.9vw; /* 13px */
+    line-height: 5.56vw; /* 18px */
+    letter-spacing: 0.04vw; /* 0.131px */
     color: #000;
     font-style: normal;
     font-weight: 500;
-    display: block;          /* flex 제거 */
+    display: block; /* flex 제거 */
 }
 
 .page-comments li::before {
     content: '⦁';
     position: absolute;
     margin-left: 2vw;
-    top: 0;                  /* 첫 줄 기준 */
-    left: 0;                 /* li 왼쪽 끝 */
+    top: 0; /* 첫 줄 기준 */
+    left: 0; /* li 왼쪽 끝 */
     font-size: 90%;
 }
 
@@ -130,31 +130,31 @@ html, body {
     z-index: 1000;
 }
 
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal-content img {
-    max-width: 90vw;
-    max-height: 90vh;
-}
-
 /*.modal-overlay.active {*/
 /*    display: flex;*/
 /*}*/
 
-/*.modal-content {*/
-/*    display: flex;*/
-/*    justify-content: center;*/
-/*    align-items: center;*/
-/*    min-width: 1px;*/
-/*    min-height: 1px;*/
+/*.modal-content img {*/
+/*    max-width: 90vw;*/
+/*    max-height: 90vh;*/
 /*}*/
 
-/*.modal-content img {*/
-/*    width: 70vw;*/
-/*    max-width: 90vw;*/
-/*    height: auto;*/
-/*    position: relative;*/
-/*    z-index: 2000;*/
-/*}*/
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 1px;
+    min-height: 1px;
+}
+
+.modal-content img {
+    width: 70vw;
+    max-width: 90vw;
+    height: auto;
+    position: relative;
+    z-index: 2000;
+}
