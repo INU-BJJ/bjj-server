@@ -29,7 +29,7 @@ public class EventController {
     @ResponseBody
     @PostMapping("/welcome-point")
     public Map<String, Boolean> welcomePoint(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return Map.of("isParticipated", eventService.welcomePoint(userDetails.getMember().getId()));
+        return Map.of("participationCompleted", eventService.welcomePoint(userDetails.getMember().getId()));
     }
 
     @Operation(summary = "웰컴포인트 이벤트 뷰 조회")

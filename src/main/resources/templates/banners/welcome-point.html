@@ -75,7 +75,7 @@
             .then(data => {
                 console.log("서버 응답:", JSON.stringify(data));
 
-                if (data.isParticipated) {
+                if (data.participationCompleted) {
                     console.log('🔴 이미 참여함 - success 이미지');
                     alertImage.src = '/images/banners/welcome-point/success_alert.svg';
                 } else {
