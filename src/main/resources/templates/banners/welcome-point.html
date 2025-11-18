@@ -125,6 +125,10 @@
         </button>
     </div>
 
+    <img
+            src="/images/banners/welcome-point/success_alert.svg"
+            alt="success">
+
     <div class="page-line"></div>
 
     <div class="page-comments">
@@ -175,10 +179,12 @@
             })
             .then(data => {
                 if (data.participationCompleted) {
+                    console.log('이벤트 참여 완료 (success 이미지)');
                     // 웰컴포인트 지급 성공
                     successImage.style.display = 'block';
                     failImage.style.display = 'none';
                 } else {
+                    console.log('이미 이벤트 참여 완료 (fail 이미지)');
                     // 웰컴포인트 이미 지급 완료 => 지급 실패
                     successImage.style.display = 'none';
                     failImage.style.display = 'block';
