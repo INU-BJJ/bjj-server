@@ -1,3 +1,110 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>웰컴 포인트</title>-->
+<!--    <link rel="stylesheet" href="/css/welcome-point.css">-->
+<!--    &lt;!&ndash; 🔴 CSS 로딩 확인용 &ndash;&gt;-->
+<!--    <script>-->
+<!--        console.log('페이지 로드 시작');-->
+<!--        window.addEventListener('load', () => {-->
+<!--            console.log('페이지 로드 완료');-->
+<!--            const modal = document.getElementById('alertModal');-->
+<!--            const styles = window.getComputedStyle(modal);-->
+<!--            console.log('모달 display:', styles.display);-->
+<!--            console.log('모달 opacity:', styles.opacity);-->
+<!--        });-->
+<!--    </script>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div class="page-container">-->
+<!--    <div class="page-main">-->
+<!--        <img src="/images/banners/welcome-point/main.svg" alt="신규 가입자 웰컴 포인트 500p">-->
+<!--    </div>-->
+
+<!--    <div class="page-button">-->
+<!--        <button id="claimButton">-->
+<!--            <img src="/images/banners/welcome-point/button.svg" alt="포인트 받기">-->
+<!--        </button>-->
+<!--    </div>-->
+
+<!--    <div class="page-line"></div>-->
+
+<!--    <div class="page-comments">-->
+<!--        <div class="page-comments-title">유의사항</div>-->
+<!--        <ul>-->
+<!--            <li>신규 가입자만 포인트를 얻을 수 있음</li>-->
+<!--            <li>신규 가입자에 한해서 가입 후 한 번만 포인트 받기 가능</li>-->
+<!--            <li>뽑기 기능에서 사용 바로 가능함</li>-->
+<!--            <li>받은 포인트는 선물하거나 양도가 불가능함</li>-->
+<!--        </ul>-->
+<!--    </div>-->
+
+<!--    <div id="alertModal" class="modal-overlay">-->
+<!--        <div class="modal-content">-->
+<!--            <img id="alertImage" src="" alt="알림">-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script th:inline="javascript">-->
+<!--    const claimButton = document.getElementById('claimButton');-->
+<!--    const modal = document.getElementById('alertModal');-->
+<!--    const alertImage = document.getElementById('alertImage');-->
+
+<!--    claimButton.addEventListener('click', () => {-->
+<!--        const token = window.accessToken || /*[[${accessToken}]]*/ '';-->
+<!--        console.log('🔴 사용할 토큰:', token ? '토큰 있음' : '토큰 없음');-->
+
+<!--        fetch('/api/events/welcome-point', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Authorization': `${token}`,-->
+<!--                'Content-Type': 'application/json'-->
+<!--            }-->
+<!--        })-->
+<!--            .then(res => {-->
+<!--                if (!res.ok) {-->
+<!--                    throw new Error('서버 응답 오류');-->
+<!--                }-->
+<!--                return res.json();-->
+<!--            })-->
+<!--            .then(data => {-->
+<!--                console.log("서버 응답:", JSON.stringify(data));-->
+
+<!--                if (data.participationCompleted) {-->
+<!--                    console.log('🔴 이벤트 참여 완료 - success 이미지');-->
+<!--                    alertImage.src = '/images/banners/welcome-point/success_alert.svg';-->
+<!--                } else {-->
+<!--                    console.log('🔴 이미 참여 완료 - fail 이미지');-->
+<!--                    alertImage.src = '/images/banners/welcome-point/fail_alert.svg';-->
+<!--                }-->
+
+<!--                console.log('🔴 모달에 active 클래스 추가 시작');-->
+<!--                modal.classList.add('active');-->
+<!--                console.log('🔴 모달 클래스:', modal.className);-->
+<!--                console.log('🔴 모달 스타일:', window.getComputedStyle(modal).display);-->
+<!--            })-->
+<!--            .catch(err => {-->
+<!--                console.error('에러:', err);-->
+<!--                alertImage.src = '/images/banners/welcome-point/fail_alert.svg';-->
+<!--                modal.classList.add('active');-->
+<!--            });-->
+<!--    });-->
+
+<!--    // 모달 닫기-->
+<!--    modal.addEventListener('click', (event) => {-->
+<!--        if (event.target === modal) {-->
+<!--            modal.classList.remove('active');-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
@@ -5,6 +112,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>웰컴 포인트</title>
     <link rel="stylesheet" href="/css/welcome-point.css">
+
     <!-- 🔴 CSS 로딩 확인용 -->
     <script>
         console.log('페이지 로드 시작');
@@ -16,6 +124,29 @@
             console.log('모달 opacity:', styles.opacity);
         });
     </script>
+
+    <!-- 🔴 텍스트 테스트용 인라인 스타일 -->
+    <style>
+        .alert-text {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert-text.success {
+            color: #22c55e;
+            border: 3px solid #22c55e;
+        }
+
+        .alert-text.fail {
+            color: #ef4444;
+            border: 3px solid #ef4444;
+        }
+    </style>
 </head>
 <body>
 
@@ -44,7 +175,8 @@
 
     <div id="alertModal" class="modal-overlay">
         <div class="modal-content">
-            <img id="alertImage" src="" alt="알림">
+            <div id="alertText" class="alert-text">
+            </div>
         </div>
     </div>
 </div>
@@ -52,7 +184,7 @@
 <script th:inline="javascript">
     const claimButton = document.getElementById('claimButton');
     const modal = document.getElementById('alertModal');
-    const alertImage = document.getElementById('alertImage');
+    const alertText = document.getElementById('alertText');
 
     claimButton.addEventListener('click', () => {
         console.log('🔴 포인트 받기 버튼 클릭됨');
@@ -67,20 +199,24 @@
             }
         })
             .then(res => {
+                console.log('🔴 서버 응답 상태:', res.status);
                 if (!res.ok) {
                     throw new Error('서버 응답 오류');
                 }
                 return res.json();
             })
             .then(data => {
-                console.log("서버 응답:", JSON.stringify(data));
+                console.log("🔴 서버 응답:", JSON.stringify(data));
 
+                // 🔴 이미지 대신 텍스트와 클래스로 표시
                 if (data.participationCompleted) {
-                    console.log('🔴 이미 참여함 - success 이미지');
-                    alertImage.src = '/images/banners/welcome-point/success_alert.svg';
+                    console.log('🔴 이벤트 참여 완료 - SUCCESS');
+                    alertText.textContent = '✅ 포인트 지급 완료!\n500P가 지급되었습니다.';
+                    alertText.className = 'alert-text success';
                 } else {
-                    console.log('🔴 참여 안 함 - fail 이미지');
-                    alertImage.src = '/images/banners/welcome-point/fail_alert.svg';
+                    console.log('🔴 이미 참여 완료 - FAIL');
+                    alertText.textContent = '❌ 이미 참여하셨습니다\n중복 참여는 불가능합니다.';
+                    alertText.className = 'alert-text fail';
                 }
 
                 console.log('🔴 모달에 active 클래스 추가 시작');
@@ -89,8 +225,9 @@
                 console.log('🔴 모달 스타일:', window.getComputedStyle(modal).display);
             })
             .catch(err => {
-                console.error('에러:', err);
-                alertImage.src = '/images/banners/welcome-point/fail_alert.svg';
+                console.error('🔴 에러:', err);
+                alertText.textContent = '⚠️ 오류 발생\n다시 시도해주세요.';
+                alertText.className = 'alert-text fail';
                 modal.classList.add('active');
             });
     });
@@ -98,11 +235,10 @@
     // 모달 닫기
     modal.addEventListener('click', (event) => {
         if (event.target === modal) {
+            console.log('🔴 모달 닫기');
             modal.classList.remove('active');
         }
     });
 </script>
 </body>
 </html>
-
-
