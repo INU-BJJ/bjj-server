@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>웰컴 포인트</title>
     <link rel="stylesheet" href="/css/welcome-point.css">
+    <!-- 🔴 CSS 로딩 확인용 -->
+    <script>
+        console.log('페이지 로드 시작');
+        window.addEventListener('load', () => {
+            console.log('페이지 로드 완료');
+            const modal = document.getElementById('alertModal');
+            const styles = window.getComputedStyle(modal);
+            console.log('모달 display:', styles.display);
+            console.log('모달 opacity:', styles.opacity);
+        });
+    </script>
 </head>
 <body>
 
@@ -44,7 +55,9 @@
     const alertImage = document.getElementById('alertImage');
 
     claimButton.addEventListener('click', () => {
+        console.log('🔴 포인트 받기 버튼 클릭됨');
         const token = window.accessToken || /*[[${accessToken}]]*/ '';
+        console.log('🔴 사용할 토큰:', token ? '토큰 있음' : '토큰 없음');
 
         fetch('/api/events/welcome-point', {
             method: 'POST',
@@ -63,12 +76,17 @@
                 console.log("서버 응답:", JSON.stringify(data));
 
                 if (data.isParticipated) {
+                    console.log('🔴 이미 참여함 - success 이미지');
                     alertImage.src = '/images/banners/welcome-point/success_alert.svg';
                 } else {
+                    console.log('🔴 참여 안 함 - fail 이미지');
                     alertImage.src = '/images/banners/welcome-point/fail_alert.svg';
                 }
 
+                console.log('🔴 모달에 active 클래스 추가 시작');
                 modal.classList.add('active');
+                console.log('🔴 모달 클래스:', modal.className);
+                console.log('🔴 모달 스타일:', window.getComputedStyle(modal).display);
             })
             .catch(err => {
                 console.error('에러:', err);
@@ -86,3 +104,5 @@
 </script>
 </body>
 </html>
+
+
