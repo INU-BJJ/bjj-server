@@ -73,14 +73,14 @@ html, body {
 }
 
 .page-comments {
-    margin: 4.63vw 6.86vw 20.06vw 6.86vw; /* top right bottom left */
+    margin: 4.63vw 6.86vw 20.06vw 6.86vw;
     color: #000;
 }
 
 .page-comments-title {
-    font-size: 4.5vw; /* 15px */
-    line-height: 6.17vw; /* 20px */
-    letter-spacing: 0.04vw; /* 0.131px */
+    font-size: 4.5vw;
+    line-height: 6.17vw;
+    letter-spacing: 0.04vw;
     font-style: normal;
     font-weight: 600;
     color: #000;
@@ -88,62 +88,54 @@ html, body {
 
 .page-comments ul {
     list-style: none;
-    margin-top: 2.47vw; /* 8px */
-    margin-left: 0.31vw; /* 1px */
-    width: 87.96vw; /* 285px */
+    margin-top: 2.47vw;
+    margin-left: 0.31vw;
+    width: 87.96vw;
     padding-left: 0;
 }
 
 .page-comments li {
-    position: relative; /* ::before 기준 */
-    padding-left: 6vw; /* 점과 글자 간격 확보 */
-    font-size: 3.9vw; /* 13px */
-    line-height: 5.56vw; /* 18px */
-    letter-spacing: 0.04vw; /* 0.131px */
+    position: relative;
+    padding-left: 6vw;
+    font-size: 3.9vw;
+    line-height: 5.56vw;
+    letter-spacing: 0.04vw;
     color: #000;
     font-style: normal;
     font-weight: 500;
-    display: block; /* flex 제거 */
+    display: block;
 }
 
 .page-comments li::before {
     content: '⦁';
     position: absolute;
     margin-left: 2vw;
-    top: 0; /* 첫 줄 기준 */
-    left: 0; /* li 왼쪽 끝 */
+    top: 0;
+    left: 0;
     font-size: 90%;
 }
 
-.modal-overlay {
+.popup {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     justify-content: center;
     align-items: center;
-    display: none;
     z-index: 1000;
 }
 
-.modal-overlay.active {
+.popup-content {
+    background: transparent;
     display: flex;
-}
-
-.modal-content {
-    display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    min-width: 1px;
-    min-height: 1px;
 }
 
-.modal-content img {
-    width: 70vw;
-    max-width: 90vw;
-    height: auto;
-    position: relative;
-    z-index: 2000;
+.popup-img {
+    width: 280px;
+    max-width: 90%;
 }
