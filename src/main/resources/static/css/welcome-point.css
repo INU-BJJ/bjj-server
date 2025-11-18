@@ -124,23 +124,13 @@ html, body {
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    /*display: none;*/
-    display: flex;
+    display: none;
     z-index: 1000;
 }
 
-/*.modal-overlay.active {*/
-/*    display: flex;*/
-/*}*/
-
-/*.modal-content img {*/
-/*    max-width: 90vw;*/
-/*    max-height: 90vh;*/
-/*}*/
-
-/*.modal-overlay.active {*/
-/*    display: flex;*/
-/*}*/
+.modal-overlay.active {
+    display: flex;
+}
 
 .modal-content {
     display: flex;
