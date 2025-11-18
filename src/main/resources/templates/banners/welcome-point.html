@@ -5,17 +5,6 @@
 <!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
 <!--    <title>웰컴 포인트</title>-->
 <!--    <link rel="stylesheet" href="/css/welcome-point.css">-->
-<!--    &lt;!&ndash; 🔴 CSS 로딩 확인용 &ndash;&gt;-->
-<!--    <script>-->
-<!--        console.log('페이지 로드 시작');-->
-<!--        window.addEventListener('load', () => {-->
-<!--            console.log('페이지 로드 완료');-->
-<!--            const modal = document.getElementById('alertModal');-->
-<!--            const styles = window.getComputedStyle(modal);-->
-<!--            console.log('모달 display:', styles.display);-->
-<!--            console.log('모달 opacity:', styles.opacity);-->
-<!--        });-->
-<!--    </script>-->
 <!--</head>-->
 <!--<body>-->
 
@@ -44,7 +33,15 @@
 
 <!--    <div id="alertModal" class="modal-overlay">-->
 <!--        <div class="modal-content">-->
-<!--            <img id="alertImage" src="" alt="알림">-->
+<!--&lt;!&ndash;            <div>하이요</div>&ndash;&gt;-->
+<!--            <img id="successImage"-->
+<!--                 src="/images/banners/welcome-point/success_alert.svg"-->
+<!--                 alt="success"-->
+<!--                 style="display: none;">-->
+<!--            <img id="failImage"-->
+<!--                 src="/images/banners/welcome-point/fail_alert.svg"-->
+<!--                 alt="fail"-->
+<!--                 style="display: none;">-->
 <!--        </div>-->
 <!--    </div>-->
 <!--</div>-->
@@ -52,11 +49,11 @@
 <!--<script th:inline="javascript">-->
 <!--    const claimButton = document.getElementById('claimButton');-->
 <!--    const modal = document.getElementById('alertModal');-->
-<!--    const alertImage = document.getElementById('alertImage');-->
+<!--    const successImage = document.getElementById('successImage');-->
+<!--    const failImage = document.getElementById('failImage');-->
 
 <!--    claimButton.addEventListener('click', () => {-->
 <!--        const token = window.accessToken || /*[[${accessToken}]]*/ '';-->
-<!--        console.log('🔴 사용할 토큰:', token ? '토큰 있음' : '토큰 없음');-->
 
 <!--        fetch('/api/events/welcome-point', {-->
 <!--            method: 'POST',-->
@@ -72,24 +69,29 @@
 <!--                return res.json();-->
 <!--            })-->
 <!--            .then(data => {-->
-<!--                console.log("서버 응답:", JSON.stringify(data));-->
-
 <!--                if (data.participationCompleted) {-->
-<!--                    console.log('🔴 이벤트 참여 완료 - success 이미지');-->
-<!--                    alertImage.src = '/images/banners/welcome-point/success_alert.svg';-->
+<!--                    console.log('이벤트 참여 완료 (success 이미지)');-->
+<!--                    // 웰컴포인트 지급 성공-->
+<!--                    successImage.style.display = 'block';-->
+<!--                    failImage.style.display = 'none';-->
 <!--                } else {-->
-<!--                    console.log('🔴 이미 참여 완료 - fail 이미지');-->
-<!--                    alertImage.src = '/images/banners/welcome-point/fail_alert.svg';-->
+<!--                    console.log('이미 이벤트 참여 완료 (fail 이미지)');-->
+<!--                    // 웰컴포인트 이미 지급 완료 => 지급 실패-->
+<!--                    successImage.style.display = 'none';-->
+<!--                    failImage.style.display = 'block';-->
 <!--                }-->
 
-<!--                console.log('🔴 모달에 active 클래스 추가 시작');-->
+<!--                // ⚠ 강제 리플로우 (WebView에서 필요)-->
+<!--                successImage.offsetHeight;-->
+<!--                failImage.offsetHeight;-->
+
 <!--                modal.classList.add('active');-->
-<!--                console.log('🔴 모달 클래스:', modal.className);-->
-<!--                console.log('🔴 모달 스타일:', window.getComputedStyle(modal).display);-->
 <!--            })-->
 <!--            .catch(err => {-->
 <!--                console.error('에러:', err);-->
-<!--                alertImage.src = '/images/banners/welcome-point/fail_alert.svg';-->
+<!--                // 에러 => 실패 이미지-->
+<!--                successImage.style.display = 'none';-->
+<!--                failImage.style.display = 'block';-->
 <!--                modal.classList.add('active');-->
 <!--            });-->
 <!--    });-->
@@ -98,6 +100,10 @@
 <!--    modal.addEventListener('click', (event) => {-->
 <!--        if (event.target === modal) {-->
 <!--            modal.classList.remove('active');-->
+
+<!--            // 다음 사용을 위해 리셋-->
+<!--            successImage.style.display = 'none';-->
+<!--            failImage.style.display = 'none';-->
 <!--        }-->
 <!--    });-->
 <!--</script>-->
@@ -111,6 +117,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>웰컴 포인트</title>
     <link rel="stylesheet" href="/css/welcome-point.css">
+
+    <style>
+        /* 팝업 기본 스타일 */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .popup-img {
+            width: 280px;
+            max-width: 90%;
+        }
+    </style>
 </head>
 <body>
 
@@ -125,10 +157,6 @@
         </button>
     </div>
 
-    <img
-            src="/images/banners/welcome-point/success_alert.svg"
-            alt="success">
-
     <div class="page-line"></div>
 
     <div class="page-comments">
@@ -140,26 +168,19 @@
             <li>받은 포인트는 선물하거나 양도가 불가능함</li>
         </ul>
     </div>
+</div>
 
-    <div id="alertModal" class="modal-overlay">
-        <div class="modal-content">
-            <img id="successImage"
-                 src="/images/banners/welcome-point/success_alert.svg"
-                 alt="success"
-                 style="display: none;">
-            <img id="failImage"
-                 src="/images/banners/welcome-point/fail_alert.svg"
-                 alt="fail"
-                 style="display: none;">
-        </div>
+<!-- 팝업 영역 -->
+<div id="popup" class="popup" onclick="closePopup()">
+    <div class="popup-content" onclick="event.stopPropagation()">
+        <img id="popup-img" class="popup-img" alt="알림 이미지">
     </div>
 </div>
 
 <script th:inline="javascript">
     const claimButton = document.getElementById('claimButton');
-    const modal = document.getElementById('alertModal');
-    const successImage = document.getElementById('successImage');
-    const failImage = document.getElementById('failImage');
+    const popup = document.getElementById('popup');
+    const popupImg = document.getElementById('popup-img');
 
     claimButton.addEventListener('click', () => {
         const token = window.accessToken || /*[[${accessToken}]]*/ '';
@@ -179,38 +200,22 @@
             })
             .then(data => {
                 if (data.participationCompleted) {
-                    console.log('이벤트 참여 완료 (success 이미지)');
-                    // 웰컴포인트 지급 성공
-                    successImage.style.display = 'block';
-                    failImage.style.display = 'none';
+                    popupImg.src = "/images/banners/welcome-point/success_alert.svg";
                 } else {
-                    console.log('이미 이벤트 참여 완료 (fail 이미지)');
-                    // 웰컴포인트 이미 지급 완료 => 지급 실패
-                    successImage.style.display = 'none';
-                    failImage.style.display = 'block';
+                    popupImg.src = "/images/banners/welcome-point/fail_alert.svg";
                 }
-
-                modal.classList.add('active');
+                popup.style.display = "flex";
             })
             .catch(err => {
-                console.error('에러:', err);
-                // 에러 => 실패 이미지
-                successImage.style.display = 'none';
-                failImage.style.display = 'block';
-                modal.classList.add('active');
+                popupImg.src = "/images/banners/welcome-point/fail_alert.svg";
+                popup.style.display = "flex";
             });
     });
 
-    // 모달 닫기
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.classList.remove('active');
-
-            // 다음 사용을 위해 리셋
-            successImage.style.display = 'none';
-            failImage.style.display = 'none';
-        }
-    });
+    function closePopup() {
+        popup.style.display = "none";
+    }
 </script>
+
 </body>
 </html>
