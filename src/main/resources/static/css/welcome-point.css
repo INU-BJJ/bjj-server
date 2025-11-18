@@ -31,7 +31,6 @@ html, body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
 }
 
 .page-main {
@@ -139,9 +138,9 @@ html, body {
 /*    max-height: 90vh;*/
 /*}*/
 
-.modal-overlay.active {
-    display: flex;
-}
+/*.modal-overlay.active {*/
+/*    display: flex;*/
+/*}*/
 
 .modal-content {
     display: flex;
