@@ -125,8 +125,8 @@ html, body {
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-    display: none;
-    /*display: flex;*/
+    /*display: none;*/
+    display: flex;
     z-index: 1000;
 }
 
