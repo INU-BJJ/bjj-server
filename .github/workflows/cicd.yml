@@ -22,9 +22,8 @@ jobs:
       - name: make application.properties
         if: contains(github.ref, 'main')
         run: |
-          mkdir ./src/main/resources
+          mkdir -p ./src/main/resources
           cd ./src/main/resources
-          touch ./application.properties
           echo "${{ secrets.APPLICATION }}" > ./application.properties # github actions에서 설정한 값을 application.properties 파일에 쓰기
 
       # gradle build
@@ -53,7 +52,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           key: ${{ secrets.SERVER_KEY }}
-          script_stop: true
           script: |
             export STORAGE_IMAGES=${{ secrets.STORAGE_IMAGES }}
             sh bjj/deploy-bjj.sh

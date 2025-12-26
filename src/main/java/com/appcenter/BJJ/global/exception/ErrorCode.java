@@ -13,6 +13,7 @@ public enum ErrorCode {
     NOT_ENOUGH_POINTS(HttpStatus.BAD_REQUEST, "400-3", "포인트가 충분하지 않습니다."),
     INVALID_REVIEW_TIME(HttpStatus.BAD_REQUEST, "400-4", "해당 리뷰를 작성할 수 있는 시간이 아닙니다."),
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "400-5", "파일 이름이 올바르지 않습니다."),
+    CANNOT_REPORT_OWN_REVIEW(HttpStatus.BAD_REQUEST, "400-6", "자신의 리뷰에는 신고를 할 수 없습니다."),
 
     //401 Unauthorized
     ERROR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-1", "인증 정보가 없습니다."),
@@ -22,6 +23,7 @@ public enum ErrorCode {
     //403 Forbidden
     ERROR_FORBIDDEN(HttpStatus.FORBIDDEN, "403-1", "이 리소스에 접근할 권한이 없습니다."),
     MEMBER_SUSPENDED_FOR_REVIEW(HttpStatus.FORBIDDEN, "403-2", "리뷰 작성이 제한된 사용자입니다."),
+    MEMBER_BANNED(HttpStatus.FORBIDDEN, "403-3", "해당 회원은 밴 처리되었습니다."),
 
     //404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "404-1", "해당 회원이 존재하지 않습니다."),
@@ -32,6 +34,8 @@ public enum ErrorCode {
     CAFETERIA_NOT_FOUND(HttpStatus.NOT_FOUND, "404-6", "해당 식당이 존재하지 않습니다."),
     MENU_PAIR_NOT_FOUND(HttpStatus.NOT_FOUND, "404-7", "해당 메뉴쌍이 존재하지 않습니다."),
     ITEM_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "아이템의 task가 존재하지 않습니다."),
+    MEMBER_TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "404-9", "회원의 task가 존재하지 않습니다."),
+    BANNER_NOT_FOUND(HttpStatus.NOT_FOUND, "404-10", "해당 배너가 존재하지 않습니다."),
 
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),

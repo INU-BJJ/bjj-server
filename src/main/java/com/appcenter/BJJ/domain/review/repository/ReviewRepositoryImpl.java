@@ -3,6 +3,7 @@ package com.appcenter.BJJ.domain.review.repository;
 import com.appcenter.BJJ.domain.menu.domain.QMenu;
 import com.appcenter.BJJ.domain.review.domain.Sort;
 import com.appcenter.BJJ.domain.review.dto.BestReviewDto;
+import com.appcenter.BJJ.domain.review.dto.BestReviewRes;
 import com.appcenter.BJJ.domain.review.dto.MyReviewDetailRes;
 import com.appcenter.BJJ.domain.review.dto.ReviewDetailRes;
 import com.appcenter.BJJ.domain.todaydiet.domain.CafeteriaData;
@@ -21,10 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.appcenter.BJJ.domain.member.domain.QMember.member;
 import static com.appcenter.BJJ.domain.menu.domain.QMenuPair.menuPair;
@@ -264,4 +262,52 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
                 )
                 .fetch();
     }
+
+    @Override
+    public Optional<BestReviewRes> findBestReview(Long reviewId, Long memberId) {
+        QMenu mainMenu = new QMenu("mainMenu");
+        QMenu subMenu = new QMenu("subMenu");
+
+        // 서브쿼리: 해당 리뷰에 좋아요를 눌렀는지 여부 (Boolean)
+        BooleanExpression isLiked = JPAExpressions
+                .selectOne()
+                .from(reviewLike)
+                .where(reviewLike.reviewId.eq(review.id)
+                        .and(reviewLike.memberId.eq(memberId)))
+                .exists();
+
+        BestReviewRes result = jpaQueryFactory
+                .select(Projections.constructor(BestReviewRes.class,
+                        review.id,
+                        review.comment,
+                        review.rating,
+                        review.likeCount,
+                        isLiked,
+                        review.createdDate,
+                        menuPair.id,
+                        mainMenu.id,
+                        mainMenu.menuName,
+                        subMenu.id,
+                        subMenu.menuName,
+                        cafeteria.name,
+                        cafeteria.corner,
+                        review.memberId,
+                        member.nickname,
+                        review.memberId.eq(memberId)
+                ))
+                .from(review)
+                .join(review.menuPair(), menuPair)
+                .join(mainMenu).on(menuPair.mainMenuId.eq(mainMenu.id))
+                .leftJoin(subMenu).on(menuPair.subMenuId.eq(subMenu.id))
+                .join(cafeteria).on(mainMenu.cafeteriaId.eq(cafeteria.id))
+                .join(member).on(member.id.eq(review.memberId))
+                .where(
+                        review.isDeleted.isFalse(),
+                        review.id.eq(reviewId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
 }

@@ -1,0 +1,294 @@
+/* ---------------- 공통 폰트 ---------------- */
+@font-face {
+    font-family: 'Pretendard';
+    src: url('/fonts/Pretendard-Medium.woff2') format('woff2');
+    font-weight: 600;
+}
+@font-face {
+    font-family: 'Pretendard';
+    src: url('/fonts/Pretendard-Bold.woff2') format('woff2');
+    font-weight: 700;
+}
+
+:root {
+    --main-color: #FF7800;
+    --page-side-margin: 44px;
+    --popup-margin: 22px;
+    --popup-padding: 15.5px;
+}
+
+/* ---------------- 기본 레이아웃 ---------------- */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 600;
+}
+
+.page-container {
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+
+    background: #FBFF01 url('/images/banners/best-review/background.svg') no-repeat top center;
+    background-size: auto 100%;
+    min-height: 100vh;
+}
+
+/* ---------------- 페이지 헤더 ---------------- */
+.page-caption {
+    margin: 49px var(--page-side-margin) 0;
+    width: calc(100% - (var(--page-side-margin) * 2));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-caption img {
+    width: 100%;
+    height: auto;
+}
+
+/* ---------------- 리뷰어 프로필 ---------------- */
+.reviewer-profile {
+    margin: 9px var(--page-side-margin) 0;
+    width: calc(100% - (var(--page-side-margin) * 2));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reviewer-profile .portrait {
+    width: 100%;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+.reviewer-profile .portrait .frame {
+    grid-area: 1 / 1;
+    width: calc(100% - 108px);
+    height: auto;
+    z-index: 1;
+}
+
+.reviewer-profile .portrait .reviewer-image {
+    grid-area: 1 / 1;
+    width: calc((100% - 108px) * 0.655);
+    align-self: end;
+    height: auto;
+    z-index: 0;
+}
+
+.reviewer-nickname {
+    margin-top: 12px;
+    color: #000;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 23px;
+    letter-spacing: 0.131px;
+}
+
+/* ---------------- 리뷰 카드 ---------------- */
+.review-card,
+.menu-info-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 17px 10.5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 19px;
+    display: flex;
+    flex-direction: column;
+}
+
+.review-card {
+    position: relative;
+    margin-top: 37px;
+}
+
+/* 좋아요 */
+.review-likes {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 18px;
+    border-radius: 200px;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--main-color);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0.131px;
+}
+
+.review-likes .like-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* 텍스트 */
+.review-text {
+    text-align: left;
+    align-self: flex-start;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0.131px;
+}
+
+/* 이미지 */
+.review-images {
+    display: flex;
+    justify-content: flex-start;
+    gap: 2px;
+    width: 100%;
+    aspect-ratio: 300 / 250;
+    margin-top: 12px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.review-images img {
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* 개수별 이미지 레이아웃 */
+.review-images img:only-child {
+    width: 100%;
+}
+.review-images:has(img:nth-child(2):last-child) img {
+    width: calc((100% - 2px) / 2);
+}
+.review-images:has(img:nth-child(3)) img {
+    width: calc(100% * 7 / 15);
+    scroll-snap-align: start;
+}
+.review-images:has(img:nth-child(3)) {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 메뉴 이름 */
+.review-menu-names {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.review-menu-names span {
+    display: flex;
+    justify-content: center;
+    padding: 5px 7px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+    letter-spacing: 0.131px;
+    background-color: #f0f0f0;
+}
+
+/* ---------------- 메뉴 정보 카드 ---------------- */
+.menu-info-card {
+    align-items: center;
+    text-align: center;
+    padding: 12px 14px;
+    margin-top: 9px;
+    margin-bottom: 53px;
+}
+
+.menu-info-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0.131px;
+}
+
+.menu-info-content {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0.131px;
+}
+
+.menu-info-cafeteria,
+.menu-info-menu {
+    color: #FFA500;
+}
+
+/* ---------------- 팝업 ---------------- */
+.popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    position: relative;
+    margin: var(--popup-margin);
+    background: #fff;
+    padding: 17px var(--popup-padding) 11px;
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popup-img {
+    display: block;
+    width: calc(100vw - (var(--popup-margin) * 2) - (var(--popup-padding) * 2));
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 5px;
+}
+
+.popup-indicator {
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.131px;
+}
+
+.popup-prev,
+.popup-next {
+    position: absolute;
+    bottom: 13px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.popup-prev { left: 17px; }
+.popup-next { right: 17px; }
+
+.popup-prev img,
+.popup-next img {
+    width: 10px;
+    height: 16px;
+}

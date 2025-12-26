@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웰컴 포인트</title>
+    <link rel="stylesheet" href="/css/welcome-point.css">
+
+    <style>
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .popup-img {
+            width: 280px;
+            max-width: 90%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+    <div class="page-main">
+        <img src="/images/banners/welcome-point/main.svg" alt="신규 가입자 웰컴 포인트 500p">
+    </div>
+
+    <div class="page-button">
+        <button id="claimButton">
+            <img src="/images/banners/welcome-point/button.svg" alt="포인트 받기">
+        </button>
+    </div>
+
+    <div class="page-line"></div>
+
+    <div class="page-comments">
+        <div class="page-comments-title">유의사항</div>
+        <ul>
+            <li>신규 가입자만 포인트를 얻을 수 있음</li>
+            <li>신규 가입자에 한해서 가입 후 한 번만 포인트 받기 가능</li>
+            <li>뽑기 기능에서 사용 바로 가능함</li>
+            <li>받은 포인트는 선물하거나 양도가 불가능함</li>
+        </ul>
+    </div>
+</div>
+
+<div id="popup" class="popup" onclick="closePopup()">
+    <div class="popup-content" onclick="event.stopPropagation()">
+        <img id="popup-img" class="popup-img" alt="알림 이미지">
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const claimButton = document.getElementById('claimButton');
+    const popup = document.getElementById('popup');
+    const popupImg = document.getElementById('popup-img');
+
+    claimButton.addEventListener('click', () => {
+        const token = window.accessToken || /*[[${accessToken}]]*/ '';
+
+        fetch('/api/events/welcome-point', {
+            method: 'POST',
+            headers: {
+                'Authorization': `${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('서버 응답 오류');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.participationCompleted) {
+                    // 웰컴포인트 지급 성공
+                    console.log('이벤트 참여 완료 (success 이미지)');
+                    popupImg.src = "/images/banners/welcome-point/success_alert.svg";
+                } else {
+                    // 웰컴포인트 이미 지급 완료 => 지급 실패
+                    console.log('이미 이벤트 참여 완료 (fail 이미지)');
+                    popupImg.src = "/images/banners/welcome-point/fail_alert.svg";
+                }
+                popup.style.display = "flex";
+            })
+            .catch(err => {
+                popupImg.src = "/images/banners/welcome-point/fail_alert.svg";
+                popup.style.display = "flex";
+            });
+    });
+
+    function closePopup() {
+        popup.style.display = "none";
+    }
+</script>
+
+</body>
+</html>
