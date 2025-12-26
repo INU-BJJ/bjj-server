@@ -110,9 +110,13 @@ public class MenuRankingService {
             }
         }
 
+        // 최근 메뉴 랭킹 업데이트 시간 가져오기
+        LocalDateTime latestUpdatedAt = menuRankingRepository.findLatestUpdatedAt();
+
         return MenuRankingsPagedRes.builder()
                 .menuRankingDetailList(menuRankingDetailList)
                 .isLastPage(menuRankingSlice.isLast())
+                .updatedAt(latestUpdatedAt)
                 .build();
     }
 
