@@ -14,8 +14,8 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -23,6 +23,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.appcenter.BJJ.domain.member.domain.QMember.member;
 import static com.appcenter.BJJ.domain.menu.domain.QMenuPair.menuPair;
@@ -35,6 +36,7 @@ import static com.appcenter.BJJ.domain.todaydiet.domain.QCafeteria.cafeteria;
 public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final EntityManager entityManager;
 
     @Override
     public Slice<ReviewDetailRes> findReviewsWithImagesAndMemberDetails(Long memberId, Long mainMenuId, Long subMenuId, Sort sort, Boolean isWithImages, Pageable pageable) {
@@ -225,42 +227,35 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
 
     @Override
     public List<BestReviewDto> findMostLikedReviewIdsInMainMenuIds(List<Long> mainMenuIds) {
-        // 서브쿼리 1: mainMenuId 별 최대 likeCount 조회
-        JPQLSubQuery<Long> maxLikeCountSubquery = JPAExpressions
-                .select(review.likeCount.max())
-                .from(review)
-                .join(review.menuPair(), menuPair)
-                .where(
-                        menuPair.mainMenuId.eq(review.menuPair().mainMenuId),
-                        review.isDeleted.isFalse()
-                );
+        String sql = """
+        SELECT main_menu_id, review_id
+        FROM (
+            SELECT
+                mp.main_menu_id AS main_menu_id,
+                r.id AS review_id,
+                ROW_NUMBER() OVER (
+                    PARTITION BY mp.main_menu_id
+                    ORDER BY r.like_count DESC, r.created_date DESC
+                ) AS rn
+            FROM review_tb r
+            JOIN menu_pair_tb mp ON r.menu_pair_id = mp.id
+            WHERE r.is_deleted = false
+              AND mp.main_menu_id IN :mainMenuIds
+        ) ranked
+        WHERE ranked.rn = 1
+        """;
 
-        // 서브쿼리 2: 최대 likeCount인 것 중에서 최대 reviewId 조회
-        JPQLSubQuery<Long> maxReviewIdSubquery = JPAExpressions
-                .select(review.id.max())
-                .from(review)
-                .join(review.menuPair(), menuPair)
-                .where(
-                        menuPair.mainMenuId.eq(review.menuPair().mainMenuId),
-                        review.likeCount.eq(maxLikeCountSubquery),
-                        review.isDeleted.isFalse()
-                );
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = entityManager.createNativeQuery(sql)
+                .setParameter("mainMenuIds", mainMenuIds)
+                .getResultList();
 
-        // 메인 쿼리
-        return jpaQueryFactory
-                .select(Projections.constructor(
-                        BestReviewDto.class,
-                        menuPair.mainMenuId,
-                        review.id
+        return results.stream()
+                .map(row -> new BestReviewDto(
+                        ((Number) row[0]).longValue(),  // main_menu_id
+                        ((Number) row[1]).longValue()   // review_id
                 ))
-                .from(review)
-                .join(review.menuPair(), menuPair)
-                .where(
-                        review.isDeleted.isFalse(),
-                        menuPair.mainMenuId.in(mainMenuIds),
-                        review.id.eq(maxReviewIdSubquery)
-                )
-                .fetch();
+                .collect(Collectors.toList());
     }
 
     @Override
