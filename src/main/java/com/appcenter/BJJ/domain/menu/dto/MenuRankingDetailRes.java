@@ -23,7 +23,7 @@ public class MenuRankingDetailRes {
     private final Long bestReviewId;
     @Schema(description = "리뷰 사진 파일 이름", example = "23fsddfesff=3vlsdd-3sdf56.png")
     private String reviewImageName;
-    @Schema(description = "랭킹 최근 업데이트 날짜", example = "2025-01-06")
+    @Schema(description = "랭킹 최근 업데이트 날짜", example = "2025-01-06", deprecated = true)
     private final LocalDate updatedAt;
 
     @Builder

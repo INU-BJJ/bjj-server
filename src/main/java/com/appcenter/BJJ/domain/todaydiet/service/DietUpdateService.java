@@ -6,6 +6,8 @@ import com.appcenter.BJJ.domain.menu.service.MenuService;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
 import com.appcenter.BJJ.domain.todaydiet.dto.DietDto;
 import com.appcenter.BJJ.domain.todaydiet.dto.DietResponseDto;
+import com.appcenter.BJJ.global.exception.CustomException;
+import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -21,6 +23,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -48,13 +51,13 @@ public class DietUpdateService {
     private final TodayDietService todayDietService;
     private final CafeteriaService cafeteriaService;
 
-    // TODO: 3회 재시도 이후 실패 시 Slack 알림 및 추가 재시도 등 필요
     @Async
     @Retryable(
         retryFor = {
                 IOException.class,              // Jsoup에서 발생하는 IO 예외
                 JsonProcessingException.class,  // ObjectMapper에서 발생하는 예외 (OpenAI 응답이 잘못 되었을 가능성)
                 TimeoutException.class,         // OpenAI에서 발생하는 타임아웃 예외
+                CustomException.class           // 크롤링 혹은 식단 업데이트 로직에서 발생하는 예외
         },
         maxAttempts = 3,
         backoff = @Backoff(delay = 300000) // 5분 뒤 재시도
@@ -66,6 +69,16 @@ public class DietUpdateService {
             log.error("[로그] 식단 업데이트 중 오류 발생", e);
             throw e; // 예외를 다시 던져야 Retryable이 동작
         }
+    }
+
+    @Recover
+    public void recoverAfterRetry(Exception e) {
+        log.error("[로그] 식단 업데이트 3회 재시도 실패", e);
+
+        // TODO: Slack 알림 등 알림 시스템 연동 필요
+        // slackNotifier.send("[ERROR] 식단 업데이트 3회 재시도 실패: " + e.getMessage());
+
+        // TODO: 추가 재시도 또는 수동 재시도 필요
     }
 
     public void updateWeeklyDiet() throws IOException {
@@ -111,8 +124,9 @@ public class DietUpdateService {
         // Class가 wrap-week-box인 div 찾기
         Element wrapWeekBox = document.getElementsByClass("wrap-week-box").first();
         if (wrapWeekBox == null) {
-            log.info("class가 'wrap-week-box'인 Element를 찾을 수 없습니다.");
-            return Collections.emptyList();
+            // 크롤링 사이트에서 아직 메뉴 등록 전일 경우 혹은 사이트 페이지 형식이 변경 된 경우
+            log.info("[로그] class가 'wrap-week-box'인 Element를 찾을 수 없습니다.");
+            throw new CustomException(ErrorCode.CRAWLING_DATA_NOT_READY);
         }
 
         Elements wrapWeeks = wrapWeekBox.select(".wrap-week");
@@ -284,10 +298,10 @@ public class DietUpdateService {
 
         String promptMessage = """
                 다음 JSON 데이터를 주어진 JSON 스키마에 맞게 변환
-                        
+                
                 데이터:
                 %s
-                                
+                
                 변환 기준:
                 각 식단에서 데이터를 다음과 같이 변환해야 함
                 - `menus`:
@@ -326,7 +340,7 @@ public class DietUpdateService {
                 - `notification`:
                     - 공지사항
                     - "오늘은 쉽니다"와 같은 공지사항이 있으면 해당 내용을 저장하고, 없으면 빈 문자열
-                                        
+                
                 결과는 JSON 스키마를 준수해아 하며, 모든 입력값에 대해 변환해야 함
                 """.formatted(dietJsonData);
 
