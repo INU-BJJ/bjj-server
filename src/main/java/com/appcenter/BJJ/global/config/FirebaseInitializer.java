@@ -31,8 +31,11 @@ public class FirebaseInitializer {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("[로그] Firebase SDK 초기화 실패 - 경로: {}", FIREBASE_SDK_PATH, e);
         }
+
+        if (!FirebaseApp.getApps().isEmpty())
+            log.info("[로그] Firebase 초기화 성공");
     }
 }
