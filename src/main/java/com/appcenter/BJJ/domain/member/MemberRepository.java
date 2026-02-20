@@ -1,8 +1,8 @@
 package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
-import com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -24,16 +24,18 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByProviderId(String providerId);
 
     @Query("""
-        SELECT new com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto(
-                ml.menuId,
-                m.id
-        )
-        FROM Member m
-        INNER JOIN MenuLike ml ON m.id = ml.memberId
-        WHERE ml.menuId IN :menuIds
-            AND m.isNotificationEnabled = true
-    """)
+                SELECT new com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto(
+                        ml.menuId,
+                        m.id
+                )
+                FROM Member m
+                INNER JOIN MenuLike ml ON m.id = ml.memberId
+                WHERE ml.menuId IN :menuIds
+                    AND m.isNotificationEnabled = true
+            """)
     List<NotifiableMemberDto> findNotifiableMembersByLikedMenus(List<Long> menuIds);
 
     boolean existsByIdAndMemberStatus(Long id, MemberStatus memberStatus);
+
+    Optional<Member> findByProviderAndProviderId(String provider, String providerId);
 }
