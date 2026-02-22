@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.member.domain;
 
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,7 +22,8 @@ public class Member {
 
     private String email;
 
-    private String provider;
+    @Enumerated(value = EnumType.STRING)
+    private SocialProvider provider;
 
     private String providerId;
 
@@ -33,23 +35,28 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MemberStatus memberStatus;
 
-    @Embedded
-    private OAuth2Client oAuth2Client;
-
     private Boolean isNotificationEnabled;
 
 
     @Builder
-    private Member(String nickname, String email, String provider, String providerId, OAuth2Client oAuth2Client) {
+    private Member(String nickname, String email, SocialProvider provider, String providerId) {
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.point = 0;
-        this.role = MemberRole.GUEST;
+        this.role = MemberRole.USER;
         this.memberStatus = MemberStatus.ACTIVE;
-        this.oAuth2Client = oAuth2Client;
         this.isNotificationEnabled = true;
+    }
+
+    public static Member create(String nickname, String email, SocialProvider provider, String providerId) {
+        return Member.builder()
+                .nickname(nickname)
+                .email(email)
+                .provider(provider)
+                .providerId(providerId)
+                .build();
     }
 
     public void updateMemberInfo(String nickname, MemberRole role) {
@@ -67,10 +74,6 @@ public class Member {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public void updateOauthToken(OAuth2Client oAuth2Client) {
-        this.oAuth2Client = oAuth2Client;
     }
 
     public void toggleNotification() {

@@ -2,6 +2,7 @@ package com.appcenter.BJJ.domain.member;
 
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmailAndProviderId(String email, String providerId);
 
-    Optional<Member> findByEmailAndProvider(String email, String provider);
+    Optional<Member> findByEmailAndProvider(String email, SocialProvider socialProvider);
 
     Optional<Member> findByNickname(String nickname);
 
@@ -37,5 +38,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByIdAndMemberStatus(Long id, MemberStatus memberStatus);
 
-    Optional<Member> findByProviderAndProviderId(String provider, String providerId);
+    Optional<Member> findByProviderAndProviderId(SocialProvider socialProvider, String providerId);
 }

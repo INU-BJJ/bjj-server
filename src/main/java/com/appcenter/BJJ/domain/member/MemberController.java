@@ -82,18 +82,6 @@ public class MemberController {
         return ResponseEntity.ok(isNotificationActive);
     }
 
-    @Operation(summary = "redirect용 (사용X)")
-    @GetMapping("/sign-up")
-    public ResponseEntity<?> resolveRedirectSign(@RequestParam String email, @RequestParam String token) {
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "redirect용 (사용X)")
-    @GetMapping("/success")
-    public ResponseEntity<?> resolveRedirectSuccess(@RequestParam String token) {
-        return ResponseEntity.noContent().build();
-    }
-
     //TODO test용이기에 이후에 지우기
     @Operation(summary = "[test] 회원가입 및 로그인")
     @PostMapping("/test/login")

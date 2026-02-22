@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.member.dto;
 
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,5 +16,5 @@ public class MemberRes {
     @Schema(description = "회원의 email", example = "asdf1234@gmail.com")
     private final String email;
     @Schema(description = "소셜로그인 제공자", example = "google")
-    private final String provider;
+    private final SocialProvider provider;
 }

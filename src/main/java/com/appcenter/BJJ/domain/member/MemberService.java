@@ -6,6 +6,7 @@ import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
@@ -102,14 +103,14 @@ public class MemberService {
     public String socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
 
-        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseGet(
+        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), SocialProvider.GOOGLE).orElseGet(
                 () -> {
                     isNicknameAvailable(loginReq.getNickname());
                     log.info("test: login nickname {}", loginReq.getNickname());
                     return Member.builder()
                             .email(loginReq.getEmail())
                             .nickname(loginReq.getNickname())
-                            .provider("bjj")
+                            .provider(SocialProvider.GOOGLE)
                             .providerId("0")
                             .build();
                 }

@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.member.dto;
 
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,5 +26,9 @@ public class SignupReq {
 
     @Schema(description = "소셜로그인 제공자", example = "google")
     @NotBlank(message = "provider와 함께 요청해주세요")
-    private final String provider;
+    private final SocialProvider provider;
+
+    @Schema(description = "소셜로그인 제공자의 Id", example = "123456789")
+    @NotBlank(message = "provider Id와 함께 요청해주세요")
+    private final String providerId;
 }
