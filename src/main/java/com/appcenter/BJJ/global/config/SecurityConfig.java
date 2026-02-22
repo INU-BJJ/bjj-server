@@ -1,8 +1,6 @@
 package com.appcenter.BJJ.global.config;
 
 import com.appcenter.BJJ.global.jwt.*;
-import com.appcenter.BJJ.global.oauth.OAuth2SuccessHandler;
-import com.appcenter.BJJ.global.oauth.OAuth2UserServiceExt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +32,6 @@ public class SecurityConfig {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final AuthenticationProviderImpl authenticationProvider;
-    private final OAuth2UserServiceExt oAuth2UserService;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
     private final TraceIdFilter traceIdFilter;
@@ -53,8 +49,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         //Todo test 관련된 거 나중에 없애기
-                        .requestMatchers("/api/members/sign-up/**", "/api/members/success/**", "/api/members/test/**", "/api/members/check-nickname").permitAll()
-                        .requestMatchers("/oauth2/authorization/**").permitAll()
+                        .requestMatchers("/api/members/sign-up", "/api/members/socialLogin", "/api/members/check-nickname", "/api/members/test/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/fonts/**", "/images/**").permitAll()
                         .requestMatchers("/policy/**").permitAll()
                         .requestMatchers("/actuator/**")
@@ -84,11 +79,6 @@ public class SecurityConfig {
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(authenticationEntryPointImpl)
                         .accessDeniedHandler(accessDeniedHandlerImpl));
-
-        http.oauth2Login(oauth -> oauth
-                //사용자 정보를 가져오기 위한 함수
-                .userInfoEndpoint(point -> point.userService(oAuth2UserService))
-                .successHandler(oAuth2SuccessHandler));
 
         return http.build();
     }
