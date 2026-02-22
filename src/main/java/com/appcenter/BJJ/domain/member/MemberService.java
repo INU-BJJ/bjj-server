@@ -6,10 +6,10 @@ import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.SocialProvider;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
-import com.appcenter.BJJ.global.oauth.OAuth2Unlink;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,26 +26,29 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
-    private final OAuth2Unlink oAuth2Unlink;
     private final InventoryRepository inventoryRepository;
+
+    public String socialLogin(SocialLoginReq socialLoginReq) {
+        Member member = memberRepository.findByProviderAndProviderId(socialLoginReq.getProvider(), socialLoginReq.getProviderId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND) // 새로운 회원 => 프론트에게 404를 보내고 회원가입 유도
+        );
+
+        return this.getToken(member.getProviderId());
+    }
 
     @Transactional
     public String signUp(SignupReq signupReq) {
-        isNicknameAvailable(signupReq.getNickname());
+        this.isNicknameAvailable(signupReq.getNickname());
 
-        Member member = memberRepository.findByEmailAndProvider(signupReq.getEmail(), signupReq.getProvider()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-        );
-        member.updateMemberInfo(signupReq.getNickname(), MemberRole.USER);
-        log.info("MemberService.signup() - ROLE_USER로 변경 완료 및 회원가입 성공");
+        //회원 생성
+        Member member = Member.create(signupReq.getNickname(), signupReq.getEmail(), signupReq.getProvider(), signupReq.getProviderId());
+        memberRepository.save(member);
 
         //기본 아이템 새성
         inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.CHARACTER));
         inventoryRepository.save(Inventory.createDefault(member.getId(), ItemType.BACKGROUND));
 
-        String accessToken = getToken(member.getProviderId(), JwtProvider.validAccessTime);
-        log.info("MemberService.signup() - 토큰 발급 성공");
-        return accessToken;
+        return this.getToken(member.getProviderId());
     }
 
     public MemberRes getMember(Long id) {
@@ -61,9 +64,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(MemberOAuthVO memberOAuthVO) {
-        // [notice] 이후 member 관련된 내용도 다같이 지우기 //
-        Long memberId = oAuth2Unlink.unlinkHandler(memberOAuthVO);
+    public void deleteMember(Long memberId) {
+        //TODO 이후 member 관련된 내용도 다같이 지우기
         if (!memberRepository.existsById(memberId)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
@@ -71,14 +73,11 @@ public class MemberService {
         log.info("MemberService.deleteMember() - 회원 탈퇴 성공");
     }
 
-    private String getToken(String providerId, Long time) {
+    private String getToken(String providerId) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(providerId, "");
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        log.info("MemberService-getToken: 회원이 존재합니다.");
 
-        String token = jwtProvider.generateToken(authentication, time);
-        log.info("MemberService-getToken: 토큰 발급이 됐습니다.");
-        return token;
+        return jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
     }
 
     public boolean isNicknameAvailable(String nickname) {
@@ -104,14 +103,14 @@ public class MemberService {
     public String socialLogin(LoginReq loginReq) {
         log.info("MemberService.login() - 진입");
 
-        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), "bjj").orElseGet(
+        Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), SocialProvider.GOOGLE).orElseGet(
                 () -> {
                     isNicknameAvailable(loginReq.getNickname());
                     log.info("test: login nickname {}", loginReq.getNickname());
                     return Member.builder()
                             .email(loginReq.getEmail())
                             .nickname(loginReq.getNickname())
-                            .provider("bjj")
+                            .provider(SocialProvider.GOOGLE)
                             .providerId("0")
                             .build();
                 }
@@ -129,7 +128,7 @@ public class MemberService {
                 });
 
 
-        return getToken(member.getProviderId(), JwtProvider.validAccessTime);
+        return getToken(member.getProviderId());
     }
 
     @Transactional

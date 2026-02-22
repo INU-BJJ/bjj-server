@@ -23,23 +23,31 @@ import java.util.Map;
 public class MemberController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원가입",
+    @Operation(summary = "소셜로그인",
             description = """
-                    - 소셜로그인 처음 이용시 연결\s
-                    - request : SignupReq\s""")
+                    - 소셜로그인 인증 처리\s
+                    - 가입된 회원의 경우, AccessToken 발급\s
+                    - 가입되지 않은 회원의 경우, 404 Not Found 반환\s
+                    - request : SocialLoginReq\s""")
+    @PostMapping("/socialLogin")
+    public ResponseEntity<Map<String, String>> socialLogin(@RequestBody SocialLoginReq socialLoginReq) {
+        Map<String, String> socialLoginRes = new HashMap<>();
+        socialLoginRes.put("token", memberService.socialLogin(socialLoginReq));
+        return ResponseEntity.ok(socialLoginRes);
+    }
+
+    @Operation(summary = "회원가입",
+            description = "- request : SignupReq")
     @PostMapping("/sign-up")
     public ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody SignupReq signupReq) {
-        log.info("MemberController.signUp() - 진입");
         Map<String, String> signupRes = new HashMap<>();
         signupRes.put("token", memberService.signUp(signupReq));
-        log.info("MemberController.signUp() - 회원가입 성공");
         return ResponseEntity.ok(signupRes);
     }
 
     @Operation(summary = "회원 조회")
     @GetMapping
     public ResponseEntity<MemberRes> getMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        log.info("MemberController.getMember() - 진입");
         return ResponseEntity.ok(memberService.getMember(userDetails.getMember().getId()));
     }
 
@@ -61,7 +69,7 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
     public ResponseEntity<?> deleteMember(@Valid @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        memberService.deleteMember(MemberOAuthVO.from(userDetails.getMember()));
+        memberService.deleteMember(userDetails.getMember().getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -72,18 +80,6 @@ public class MemberController {
 
         boolean isNotificationActive = memberService.toggleNotification(userDetails.getMember().getId());
         return ResponseEntity.ok(isNotificationActive);
-    }
-
-    @Operation(summary = "redirect용 (사용X)")
-    @GetMapping("/sign-up")
-    public ResponseEntity<?> resolveRedirectSign(@RequestParam String email, @RequestParam String token) {
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "redirect용 (사용X)")
-    @GetMapping("/success")
-    public ResponseEntity<?> resolveRedirectSuccess(@RequestParam String token) {
-        return ResponseEntity.noContent().build();
     }
 
     //TODO test용이기에 이후에 지우기
