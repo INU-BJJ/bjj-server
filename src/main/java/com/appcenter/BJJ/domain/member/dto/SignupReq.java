@@ -25,7 +25,6 @@ public class SignupReq {
     private final String email;
 
     @Schema(description = "소셜로그인 제공자", example = "GOOGLE")
-    @NotBlank(message = "provider와 함께 요청해주세요")
     private final SocialProvider provider;
 
     @Schema(description = "소셜로그인 제공자의 Id", example = "123456789")
