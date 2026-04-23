@@ -61,4 +61,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Modifying
     @Transactional
     void deleteByMemberIdAndItemIdxAndItemType(Long memberId, Integer itemIdx, ItemType itemType);
+
+    void deleteAllByMemberId(Long memberId);
 }
