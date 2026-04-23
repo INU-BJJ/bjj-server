@@ -172,4 +172,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
         WHERE iv.memberId IN :memberIds AND iv.isWearing = true
     """)
     List<MemberCharacterImageDto> findMemberCharacterImages(List<Long> memberIds);
+
+    List<Review> findAllByMemberId(Long memberId);
 }

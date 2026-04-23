@@ -208,6 +208,11 @@ public class ReviewService {
         return menuPairId;
     }
 
+    @Transactional
+    public void deleteByMemberId(Long memberId) {
+        reviewRepository.findAllByMemberId(memberId).forEach(Review::deleteReview);
+    }
+
     public ReviewImagesPagedRes findReviewImagesByMenuPairId(Long menuPairId, int pageNumber, int pageSize) {
         log.info("[로그] findReviewImagesByMenuPairId(), menuPairId : {}, pageNumber : {}, pageSize: {}", menuPairId, pageNumber, pageSize);
 
