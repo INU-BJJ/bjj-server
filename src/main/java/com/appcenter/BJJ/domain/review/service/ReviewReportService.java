@@ -76,7 +76,7 @@ public class ReviewReportService {
             member.updateMemberStatus(MemberStatus.SUSPENDED);
             memberTaskService.addOrUpdateTask(member.getId(), now, now.plusDays(7));
 
-            delete(reviewId); //리뷰 신고 내역 sofe delete
+            delete(reviewId); //리뷰 신고 내역 soft delete
             reviewService.delete(reviewId); // 누적 신고 당한 리뷰 삭제
         }
     }
