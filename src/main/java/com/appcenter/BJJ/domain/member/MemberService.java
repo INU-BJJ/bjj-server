@@ -3,10 +3,14 @@ package com.appcenter.BJJ.domain.member;
 import com.appcenter.BJJ.domain.item.domain.Inventory;
 import com.appcenter.BJJ.domain.item.enums.ItemType;
 import com.appcenter.BJJ.domain.item.repository.InventoryRepository;
+import com.appcenter.BJJ.domain.item.service.InventoryService;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.dto.*;
 import com.appcenter.BJJ.domain.member.enums.MemberRole;
+import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.member.enums.SocialProvider;
+import com.appcenter.BJJ.domain.notification.service.DeviceTokenService;
+import com.appcenter.BJJ.domain.review.service.ReviewService;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import com.appcenter.BJJ.global.jwt.JwtProvider;
@@ -26,7 +30,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final InventoryService inventoryService;
     private final InventoryRepository inventoryRepository;
+    private final ReviewService reviewService;
+    private final DeviceTokenService deviceTokenService;
 
     public String socialLogin(SocialLoginReq socialLoginReq) {
         Member member = memberRepository.findByProviderAndProviderId(socialLoginReq.getProvider(), socialLoginReq.getProviderId()).orElseThrow(
@@ -63,14 +70,21 @@ public class MemberService {
                 .build();
     }
 
+    //Soft Delete
     @Transactional
     public void deleteMember(Long memberId) {
-        //TODO 이후 member 관련된 내용도 다같이 지우기
-        if (!memberRepository.existsById(memberId)) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        memberRepository.deleteById(memberId);
-        log.info("MemberService.deleteMember() - 회원 탈퇴 성공");
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        //회원과 관련된 도메인 삭제
+        //리뷰 작성 : 소프트 삭제 / 리뷰 신고, 리뷰 좋아요, 이벤트 : 남기기 (수집용) / 인벤토리, 알림 : 하드 삭제
+        reviewService.deleteByMemberId(memberId);
+        inventoryService.delete((memberId));
+        deviceTokenService.delete(memberId);
+
+        //회원 상태를 탈퇴 상태로 변경
+        member.updateMemberStatus(MemberStatus.DELETE);
     }
 
     private String getToken(String providerId) {
