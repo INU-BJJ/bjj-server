@@ -80,7 +80,6 @@ public class Member {
         this.isNotificationEnabled = !this.isNotificationEnabled;
     }
 
-    //TODO test용이기에 이후에 없애기
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
     }

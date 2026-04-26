@@ -38,4 +38,9 @@ public class InventoryService {
         //설정한 아이템 착용 활성화
         inventory.toggleIsWearing();
     }
+
+    @Transactional
+    public void delete(Long memberId) {
+        inventoryRepository.deleteAllByMemberId(memberId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.appcenter.BJJ.domain.member.schedule;
 
+import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,20 +25,25 @@ public class MemberTask {
     @Enumerated(EnumType.STRING)
     private MemberTaskStatus memberTaskStatus;
 
+    @Enumerated(EnumType.STRING)
+    private MemberTaskType memberTaskType;
+
     @Builder
-    private MemberTask(Long memberId, LocalDateTime startAt, LocalDateTime endAt, MemberTaskStatus memberTaskStatus) {
+    private MemberTask(Long memberId, LocalDateTime startAt, LocalDateTime endAt, MemberTaskStatus memberTaskStatus, MemberTaskType memberTaskType) {
         this.memberId = memberId;
         this.startAt = startAt;
         this.endAt = endAt;
         this.memberTaskStatus = memberTaskStatus;
+        this.memberTaskType = memberTaskType;
     }
 
-    public static MemberTask create(Long memberId, LocalDateTime startAt, LocalDateTime endAt) {
+    public static MemberTask create(Long memberId, LocalDateTime startAt, LocalDateTime endAt, MemberTaskType memberTaskType) {
         return MemberTask.builder()
                 .memberId(memberId)
                 .startAt(startAt)
                 .endAt(endAt)
                 .memberTaskStatus(MemberTaskStatus.PENDING)
+                .memberTaskType(memberTaskType)
                 .build();
     }
 
@@ -45,7 +51,7 @@ public class MemberTask {
         this.endAt = endAt;
     }
 
-    public void updateMemberTaskStatue(MemberTaskStatus memberTaskStatus) {
-        this.memberTaskStatus = memberTaskStatus;
+    public void complete() {
+        this.memberTaskStatus = MemberTaskStatus.COMPLETE;
     }
 }

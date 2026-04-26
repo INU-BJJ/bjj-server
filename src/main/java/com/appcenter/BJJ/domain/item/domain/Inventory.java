@@ -41,7 +41,7 @@ public class Inventory {
         this.expiresAt = expiresAt;
     }
 
-    public static Inventory createDefault(Long memberId, ItemType itemType){
+    public static Inventory createDefault(Long memberId, ItemType itemType) {
         return Inventory.builder()
                 .memberId(memberId)
                 .itemIdx(0)

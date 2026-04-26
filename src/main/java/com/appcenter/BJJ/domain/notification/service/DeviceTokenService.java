@@ -59,4 +59,9 @@ public class DeviceTokenService {
         LocalDateTime now = LocalDateTime.now();
         tokens.forEach(token -> token.updateLastUsedAt(now));
     }
+
+    @Transactional
+    public void delete(Long memeberId) {
+        deviceTokenRepository.deleteAllByMemberId(memeberId);
+    }
 }

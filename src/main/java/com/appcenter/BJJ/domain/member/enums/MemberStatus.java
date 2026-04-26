@@ -23,6 +23,13 @@ public enum MemberStatus {
             //밴 상태
             throw new CustomException(ErrorCode.MEMBER_BANNED);
         }
+
+    }, DELETE {
+        @Override
+        public void valid() {
+            //탈퇴 상태
+            throw new CustomException(ErrorCode.MEMBER_DELETE);
+        }
     };
 
     public abstract void valid();
