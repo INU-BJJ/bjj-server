@@ -2,7 +2,9 @@ package com.appcenter.BJJ.domain.member.schedule;
 
 import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +12,7 @@ import java.util.Optional;
 public interface MemberTaskRepository extends JpaRepository<MemberTask, Long> {
     List<MemberTask> findAllByMemberTaskStatus(MemberTaskStatus memberTaskStatus);
 
-    @Query("SELECT m FROM MemberTask m WHERE m.memberTaskStatus = 'PENDING' AND m.id = :memberId AND m.memberTaskType = :memberTaskType")
+    @Query("SELECT m FROM MemberTask m WHERE m.memberTaskStatus = 'PENDING' AND m.memberId = :memberId AND m.memberTaskType = :memberTaskType")
     Optional<MemberTask> findPendingByMemberIdAndMemberTaskType(Long memberId, MemberTaskType memberTaskType);
 
 
@@ -18,4 +20,9 @@ public interface MemberTaskRepository extends JpaRepository<MemberTask, Long> {
     Long countByMemberId(Long memberId);
 
     void deleteAllByMemberId(Long memberId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM MemberTask m WHERE m.memberTaskStatus = 'PENDING' AND m.memberId = :memberId AND m.memberTaskType = :memberTaskType")
+    void deleteByMemberIdAndMemberTaskType(Long memberId, MemberTaskType memberTaskType);
 }

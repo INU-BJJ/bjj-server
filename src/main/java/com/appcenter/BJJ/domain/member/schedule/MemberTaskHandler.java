@@ -4,12 +4,15 @@ import com.appcenter.BJJ.domain.item.service.InventoryService;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import com.appcenter.BJJ.domain.notification.service.DeviceTokenService;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 /**
  * 회원 관련 스케줄링 작업의 실제 비즈니스 로직을 처리하는 핸들러 클래스
@@ -58,5 +61,16 @@ public class MemberTaskHandler {
         inventoryService.delete((memberId));
         deviceTokenService.delete(memberId);
         memberTaskRepository.deleteAllByMemberId(memberId);
+    }
+
+    public boolean isWithinDeletePeriod(Long memberId, LocalDateTime time) {
+        return memberTaskRepository.findPendingByMemberIdAndMemberTaskType(memberId, MemberTaskType.DELETE)
+                .map(task -> task.getEndAt().isAfter(time))
+                .orElse(false);
+    }
+
+    @Transactional
+    public void deleteTask(Long memberId, MemberTaskType memberTaskType) {
+        memberTaskRepository.deleteByMemberIdAndMemberTaskType(memberId, memberTaskType);
     }
 }

@@ -9,6 +9,7 @@ import com.appcenter.BJJ.domain.member.enums.MemberRole;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
 import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import com.appcenter.BJJ.domain.member.enums.SocialProvider;
+import com.appcenter.BJJ.domain.member.schedule.MemberTaskHandler;
 import com.appcenter.BJJ.domain.member.schedule.MemberTaskService;
 import com.appcenter.BJJ.global.exception.CustomException;
 import com.appcenter.BJJ.global.exception.ErrorCode;
@@ -33,11 +34,20 @@ public class MemberService {
     private final JwtProvider jwtProvider;
     private final InventoryRepository inventoryRepository;
     private final MemberTaskService memberTaskService;
+    private final MemberTaskHandler memberTaskHandler;
 
+    @Transactional
     public String socialLogin(SocialLoginReq socialLoginReq) {
         Member member = memberRepository.findByProviderAndProviderId(socialLoginReq.getProvider(), socialLoginReq.getProviderId()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND) // 새로운 회원 => 프론트에게 404를 보내고 회원가입 유도
         );
+
+        LocalDateTime now = LocalDateTime.now();
+        if (member.getMemberStatus() == MemberStatus.DELETE && memberTaskHandler.isWithinDeletePeriod(member.getId(), now)) {
+            // 탈퇴 유예 기간 내 재가입 시 기존 탈퇴를 무효화하고 재가입을 허용
+            member.updateMemberStatus(MemberStatus.ACTIVE);
+            memberTaskHandler.deleteTask(member.getId(), MemberTaskType.DELETE);
+        }
 
         return this.getToken(member.getProviderId());
     }
