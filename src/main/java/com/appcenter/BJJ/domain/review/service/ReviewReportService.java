@@ -3,6 +3,7 @@ package com.appcenter.BJJ.domain.review.service;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import com.appcenter.BJJ.domain.member.schedule.MemberTaskRepository;
 import com.appcenter.BJJ.domain.member.schedule.MemberTaskService;
 import com.appcenter.BJJ.domain.review.domain.ReviewReport;
@@ -65,7 +66,7 @@ public class ReviewReportService {
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         //회원 밴 체크 (COMPLETE인 MemberTask가 3개 이상이면 밴 대상)
-        if(memberTaskRepository.countByMemberId(member.getId()) >= BAN_COUNT) {
+        if (memberTaskRepository.countByMemberId(member.getId()) >= BAN_COUNT) {
             member.updateMemberStatus(MemberStatus.BAN);
             return;
         }
@@ -74,7 +75,7 @@ public class ReviewReportService {
         if (reviewReportRepository.countReviewReportByReviewId(reviewId) >= REPORT_COUNT) {
             LocalDateTime now = LocalDateTime.now();
             member.updateMemberStatus(MemberStatus.SUSPENDED);
-            memberTaskService.addOrUpdateTask(member.getId(), now, now.plusDays(7));
+            memberTaskService.addOrUpdateTask(member.getId(), now, now.plusDays(7), MemberTaskType.SUSPENDED);
 
             delete(reviewId); //리뷰 신고 내역 soft delete
             reviewService.delete(reviewId); // 누적 신고 당한 리뷰 삭제

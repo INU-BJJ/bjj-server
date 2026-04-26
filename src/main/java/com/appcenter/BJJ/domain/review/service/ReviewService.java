@@ -5,6 +5,7 @@ import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.member.MemberRepository;
 import com.appcenter.BJJ.domain.member.domain.Member;
 import com.appcenter.BJJ.domain.member.enums.MemberStatus;
+import com.appcenter.BJJ.domain.member.enums.MemberTaskType;
 import com.appcenter.BJJ.domain.member.schedule.MemberTask;
 import com.appcenter.BJJ.domain.member.schedule.MemberTaskRepository;
 import com.appcenter.BJJ.domain.menu.domain.MenuPair;
@@ -61,7 +62,7 @@ public class ReviewService {
 
         //정지 당한 회원의 리뷰 작성 제재
         if (memberRepository.existsByIdAndMemberStatus(memberId, MemberStatus.SUSPENDED)) {
-            MemberTask memberTask = memberTaskRepository.findPendingByMemberId(memberId).orElseThrow(
+            MemberTask memberTask = memberTaskRepository.findPendingByMemberIdAndMemberTaskType(memberId, MemberTaskType.SUSPENDED).orElseThrow(
                     () -> new CustomException(ErrorCode.MEMBER_TASK_NOT_FOUND)
             );
             throw new ReviewSuspensionException(memberTask.getStartAt(), memberTask.getEndAt());
