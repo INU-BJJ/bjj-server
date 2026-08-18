@@ -1,6 +1,6 @@
 package com.appcenter.BJJ.domain.todaydiet.service;
 
-import com.appcenter.BJJ.domain.image.Image;
+import com.appcenter.BJJ.domain.image.ImageDto;
 import com.appcenter.BJJ.domain.image.ImageRepository;
 import com.appcenter.BJJ.domain.review.utils.ReviewPolicy;
 import com.appcenter.BJJ.domain.todaydiet.domain.TodayDiet;
@@ -17,6 +17,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,14 +36,16 @@ public class TodayDietService {
         List<TodayDietRes> todayDietResList = todayDietRepository.findTodayDietsByCafeteriaName(cafeteriaName, memberId);
         log.info("[로그] todayDietResList.size() : {}", todayDietResList.size());
 
-        todayDietResList.forEach(todayDietRes -> {
-            Image image = imageRepository.findFirstImageOfMostLikedReview(todayDietRes.getMenuPairId());
+        List<ImageDto> images = imageRepository.findFirstImagesOfMostLikedReviewInMenuPairIds(todayDietResList.stream().map(TodayDietRes::getMenuPairId).toList());
+        Map<Long, String> imageMap = images.stream()
+                .collect(Collectors.toMap(
+                        ImageDto::getMenuId,
+                        ImageDto::getImageName
+                ));
 
-            if (image != null) {
-                todayDietRes.setReviewImageName(image.getName());
-            }
-            log.info("[로그] todayDietRes.getReviewImageName() : {}", todayDietRes.getReviewImageName());
-        });
+        for(TodayDietRes diet : todayDietResList) {
+            diet.setReviewImageName(imageMap.get(diet.getMenuPairId()));
+        }
 
         return todayDietResList;
     }

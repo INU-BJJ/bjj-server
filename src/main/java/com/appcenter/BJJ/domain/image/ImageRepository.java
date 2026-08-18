@@ -5,28 +5,53 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface ImageRepository extends JpaRepository<Image, Long>, ImageRepositoryCustom{
+public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Query("SELECT i FROM Image i JOIN FETCH i.review r WHERE i.review.id IN :reviewIdList")
     List<Image> findByReviewIdList(List<Long> reviewIdList);
 
     @Query(value = """
-        SELECT m.menuId,
-               (
-                 SELECT i2.name
-                 FROM review_tb r2
-                 JOIN menu_pair_tb mp2 ON mp2.id = r2.menu_pair_id
-                 JOIN image_tb i2      ON i2.review_id = r2.id
-                 WHERE mp2.main_menu_id = m.menuId
-                   AND r2.is_deleted = false
-                 ORDER BY r2.like_count DESC, r2.created_date DESC, i2.id ASC  -- 베스트 리뷰의 첫 이미지
-                 LIMIT 1
-               ) AS imageName
-        FROM (
-          SELECT DISTINCT main_menu_id AS menuId
-          FROM menu_pair_tb
-          WHERE main_menu_id IN :mainMenuIds
-        ) m;
-    """, nativeQuery = true)
+                SELECT m.menuId,
+                       (
+                         SELECT i2.name
+                         FROM review_tb r2
+                         JOIN menu_pair_tb mp2 ON mp2.id = r2.menu_pair_id
+                         JOIN image_tb i2      ON i2.review_id = r2.id
+                         WHERE mp2.main_menu_id = m.menuId
+                           AND r2.is_deleted = false
+                         ORDER BY r2.like_count DESC, r2.created_date DESC, i2.id ASC  -- 베스트 리뷰의 첫 이미지
+                         LIMIT 1
+                       ) AS imageName
+                FROM (
+                  SELECT DISTINCT main_menu_id AS menuId
+                  FROM menu_pair_tb
+                  WHERE main_menu_id IN :mainMenuIds
+                ) m;
+            """, nativeQuery = true)
     List<ImageDto> findFirstImagesOfMostLikedReviewInMainMenuIds(List<Long> mainMenuIds);
+
+
+    @Query(value = """
+            SELECT rank_review.menuId, rank_review.imageName
+            FROM (
+                SELECT
+                    r.menu_pair_id AS menuId,
+                    i.name AS imageName,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY r.menu_pair_id
+                        ORDER BY
+                            r.like_count DESC,
+                            r.created_date DESC,
+                            i.id ASC
+                    ) AS r_rank
+                FROM image_tb i
+                JOIN review_tb r
+                    ON i.review_id = r.id
+                WHERE r.menu_pair_id IN :menuPairIds
+                  AND r.is_deleted = false
+            ) rank_review
+            WHERE rank_review.r_rank = 1
+            """, nativeQuery = true)
+    List<ImageDto> findFirstImagesOfMostLikedReviewInMenuPairIds(List<Long> menuPairIds);
+
 }
