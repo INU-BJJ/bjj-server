@@ -92,7 +92,7 @@ dependencies {
     implementation 'net.minidev:json-smart:2.5.2'
 
     //P6Spy
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.2'
 
 }
 
