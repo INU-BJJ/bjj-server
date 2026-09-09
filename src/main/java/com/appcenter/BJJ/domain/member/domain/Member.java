@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member_tb")
+@Table(name = "member_tb", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_member_provider_identity", columnNames = {"provider", "provider_id"})
+})
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
