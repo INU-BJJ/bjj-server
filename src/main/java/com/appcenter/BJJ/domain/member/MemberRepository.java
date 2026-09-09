@@ -22,7 +22,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.nickname = :nickname AND m.role = 'USER'")
     boolean existsByNickname(String nickname);
 
-    boolean existsByProviderId(String providerId);
+    boolean existsByProviderAndProviderId(SocialProvider provider, String providerId);
 
     @Query("""
                 SELECT new com.appcenter.BJJ.domain.notification.dto.NotifiableMemberDto(
