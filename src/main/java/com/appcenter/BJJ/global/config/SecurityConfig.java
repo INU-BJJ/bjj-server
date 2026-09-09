@@ -2,6 +2,7 @@ package com.appcenter.BJJ.global.config;
 
 import com.appcenter.BJJ.global.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -69,6 +70,7 @@ public class SecurityConfig {
                                             ip.equals("172.30.0.5") // 운영 Prometheus
                             );
                         })
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated())
 
                 .sessionManagement(session -> session
