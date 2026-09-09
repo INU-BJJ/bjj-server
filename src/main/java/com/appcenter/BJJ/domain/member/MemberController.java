@@ -54,7 +54,8 @@ public class MemberController {
     @Operation(summary = "닉네임 중복 확인")
     @PostMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@Valid @RequestParam String nickname) {
-        return ResponseEntity.ok(memberService.isNicknameAvailable(nickname));
+        memberService.validateNicknameAvailable(nickname);
+        return ResponseEntity.ok(true);
     }
 
     @Operation(summary = "닉네임 수정")
