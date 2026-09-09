@@ -41,7 +41,7 @@ public enum ErrorCode {
     //409 Conflict
     EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-1", "이미 등록된 이메일입니다."),
     NICKNAME_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-2", "이미 등록된 닉네임입니다."),
-    ERROR_SOCIAL_LOGIN_CONFLICT(HttpStatus.CONFLICT, "409-3", "해당 소셜 계정은 이미 다른 계정에 연결되어 있습니다."),
+    ACCOUNT_ALREADY_REGISTERED(HttpStatus.CONFLICT, "409-3", "이미 등록된 계정입니다."),
     DUPLICATE_REPORT(HttpStatus.CONFLICT, "409-4", "이미 신고한 리뷰입니다."),
     REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-5", "이미 동일 시간 대에 작성된 리뷰가 있습니다."),
 

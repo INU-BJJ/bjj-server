@@ -54,7 +54,12 @@ public class MemberService {
 
     @Transactional
     public String signUp(SignupReq signupReq) {
-        this.isNicknameAvailable(signupReq.getNickname());
+        //이미 존재하는 회원일 경우
+        if (memberRepository.existsByProviderAndProviderId(signupReq.getProvider(), signupReq.getProviderId()))
+            throw new CustomException(ErrorCode.ACCOUNT_ALREADY_REGISTERED);
+
+        //닉네임 사용가능 여부 체크
+        this.validateNicknameAvailable(signupReq.getNickname());
 
         //회원 생성
         Member member = Member.create(signupReq.getNickname(), signupReq.getEmail(), signupReq.getProvider(), signupReq.getProviderId());
@@ -99,16 +104,15 @@ public class MemberService {
         return jwtProvider.generateToken(authentication, JwtProvider.validAccessTime);
     }
 
-    public boolean isNicknameAvailable(String nickname) {
+    public void validateNicknameAvailable(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new CustomException(ErrorCode.NICKNAME_ALREADY_REGISTERED);
         }
-        return true;
     }
 
     @Transactional
     public String changeNickname(String currentNickname, String newNickname) {
-        isNicknameAvailable(newNickname);
+        validateNicknameAvailable(newNickname);
 
         Member member = memberRepository.findByNickname(currentNickname).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -120,12 +124,9 @@ public class MemberService {
     //TODO test용이기에 이후에 없애기
     @Transactional
     public String socialLogin(LoginReq loginReq) {
-        log.info("MemberService.login() - 진입");
-
         Member member = memberRepository.findByEmailAndProvider(loginReq.getEmail(), SocialProvider.GOOGLE).orElseGet(
                 () -> {
-                    isNicknameAvailable(loginReq.getNickname());
-                    log.info("test: login nickname {}", loginReq.getNickname());
+                    validateNicknameAvailable(loginReq.getNickname());
                     return Member.builder()
                             .email(loginReq.getEmail())
                             .nickname(loginReq.getNickname())
